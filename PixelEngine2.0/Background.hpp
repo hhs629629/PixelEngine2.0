@@ -1,11 +1,10 @@
-
 #include <SDL_gpu.h>
 #include <vector>
 
 class BackgroundLayer {
 public:
     std::vector<SDL_Surface*> surface;
-    std::vector<GPU_Image*> texture; // ÅØ½ºÃÄ µ¥ÀÌÅÍ¸¦ °¡Áö°í ÀÖ´Â GPU_Image
+    std::vector<GPU_Image*> texture; // í…ìŠ¤ì³ ë°ì´í„°ë¥¼ ê°€ì§€ê³  ìˆëŠ” GPU_Image
     float parralaxX;
     float parralaxY;
     float moveX;

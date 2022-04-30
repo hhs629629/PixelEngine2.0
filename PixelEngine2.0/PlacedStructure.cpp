@@ -6,4 +6,4 @@ PlacedStructure::PlacedStructure(Structure base, int x, int y) {
     this->x = x;
     this->y = y;
 }
-//생성자
+// 생성자

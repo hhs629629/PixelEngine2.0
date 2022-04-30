@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-class PlacedStructure {//Å¬·¡½º
+class PlacedStructure {//Ã…Â¬Â·Â¡Â½Âº
 public:
     Structure base;
     int x;

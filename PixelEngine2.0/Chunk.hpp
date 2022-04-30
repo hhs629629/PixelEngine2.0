@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 #ifndef INC_Tiles
 #include "Tiles.hpp"
 #endif // !INC_Tiles

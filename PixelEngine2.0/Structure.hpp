@@ -9,9 +9,9 @@ class Structure {
 public:
     MaterialInstance* tiles;
     int w;
-    int h;//Width, Height·Î ÀüÃ¼ StructureÀÇ Å©±â ¼³Á¤
+    int h;//Width, Heightë¡œ ì „ì²´ Structureì˜ í¬ê¸° ì„¤ì •
 
     Structure(int w, int h, MaterialInstance* tiles);
     Structure(SDL_Surface* texture, Material templ);
-    Structure() = default;//ÀÏ¹İ »ı¼ºÀÚÀÇ ¼±¾ğÀ¸·Î ÀÎÇÑ µğÆúÆ® »ı¼ºÀÚÀÇ »èÁ¦¸¦ ¸·±âÀ§ÇÔ
+    Structure() = default;//ì¼ë°˜ ìƒì„±ìì˜ ì„ ì–¸ìœ¼ë¡œ ì¸í•œ ë””í´íŠ¸ ìƒì„±ìì˜ ì‚­ì œë¥¼ ë§‰ê¸°ìœ„í•¨
 };

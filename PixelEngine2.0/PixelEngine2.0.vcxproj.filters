@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="World">
+      <UniqueIdentifier>{39597d11-204b-427a-90cd-81e193e467ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="World\Structures">
+      <UniqueIdentifier>{44a3d149-6c3e-46d8-b2b8-0aa06860caed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="World\Materials">
+      <UniqueIdentifier>{6f53aaea-846f-4b47-be4a-1cee50a3e983}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="World\Generation">
+      <UniqueIdentifier>{7982a6ce-866c-46c0-a83a-958060bf7d3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{1f04a6b0-270a-4106-a492-e01cff992a8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library">
+      <UniqueIdentifier>{d055a2e1-c5a0-4233-a778-671f66285f69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library\imgui">
+      <UniqueIdentifier>{1eec7f6e-4933-4017-81fd-cc569c1bd35d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="objects">
+      <UniqueIdentifier>{97bd2f5d-5cc1-4be8-a975-9b11ac228fe9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="PlacedStructure.cpp">
+      <Filter>World\Structures</Filter>
+    </ClCompile>
+    <ClCompile Include="Structure.cpp">
+      <Filter>World\Structures</Filter>
+    </ClCompile>
+    <ClCompile Include="Structures.cpp">
+      <Filter>World\Structures</Filter>
+    </ClCompile>
+    <ClCompile Include="Background.cpp">
+      <Filter>World</Filter>
+    </ClCompile>
+    <ClCompile Include="Chunk.cpp">
+      <Filter>World</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="PlacedStructure.hpp">
+      <Filter>World\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Structure.hpp">
+      <Filter>World\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Structures.hpp">
+      <Filter>World\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Chunk.hpp">
+      <Filter>World</Filter>
+    </ClInclude>
+    <ClInclude Include="Background.hpp">
+      <Filter>World</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

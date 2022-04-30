@@ -1,13 +1,8 @@
-
 #include "Chunk.hpp"
 #include <string>
 #include <vector>
 #include <sstream>
 #include "UTime.hpp"
-
-#define BUILD_WITH_EASY_PROFILER
-#include <easy/profiler.h>
-#include "ProfilerConfig.hpp"
 
 #include <lz4.h>
 
@@ -20,7 +15,7 @@ Chunk::Chunk(int x, int y, char* worldName) {
     this->x = x;
     this->y = y;
 
-    this->fname = std::string(worldName) + "/chunks/chunk_" + std::to_string(x) + "_" + std::to_string(y);//worldName기반으로 fname 생성 string의 구조로 보아 file name으로 추정
+    this->fname = std::string(worldName) + "/chunks/chunk_" + std::to_string(x) + "_" + std::to_string(y);// worldName기반으로 fname 생성 string의 구조로 보아 file name으로 추정
 }
 
 Chunk::~Chunk() {
@@ -45,10 +40,7 @@ void Chunk::loadMeta() {
 //MaterialInstanceData* Chunk::readBuf = (MaterialInstanceData*)malloc(CHUNK_W * CHUNK_H * 2 * sizeof(MaterialInstanceData));
 
 void Chunk::read() {
-    EASY_FUNCTION(); //EasyProfiler의 프로파일링을 위한 함수 EASY_ 는 모두 프로파일을 위한 작업이라고 보면 됨
 
-    
-    EASY_BLOCK("create arrays");
     // use malloc here instead of new so it doesn't call the constructor
     MaterialInstance* tiles = (MaterialInstance*)malloc(CHUNK_W * CHUNK_H * sizeof(MaterialInstance));
     if(tiles == NULL) throw std::runtime_error("Failed to allocate memory for Chunk tiles array.");
@@ -57,12 +49,10 @@ void Chunk::read() {
     //MaterialInstance* tiles = new MaterialInstance[CHUNK_W * CHUNK_H];
     //MaterialInstance* layer2 = new MaterialInstance[CHUNK_W * CHUNK_H];
     Uint32* background = new Uint32[CHUNK_W * CHUNK_H];
-    EASY_END_BLOCK;
 
-    EASY_BLOCK("open file");
     string line;
     ifstream myfile(fname, std::ios::binary);
-    EASY_END_BLOCK;
+
     if(myfile.is_open()) { // 파일이 열려있으면 
         int state = 0;
 
@@ -114,13 +104,11 @@ void Chunk::read() {
 
         char* compressed_data = (char*)malloc(compressed_size);
 
-        EASY_BLOCK("read MaterialInstanceData");
-        myfile.read((char*)compressed_data, compressed_size); // 압축된 청크 파일을 읽어냄
-        EASY_END_BLOCK;
+        myfile.read((char*)compressed_data, compressed_size);  // 압축된 청크 파일을 읽어냄
 
         const int decompressed_size = LZ4_decompress_safe(compressed_data, (char*)readBuf, compressed_size, src_size); // 읽어낸 압축 파일을 압축 해제하여 readBuf에 씀
 
-        free(compressed_data); // 필요없는 압축 데이터는 해제
+        free(compressed_data);  // 필요없는 압축 데이터는 해제
 
         // basically, if either of these checks trigger, the chunk is unreadable, either due to miswriting it or corruption
         // TODO: have the chunk regenerate on corruption (maybe save copies of corrupt chunks as well?)
@@ -130,7 +118,6 @@ void Chunk::read() {
             logCritical("Decompressed chunk tile data is corrupt! @ {},{} (was {}, expected {}).", this->x, this->y, decompressed_size, src_size);
         }
 
-        EASY_BLOCK("copy MaterialInstanceData");
         // copy everything but the material pointer
         //memcpy(tiles, readBuf, CHUNK_W * CHUNK_H * sizeof(MaterialInstance));
         //memcpy(layer2, &readBuf[CHUNK_W * CHUNK_H], CHUNK_W * CHUNK_H * sizeof(MaterialInstance));
@@ -154,17 +141,15 @@ void Chunk::read() {
             //layer2[i].temperature = readBuf[CHUNK_W * CHUNK_H + i].temperature;
             //layer2[i] = MaterialInstance(Materials::MATERIALS_ARRAY[buf[CHUNK_W * CHUNK_H + i].index], buf[CHUNK_W * CHUNK_H + i].color, buf[CHUNK_W * CHUNK_H + i].temperature);
         } 
-        EASY_END_BLOCK; // readBuf로부터 정보를 tile과 layer에 복사
 
         //delete readBuf;
 
         char* compressed_data2 = (char*)malloc(compressed_size2);
 
-        EASY_BLOCK("read background data");
         myfile.read((char*)compressed_data2, compressed_size2);
-        EASY_END_BLOCK;
 
         const int decompressed_size2 = LZ4_decompress_safe(compressed_data2, (char*)background, compressed_size2, src_size2);//압축 해제하여 background에 씀
+
 
         free(compressed_data2);
 
@@ -181,13 +166,12 @@ void Chunk::read() {
 
     this->tiles = tiles;
     this->layer2 = layer2;
-    this->background = background;//읽어낸 지역 변수들을 클래스 멤버 변수에 적절히 옮김
+    this->background = background;// 읽어낸 지역 변수들을 클래스 멤버 변수에 적절히 옮김
     hasTileCache = true;
 
 }
 
 void Chunk::write(MaterialInstance* tiles, MaterialInstance* layer2, Uint32* background) { // 청크 정보를 파일에 쓰는 함수
-    EASY_FUNCTION();
 
     this->tiles = tiles;
     this->layer2 = layer2;
@@ -221,9 +205,7 @@ void Chunk::write(MaterialInstance* tiles, MaterialInstance* layer2, Uint32* bac
 
     char* compressed_data = (char*)malloc((size_t)max_dst_size);
 
-    EASY_BLOCK("compress");
     const int compressed_data_size = LZ4_compress_fast(src, compressed_data, src_size, max_dst_size, 10); // 청크 정보를 압축
-    EASY_END_BLOCK;
 
     if(compressed_data_size <= 0) {
         logCritical("Failed to compress chunk tile data @ {},{} (err {})", this->x, this->y, compressed_data_size);
@@ -245,9 +227,7 @@ void Chunk::write(MaterialInstance* tiles, MaterialInstance* layer2, Uint32* bac
 
     char* compressed_data2 = (char*)malloc((size_t)max_dst_size2);
 
-    EASY_BLOCK("compress");
     const int compressed_data_size2 = LZ4_compress_fast(src2, compressed_data2, src_size2, max_dst_size2, 10); // 압축
-    EASY_END_BLOCK;
 
     if(compressed_data_size2 <= 0) {
         logCritical("Failed to compress chunk tile data @ {},{} (err {})", this->x, this->y, compressed_data_size2);
@@ -281,12 +261,11 @@ void Chunk::write(MaterialInstance* tiles, MaterialInstance* layer2, Uint32* bac
 }
 
 bool Chunk::hasFile() {
-    EASY_FUNCTION();
     struct stat buffer;
     return (stat(fname.c_str(), &buffer) == 0);
 }
 
-std::vector<std::string> split(std::string strToSplit, char delimeter) { // 문자열 분할 함수
+std::vector<std::string> split(std::string strToSplit, char delimeter) {  // 문자열 분할 함수
     std::stringstream ss(strToSplit);
     std::string item;
     std::vector<std::string> splittedStrings;
