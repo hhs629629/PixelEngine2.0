@@ -31,10 +31,9 @@ typedef struct particle_t {
 	color_t color;
 	b32 has_been_updated_this_frame;
 } particle_t;
-
 // Should have a hash map of glyph character to glyph metric
 
-// Globals
+#pragma region // Globals
 gs_global gs_command_buffer_t 						g_cb = {0};
 gs_global gs_handle(gs_graphics_vertex_buffer_t) 	g_vbo = {0};
 gs_global gs_handle(gs_graphics_index_buffer_t) 	g_ibo = {0};
@@ -51,6 +50,7 @@ gs_global blur_pass_t 								g_blur_pass = {0};
 gs_global bright_filter_pass_t 						g_bright_pass = {0};
 gs_global composite_pass_t 							g_composite_pass = {0};
 gs_global font_t									g_font = {0};
+#pragma endregion
 
 // For now, all particle information will simply be a value to determine its material id
 #pragma region Material_ids
