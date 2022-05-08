@@ -499,8 +499,8 @@ void ma_audio_commit(ma_device* device, void* output, const void* input, ma_uint
                     target_sample_position -= src->sample_count;
                 }
 
-                s16 target_left_sample;
-                s16 target_right_sample;
+                s16 target_left_sample = 0;
+                s16 target_right_sample = 0;
 
                 {
                     u64 left_idx = (u64)start_sample_position;

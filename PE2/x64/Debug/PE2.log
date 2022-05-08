@@ -1,0 +1,7 @@
+﻿  main.c
+  blur_pass.c
+  bright_filter_pass.c
+  composite_pass.c
+C:\Users\kim\source\repos\PixelEngine2.0\third_party\include\gs\impl\gs_platform_impl.h(673,44): warning C4133: '함수': 'const char *'과(와) 'LPCWSTR' 사이의 형식이 호환되지 않습니다. (소스 파일 컴파일 중 main.c)
+  LINK : C:\Users\kim\source\repos\PixelEngine2.0\bin\Debug-x64\PE2.exe을(를) 찾을 수 없거나 마지막 증분 링크에 의해 빌드되지 않았습니다. 전체 링크를 수행하고 있습니다.
+  PE2.vcxproj -> C:\Users\kim\source\repos\PixelEngine2.0\bin\Debug-x64\PE2.exe
