@@ -7,5 +7,4 @@
 
 .vs/
 bin/
-PE2/x86
-PE2/x64
+temp/
