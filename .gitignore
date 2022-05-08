@@ -5,6 +5,6 @@
 *.obj
 *.exe
 
-.vs/
-bin/
+PixelEngine2.0/.vs
+PixelEngine2.0/bin
 
