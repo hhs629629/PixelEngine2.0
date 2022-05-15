@@ -1,3 +1,5 @@
+#pragma comment(lib,"Winmm.lib")
+
 #define GS_IMPL
 #include <gs/gs.h>
 
@@ -10,10 +12,10 @@
 #include "font/font.h"
 #include "font/font_data.c"
 
-gs_global const s32 g_window_width 	= 800;
-gs_global const s32 g_window_height 	= 600;
-gs_global const s32 g_texture_width 	= 1258 >> 1;
-gs_global const s32 g_texture_height 	= 848 >> 1;
+gs_global const s32 g_window_width		= 800;
+gs_global const s32 g_window_height 	= 800;
+gs_global const s32 g_texture_width 	= 512;
+gs_global const s32 g_texture_height 	= 512;
 
 // 32 bit color structure
 typedef struct color_t {
@@ -71,22 +73,20 @@ gs_global font_t									g_font = {0};
 #pragma endregion
 
 // Colors
-#pragma region Material_colors_as_rgba
-#define mat_col_empty (color_t){0, 0, 0, 0}
-#define mat_col_sand  (color_t){150, 100, 50, 255}
-#define mat_col_salt  (color_t){200, 180, 190, 255}
-#define mat_col_water (color_t){20, 100, 170, 200}
-#define mat_col_stone (color_t){120, 110, 120, 255}
-#define mat_col_wood (color_t){60, 40, 20, 255}
-#define mat_col_fire  (color_t){150, 20, 0, 255}
-#define mat_col_smoke (color_t){50, 50, 50, 255}
-#define mat_col_ember (color_t){200, 120, 20, 255}
-#define mat_col_steam (color_t){220, 220, 250, 255}
-#define mat_col_gunpowder (color_t){60, 60, 60, 255}
-#define mat_col_oil (color_t){80, 70, 60, 255}
-#define mat_col_lava  (color_t){200, 50, 0, 255}
-#define mat_col_acid  (color_t){90, 200, 60, 255}
-#pragma endregion
+#define mat_col_empty {0, 0, 0, 0}
+#define mat_col_sand  {150, 100, 50, 255}
+#define mat_col_salt  {200, 180, 190, 255}
+#define mat_col_water {20, 100, 170, 200}
+#define mat_col_stone {120, 110, 120, 255}
+#define mat_col_wood {60, 40, 20, 255}
+#define mat_col_fire {150, 20, 0, 255}
+#define mat_col_smoke {50, 50, 50, 255}
+#define mat_col_ember {200, 120, 20, 255}
+#define mat_col_steam {220, 220, 250, 255}
+#define mat_col_gunpowder {60, 60, 60, 255}
+#define mat_col_oil {80, 70, 60, 255}
+#define mat_col_lava  {200, 50, 0, 255}
+#define mat_col_acid  {90, 200, 60, 255}
 
 typedef enum material_selection
 {
@@ -218,7 +218,9 @@ gs_vec2 calculate_mouse_position()
 	// Need to place mouse into frame
 	f32 x_scale = pmp.x / (f32)ws.x;
 	f32 y_scale = pmp.y / (f32)ws.y;
-	return (gs_vec2){x_scale * (f32)g_texture_width, y_scale * (f32)g_texture_height};
+
+	gs_vec2 ret = { x_scale * (f32)g_texture_width, y_scale * (f32)g_texture_height };
+	return ret;
 }
 
 s32 random_val(s32 lower, s32 upper)
@@ -398,7 +400,7 @@ typedef struct hsv_t
 // From on: https://gist.github.com/fairlight1337/4935ae72bcbcc1ba5c72
 hsv_t rgb_to_hsv(color_t c) 
 {
-	gs_vec3 cv = (gs_vec3){(f32)c.r / 255.f, (f32)c.g / 255.f, (f32)c.b / 255.f};
+	gs_vec3 cv = {(f32)c.r / 255.f, (f32)c.g / 255.f, (f32)c.b / 255.f};
 	f32 fR = cv.x, fG = cv.y, fB = cv.z;
 
 	f32 fCMax = gs_max(gs_max(fR, fG), fB);
@@ -469,16 +471,28 @@ do {\
 	}\
 } while (0)
 
-#define __check_dist_euclidean(c0, c1, p_func)\
-	do {\
-		gs_vec4 c0_vec = (gs_vec4){(f32)c0.r, c0.g, c0.b, 255.f};\
-		gs_vec4 c1_vec = (gs_vec4){(f32)c1.r, c1.g, c1.b, 255.f};\
-		f32 d = gs_vec4_dist(c0_vec, c1_vec);\
-		if (d < min_dist) {\
-			min_dist = d;\
-			p = p_func();\
-		}\
+//#define __check_dist_euclidean(c0, c1, p_func)\
+//	do {\
+//		gs_vec4 c0_vec = (gs_vec4){(f32)c0.r, c0.g, c0.b, 255.f};\
+//		gs_vec4 c1_vec = (gs_vec4){(f32)c1.r, c1.g, c1.b, 255.f};\
+//		f32 d = gs_vec4_dist(c0_vec, c1_vec);\
+//		if (d < min_dist) {\
+//			min_dist = d;\
+//			p = p_func();\
+//		}\
+//	} while (0)
+inline void __check_dist_euclidean(color_t c0, color_t c1, particle_t (*p_func))
+{
+	do {
+		gs_vec4 c0_vec = { (f32)c0.r, c0.g, c0.b, 255.f };
+		gs_vec4 c1_vec = { (f32)c1.r, c1.g, c1.b, 255.f };
+		f32 d = gs_vec4_dist(c0_vec, c1_vec);
+		if (d < min_dist) {
+			min_dist = d;
+			p = p_func();
+		}
 	} while (0)
+}
 
 #define __check_dist(c0, c1, p_func)\
 	do\
@@ -498,7 +512,7 @@ particle_t get_closest_particle_from_color(color_t c)
 {
 	particle_t p = particle_empty();
 	f32 min_dist = FLT_MAX;
-	gs_vec4 c_vec = (gs_vec4){(f32)c.r, (f32)c.g, (f32)c.b, (f32)c.a};
+	gs_vec4 c_vec = {(f32)c.r, (f32)c.g, (f32)c.b, (f32)c.a};
 	u8 id = mat_id_empty;
 
 	__check_dist_euclidean(c, mat_col_sand, particle_sand);
@@ -538,7 +552,8 @@ void drop_file_callback(void* platform_window, s32 count, const char** file_path
 			 gs_string_compare_equal(temp_file_extension_buffer, "bmp"))
 		{
 			// Load texture into memory
-			s32 _w, _h, _n;
+			s32 _w, _h;
+			u32	_n;
 			void* texture_data = NULL;
 
 			// Force texture data to 3 components
@@ -590,31 +605,37 @@ void app_init()
 	g_cb = gs_command_buffer_new();
 
     // Create shader
-    g_shader = gs_graphics_shader_create (
-        &(gs_graphics_shader_desc_t) {
-            .sources = (gs_graphics_shader_source_desc_t[]) {
-                {.type = GS_GRAPHICS_SHADER_STAGE_VERTEX, .source = v_src},
-                {.type = GS_GRAPHICS_SHADER_STAGE_FRAGMENT, .source = f_src}
-            }, 
-            .size = 2 * sizeof(gs_graphics_shader_source_desc_t),
-            .name = "g_shader"
-        }
-    );
+	gs_graphics_shader_desc_t temp_594{};
+	gs_graphics_shader_source_desc_t temp_595[2]{};
+	temp_595[0].type = GS_GRAPHICS_SHADER_STAGE_VERTEX;
+	temp_595[0].source = v_src;
+	temp_595[1].type = GS_GRAPHICS_SHADER_STAGE_FRAGMENT;
+	temp_595[1].source = f_src;
+
+	temp_594.sources = temp_595;
+	temp_594.size = 2 * sizeof(gs_graphics_shader_source_desc_t);
+	strcpy(temp_594.name, "g_shader");
+	g_shader = gs_graphics_shader_create(&temp_594);
 
 	// Construct uniforms for shader
-    u_tex = gs_graphics_uniform_create (
-        &(gs_graphics_uniform_desc_t) {
-            .name = "u_tex",
-            .layout = &(gs_graphics_uniform_layout_desc_t){.type = GS_GRAPHICS_UNIFORM_SAMPLER2D}
-        }
-    );
+	gs_graphics_uniform_desc_t temp_607{};
+	gs_graphics_uniform_layout_desc_t temp_608{};
+	temp_608.type = GS_GRAPHICS_UNIFORM_SAMPLER2D;
+	temp_607.layout = &temp_608;
+	strcpy(temp_607.name, "u_tex");
+	u_tex = gs_graphics_uniform_create(&temp_607);
 
-    u_flip_y = gs_graphics_uniform_create (
-        &(gs_graphics_uniform_desc_t) {
-            .name = "u_flip_y",
-            .layout = &(gs_graphics_uniform_layout_desc_t){.type = GS_GRAPHICS_UNIFORM_INT}
-        }
-    );
+	gs_graphics_uniform_layout_desc_t temp_614{};
+	temp_614.type = GS_GRAPHICS_UNIFORM_INT;
+	gs_graphics_uniform_desc_t temp_615{};
+	temp_615.layout = &temp_614;
+	strcpy(temp_615.name, "u_flip_y");
+	u_flip_y = gs_graphics_uniform_create(&temp_615);
+    //    &(gs_graphics_uniform_desc_t) {
+    //        .name = "u_flip_y",
+    //        .layout = &(gs_graphics_uniform_layout_desc_t){.type = GS_GRAPHICS_UNIFORM_INT}
+    //    }
+    //);
 
 	// Vertex data for triangle
 	f32 v_data[] = {
@@ -631,28 +652,34 @@ void app_init()
 	};
 
     // Construct vertex buffer
-    g_vbo = gs_graphics_vertex_buffer_create(
-        &(gs_graphics_vertex_buffer_desc_t) {
-            .data = v_data,
-            .size = sizeof(v_data)
-        }
-    );
+	gs_graphics_vertex_buffer_desc_t temp641{};
+	temp641.data = v_data;
+	temp641.size = sizeof(v_data);
+	g_vbo = gs_graphics_vertex_buffer_create(&temp641);
+    //    &(gs_graphics_vertex_buffer_desc_t) {
+    //        .data = v_data,
+    //        .size = sizeof(v_data)
+    //    }
+    //);
 
     // Construct index buffer
-    g_ibo = gs_graphics_index_buffer_create(
-        &(gs_graphics_index_buffer_desc_t) {
-            .data = i_data,
-            .size = sizeof(i_data)
-        }
-    );
+	gs_graphics_index_buffer_desc_t tmp652{};
+	tmp652.data = i_data;
+	tmp652.size = sizeof(i_data);
+	g_ibo = gs_graphics_index_buffer_create(&tmp652);
+    //    &(gs_graphics_index_buffer_desc_t) {
+    //        .data = i_data,
+    //        .size = sizeof(i_data)
+    //    }
+    //);
 
 	// Construct world data (for now, it'll just be the size of the screen)
-	g_world_particle_data = gs_malloc(g_texture_width * g_texture_height * sizeof(particle_t));
+	g_world_particle_data = (particle_t*)gs_malloc(g_texture_width * g_texture_height * sizeof(particle_t));
 
 	// Construct texture buffer data
-	g_texture_buffer = gs_malloc(g_texture_width * g_texture_height * sizeof(color_t));
+	g_texture_buffer = (color_t*)gs_malloc(g_texture_width * g_texture_height * sizeof(color_t));
 
-	g_ui_buffer = gs_malloc(g_texture_width * g_texture_height * sizeof(color_t));
+	g_ui_buffer = (color_t*)gs_malloc(g_texture_width * g_texture_height * sizeof(color_t));
 
 	// Set buffers to 0
 	memset(g_texture_buffer, 0, g_texture_width * g_texture_height * sizeof(color_t));
@@ -682,34 +709,27 @@ void app_init()
 	g_fb = gs_graphics_framebuffer_create(NULL);
 
 	// Construct render pass
-    g_rp = gs_graphics_render_pass_create(
-        &(gs_graphics_render_pass_desc_t){
-            .fbo = g_fb,                      // Frame buffer to bind for render pass
-            .color = &g_rt,                    // Color buffer array to bind to frame buffer    
-            .color_size = sizeof(g_rt)         // Size of color attachment array in bytes
-        }
-    );
+	gs_graphics_render_pass_desc_t temp_686{};
+	temp_686.fbo = g_fb;	// Frame buffer to bind for render pass
+	temp_686.color = &g_rt;	// Color buffer array to bind to frame buffer 
+	temp_686.color_size = sizeof(g_rt);	// Size of color attachment array in bytes
+    g_rp = gs_graphics_render_pass_create(&temp_686);
 
     // Pipeline
-    g_pip = gs_graphics_pipeline_create(
-        &(gs_graphics_pipeline_desc_t) {
-            .raster = {
-                .shader = g_shader
-            },
-            .blend = {
-            	.func = GS_GRAPHICS_BLEND_EQUATION_ADD,
-            	.src = GS_GRAPHICS_BLEND_MODE_SRC_ALPHA,
-            	.dst = GS_GRAPHICS_BLEND_MODE_ONE_MINUS_SRC_ALPHA
-            },
-            .layout = {
-                .attrs = (gs_graphics_vertex_attribute_desc_t[]){
-                    {.format = GS_GRAPHICS_VERTEX_ATTRIBUTE_FLOAT2, .name = "a_position"}, // Named attribute required for lower GL versions / ES2 / ES3
-                    {.format = GS_GRAPHICS_VERTEX_ATTRIBUTE_FLOAT2, .name = "a_texCoord"}  // Named attribute required for lower GL versions / ES2 / ES3
-                },
-                .size = 2 * sizeof(gs_graphics_vertex_attribute_desc_t)
-            }
-        }
-    );
+	gs_graphics_pipeline_desc_t temp_693{};
+	temp_693.raster.shader = g_shader;
+	temp_693.blend.func = GS_GRAPHICS_BLEND_EQUATION_ADD;
+	temp_693.blend.src = GS_GRAPHICS_BLEND_MODE_SRC_ALPHA;
+	temp_693.blend.dst = GS_GRAPHICS_BLEND_MODE_ONE_MINUS_SRC_ALPHA;
+
+	gs_graphics_vertex_attribute_desc_t temp_699[2]{};
+	temp_699[0].format = GS_GRAPHICS_VERTEX_ATTRIBUTE_FLOAT2; // Named attribute required for lower GL versions / ES2 / ES3
+	strcpy(temp_699[0].name, "a_position");				
+	temp_699[1].format = GS_GRAPHICS_VERTEX_ATTRIBUTE_FLOAT2; // Named attribute required for lower GL versions / ES2 / ES3
+	strcpy(temp_699[1].name, "a_texCoord");
+	temp_693.layout.attrs = temp_699;
+	temp_693.layout.size = 2 * sizeof(gs_graphics_vertex_attribute_desc_t);
+	g_pip = gs_graphics_pipeline_create(&temp_693);
 
 	// Initialize render passes
 	g_blur_pass = blur_pass_ctor(g_fb);
@@ -777,7 +797,8 @@ void construct_font_data()
 		for (u32 c = 0; c < 18; ++c) 
 		{
 			u32 idx = r * 18 + c;
-			g_font.glyphs[idx] = (font_glyph_t){c * 5, r * 7, 5, 7};
+			//(font_glyph_t)
+			g_font.glyphs[idx] = {c * 5, r * 7, 5, 7};
 		}
 	}
 }
@@ -883,15 +904,16 @@ font_glyph_t get_glyph(font_t* f, char c)
 		case '~': return g_font.glyphs[94];
 
 		// For anything not supported, just return empty space
-		default: {
-			return (font_glyph_t){0};
-		} break;
+		default: 
+			font_glyph_t temp_889{ 0 };
+			return temp_889;
+			break;
 	}
 }
 
 void putpixel(int x, int y) {
 	if (in_bounds(x, y)) {
-		g_ui_buffer[compute_idx(x, y)] = (color_t){255, 255, 255, 255};
+		g_ui_buffer[compute_idx(x, y)] = {255, 255, 255, 255}; // (color_t)
 	}
 }
 
@@ -1009,7 +1031,8 @@ void update_input(gs_command_buffer_t* cb)
 					case mat_sel_stone: p = particle_stone(); break;
 					case mat_sel_acid: p = particle_acid(); break;
 				}
-				p.velocity = (gs_vec2){random_val(-1, 1), random_val(-2, 5)};
+				gs_vec2 temp_1014{ random_val(-1, 1), random_val(-2, 5) };
+				p.velocity = temp_1014;
 				write_data(idx, p);
 			}
 		}
@@ -1031,7 +1054,7 @@ void update_input(gs_command_buffer_t* cb)
 			{
 				s32 rx = ((s32)mp_x + j); 
 				s32 ry = ((s32)mp_y + i);
-				gs_vec2 r = (gs_vec2){rx, ry};
+				gs_vec2 r = {rx, ry}; //(gs_vec2)
 
 				if (in_bounds(rx, ry) && gs_vec2_dist(mp, r) <= _R) {
 					write_data(compute_idx(rx, ry), particle_empty());
@@ -1158,8 +1181,11 @@ b32 gui_rect(color_t* buffer, s32 _x, s32 _y, s32 _w, s32 _h, color_t c)
 	}
 
 	b32 clicked = gs_platform_mouse_pressed(GS_MOUSE_LBUTTON);
-
-	return in_rect(mp, (gs_vec2){_x, _y}, (gs_vec2){_w, _h}) && clicked ; 
+	gs_vec2 temp_1164{ _x, _y };
+	gs_vec2 temp_1165{ _w, _h };
+	bool fff = (bool)in_rect(mp, temp_1164, temp_1165);
+	bool bbb = (bool)clicked;
+	return fff && bbb;
 }
 
 #define __gui_interaction(x, y, w, h, c, str, id)\
@@ -1220,11 +1246,12 @@ b32 update_ui(gs_command_buffer_t* cb)
 	if (g_show_frame_count) {
 		char frame_time_str[256];
 		gs_snprintf (frame_time_str, sizeof(frame_time_str), "frame: %.2f ms", gs_engine_subsystem(platform)->time.frame);
-		draw_string_at(&g_font, g_ui_buffer, 10, 10, frame_time_str, strlen(frame_time_str), (color_t){255, 255, 255, 255}); 
+		color_t temp_1229 = { 255, 255, 255, 255 };
+		draw_string_at(&g_font, g_ui_buffer, 10, 10, frame_time_str, strlen(frame_time_str), temp_1229);
 
 		char sim_state_str[256];
 		gs_snprintf (sim_state_str, sizeof(sim_state_str), "state: %s", g_run_simulation ? "running" : "paused");
-		draw_string_at(&g_font, g_ui_buffer, 10, 20, sim_state_str, strlen(sim_state_str), (color_t){255, 255, 255, 255});
+		draw_string_at(&g_font, g_ui_buffer, 10, 20, sim_state_str, strlen(sim_state_str), temp_1229);
 	}
 
 	// Draw circle around mouse pointer
@@ -1262,23 +1289,32 @@ void render_scene(gs_command_buffer_t* cb)
 	b32 flip_y = false;
 
     // Render pass action for clearing the screen
-    {
-	    gs_graphics_clear_desc_t clear = (gs_graphics_clear_desc_t){
-	        .actions = &(gs_graphics_clear_action_t){.color = {0.1f, 0.1f, 0.1f, 1.f}}
-	    };
+	{
+		gs_graphics_clear_action_t temp_1267{};
+		temp_1267.color[0] = 0.1f;
+		temp_1267.color[1] = 0.1f;
+		temp_1267.color[2] = 0.1f;
+		temp_1267.color[3] = 1.f;
+		gs_graphics_clear_desc_t clear{};
+		clear.actions = &temp_1267;
 
 	    // Uniform buffer array
-	    gs_graphics_bind_uniform_desc_t uniforms[] = {
-	        (gs_graphics_bind_uniform_desc_t){.uniform = u_tex, .data = &g_tex, .binding = 0},
-	        (gs_graphics_bind_uniform_desc_t){.uniform = u_flip_y, .data = &flip_y}
-	    };
+		gs_graphics_bind_uniform_desc_t temp_x = { temp_x.uniform = u_tex, temp_x.data = &g_tex, temp_x.binding = 0 };
+		gs_graphics_bind_uniform_desc_t temp_y = { temp_y.uniform = u_flip_y, temp_y.data = &flip_y };
+	    gs_graphics_bind_uniform_desc_t uniforms[] = {temp_x,temp_y};
 
 	    // Binding descriptor for vertex buffer
-	    gs_graphics_bind_desc_t binds = {
-	        .vertex_buffers = {.desc = &(gs_graphics_bind_vertex_buffer_desc_t){.buffer = g_vbo}},
-	        .index_buffers = {.desc = &(gs_graphics_bind_index_buffer_desc_t){.buffer = g_ibo}},
-	        .uniforms = {.desc = uniforms, .size = sizeof(uniforms)}
-	    };
+		gs_graphics_bind_vertex_buffer_desc_t temp_1281{};
+		gs_graphics_bind_index_buffer_desc_t temp_1282{};
+		temp_1281.buffer = g_vbo;
+		temp_1282.buffer = g_ibo;
+		gs_graphics_bind_desc_t binds{};
+		binds.vertex_buffers.desc = &temp_1281;
+		binds.index_buffers.desc = &temp_1282;
+		binds.uniforms.desc = uniforms;
+		binds.uniforms.size = sizeof(uniforms);
+
+	    
 
 		// Bind render pass, bind pipeline, set up everything...
 		gs_graphics_begin_render_pass(cb, g_rp);
@@ -1286,7 +1322,10 @@ void render_scene(gs_command_buffer_t* cb)
 			gs_graphics_set_viewport(cb, 0, 0, (u32)(g_texture_width), (u32)(g_texture_height));
 			gs_graphics_clear(cb, &clear);
 			gs_graphics_apply_bindings(cb, &binds);
-			gs_graphics_draw(cb, &(gs_graphics_draw_desc_t){.start = 0, .count = 6});
+			gs_graphics_draw_desc_t temp_1299{};
+			temp_1299.start = 0;
+			temp_1299.count = 6;
+			gs_graphics_draw(cb, &temp_1299);
 		gs_graphics_end_render_pass(cb);
     }
 
@@ -1294,21 +1333,21 @@ void render_scene(gs_command_buffer_t* cb)
 	{
 		// Brightness pass
 		{
-			bright_filter_pass_parameters_t params = (bright_filter_pass_parameters_t){g_rt};
+			bright_filter_pass_parameters_t params = {g_rt};
 			render_pass_i* p = gs_cast(render_pass_i, &g_bright_pass);
 			p->pass(&g_cb, p, &params);
 		}
 
 		// Blur pass
 		{
-			blur_pass_parameters_t params = (blur_pass_parameters_t){g_bright_pass.data.rt};
+			blur_pass_parameters_t params = {g_bright_pass.data.rt};
 			render_pass_i* p = gs_cast(render_pass_i, &g_blur_pass);
 			p->pass(&g_cb, p, &params);
 		}
 
 		// composite pass w/ gamma correction
 		{
-			composite_pass_parameters_t params = (composite_pass_parameters_t){g_rt, g_blur_pass.data.blur_render_target_b};
+			composite_pass_parameters_t params = {g_rt, g_blur_pass.data.blur_render_target_b};
 			render_pass_i* p = gs_cast(render_pass_i, &g_composite_pass);
 			p->pass(&g_cb, p, &params);
 		}
@@ -1316,18 +1355,28 @@ void render_scene(gs_command_buffer_t* cb)
 
 	// Back buffer Presentation
 	{
-	    gs_graphics_clear_desc_t clear = (gs_graphics_clear_desc_t){
-	        .actions = &(gs_graphics_clear_action_t){.color = {0.2f, 0.2f, 0.2f, 1.f}}
-	    };
+		gs_graphics_clear_action_t temp_1332{};
+		temp_1332.color[0] = 0.2f;
+		temp_1332.color[1] = 0.2f;
+		temp_1332.color[2] = 0.2f;
+		temp_1332.color[3] = 1.f;
+		gs_graphics_clear_desc_t clear{};
+		clear.actions = &temp_1332;
 
 	    b32 flip_y = true;
 
 	    // Binding descriptor for vertex buffer
-	    gs_graphics_bind_desc_t vbinds = {
-	        .vertex_buffers = {.desc = &(gs_graphics_bind_vertex_buffer_desc_t){.buffer = g_vbo}},
-	        .index_buffers = {.desc = &(gs_graphics_bind_index_buffer_desc_t){.buffer = g_ibo}},
-	    	.uniforms = {.desc = &(gs_graphics_bind_uniform_desc_t){.uniform = u_flip_y, .data = &flip_y}}
-	    };
+		gs_graphics_bind_vertex_buffer_desc_t temp_1343{};
+		gs_graphics_bind_index_buffer_desc_t temp_1344{};
+		gs_graphics_bind_uniform_desc_t temp_1345{};
+		temp_1343.buffer = g_vbo;
+		temp_1344.buffer = g_ibo;
+		temp_1345.uniform = u_flip_y;
+		temp_1345.data = &flip_y;
+		gs_graphics_bind_desc_t vbinds{};
+		vbinds.vertex_buffers.desc = &temp_1343;
+		vbinds.index_buffers.desc = &temp_1344;
+		vbinds.uniforms.desc = &temp_1345;
 
 	    gs_vec2 fbs = gs_platform_framebuffer_sizev(gs_platform_main_window());
 
@@ -1338,19 +1387,31 @@ void render_scene(gs_command_buffer_t* cb)
 			gs_graphics_clear(cb, &clear);
 			gs_graphics_apply_bindings(cb, &vbinds);
 
-		    gs_graphics_bind_desc_t tbind = (gs_graphics_bind_desc_t){
-		    	.uniforms = {.desc = &(gs_graphics_bind_uniform_desc_t){.uniform = u_tex, .data = &g_composite_pass.data.rt, .binding = 0}}
-		    };
+			gs_graphics_bind_uniform_desc_t temp_1364{};
+			temp_1364.uniform = u_tex;
+			temp_1364.data = &g_composite_pass.data.rt;
+			temp_1364.binding = 0;
+			gs_graphics_bind_desc_t tbind{};
+			tbind.uniforms.desc = &temp_1364;
 
 			gs_graphics_apply_bindings(cb, &tbind);
-			gs_graphics_draw(cb, &(gs_graphics_draw_desc_t){.start = 0, .count = 6});
+			gs_graphics_draw_desc_t temp_1372{};
+			temp_1372.start = 0;
+			temp_1372.count = 6;
+			gs_graphics_draw(cb, &temp_1372);
 
 			// Do UI on top
-		    tbind = (gs_graphics_bind_desc_t){
-		    	.uniforms = {.desc = &(gs_graphics_bind_uniform_desc_t){.uniform = u_tex, .data = &g_tex_ui, .binding = 0}}
-		    };
+			gs_graphics_bind_uniform_desc_t temp_1378{};
+			temp_1378.uniform = u_tex;
+			temp_1378.data = &g_tex_ui;
+			temp_1378.binding = 0;
+			tbind.uniforms.desc = &temp_1378;
+
 			gs_graphics_apply_bindings(cb, &tbind);
-			gs_graphics_draw(cb, &(gs_graphics_draw_desc_t){.start = 0, .count = 6});
+			gs_graphics_draw_desc_t temp_1385{};
+			temp_1385.start = 0;
+			temp_1385.count = 6;
+			gs_graphics_draw(cb, &temp_1385);
 
 		gs_graphics_end_render_pass(cb);
 	}
@@ -1484,8 +1545,8 @@ void update_sand(u32 x, u32 y)
 		// Try to throw water out
 		if (tmp_b.id == mat_id_water) {
 
-			s32 rx = random_val(-2, 2);
-			tmp_b.velocity = (gs_vec2){rx, -4.f};
+			f32 rx = (f32)random_val(-2, 2);
+			tmp_b.velocity = {rx, -4.f};
 
 			write_data(compute_idx(vi_x, vi_y), tmp_a);	
 
@@ -1577,8 +1638,8 @@ void update_gunpowder(u32 x, u32 y)
 		// Try to throw water out
 		if (tmp_b.id == mat_id_water) {
 
-			s32 rx = random_val(-2, 2);
-			tmp_b.velocity = (gs_vec2){rx, -4.f};
+			f32 rx = (f32)random_val(-2, 2);
+			tmp_b.velocity = {rx, -4.f};
 
 			write_data(compute_idx(vi_x, vi_y), tmp_a);	
 
@@ -1675,8 +1736,8 @@ void update_steam(u32 x, u32 y)
 
 			tmp_b.has_been_updated_this_frame = true;
 
-			s32 rx = random_val(-2, 2);
-			tmp_b.velocity = (gs_vec2){rx, -3.f};
+			f32 rx = (f32)random_val(-2, 2);
+			tmp_b.velocity = {rx, -3.f};
 
 			write_data(compute_idx(vi_x, vi_y), *p);
 			write_data(read_idx, tmp_b);
@@ -1774,8 +1835,8 @@ void update_smoke(u32 x, u32 y)
 
 			tmp_b.has_been_updated_this_frame = true;
 
-			s32 rx = random_val(-2, 2);
-			tmp_b.velocity = (gs_vec2){rx, -3.f};
+			f32 rx = (f32)random_val(-2, 2);
+			tmp_b.velocity = {rx, -3.f};
 
 			write_data(compute_idx(vi_x, vi_y), *p);
 			write_data(read_idx, tmp_b);
@@ -1903,8 +1964,8 @@ void update_ember(u32 x, u32 y)
 
 			tmp_b.has_been_updated_this_frame = true;
 
-			s32 rx = random_val(-2, 2);
-			tmp_b.velocity = (gs_vec2){rx, -3.f};
+			f32 rx = (f32)random_val(-2, 2);
+			tmp_b.velocity = {rx, -3.f};
 
 			write_data(compute_idx(vi_x, vi_y), *p);
 			write_data(read_idx, tmp_b);
@@ -1988,10 +2049,10 @@ void update_fire(u32 x, u32 y)
 	if (random_val(0, (s32)(p->life_time * 100.f)) % 200 == 0) {
 		s32 ran = random_val(0, 3);
 		switch (ran) {
-			case 0: p->color = (color_t){255, 80, 20, 255}; break;
-			case 1: p->color = (color_t){250, 150, 10, 255}; break;
-			case 2: p->color = (color_t){200, 150, 0, 255}; break;
-			case 3: p->color = (color_t){100, 50, 2, 255}; break;
+			case 0: p->color = {255, 80, 20, 255}; break;
+			case 1: p->color = {250, 150, 10, 255}; break;
+			case 2: p->color = {200, 150, 0, 255}; break;
+			case 3: p->color = {100, 50, 2, 255}; break;
 		}
 	}
 
@@ -2095,17 +2156,17 @@ void update_fire(u32 x, u32 y)
 		for (u32 i = 0; i < random_val(1, 100); ++i) {
 			if (in_bounds(x, y - 1) && is_empty(x, y - 1)) {
 				particle_t e = particle_ember();
-				e.velocity = (gs_vec2){(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 10.f};
+				e.velocity = {(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 10.f};
 				write_data(compute_idx(x, y - 1), e);
 			}
 			else if (in_bounds(x + 1, y - 1) && is_empty(x + 1, y - 1)) {
 				particle_t e = particle_ember();
-				e.velocity = (gs_vec2){(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 10.f};
+				e.velocity = {(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 10.f};
 				write_data(compute_idx(x + 1, y - 1), e);
 			}
 			else if (in_bounds(x - 1, y - 1) && is_empty(x - 1, y - 1)) {
 				particle_t e = particle_ember();
-				e.velocity = (gs_vec2){(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 10.f};
+				e.velocity = {(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 10.f};
 				write_data(compute_idx(x - 1, y - 1), e);
 			}
 		}
@@ -2354,10 +2415,10 @@ void update_lava(u32 x, u32 y)
 	if (random_val(0, (s32)(p->life_time * 100.f)) % 200 == 0) {
 		s32 ran = random_val(0, 3);
 		switch (ran) {
-			case 0: p->color = (color_t){255, 80, 20, 255}; break;
-			case 1: p->color = (color_t){255, 100, 10, 255}; break;
-			case 2: p->color = (color_t){255, 50, 0, 255}; break;
-			case 3: p->color = (color_t){200, 50, 2, 255}; break;
+			case 0: p->color = {255, 80, 20, 255}; break;
+			case 1: p->color = {255, 100, 10, 255}; break;
+			case 2: p->color = {255, 50, 0, 255}; break;
+			case 3: p->color = {200, 50, 2, 255}; break;
 		}
 	}
 
@@ -2432,17 +2493,17 @@ void update_lava(u32 x, u32 y)
 		for (u32 i = 0; i < random_val(1, 100); ++i) {
 			if (in_bounds(x, y - 1) && is_empty(x, y - 1)) {
 				particle_t e = particle_ember();
-				e.velocity = (gs_vec2){(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 2.f};
+				e.velocity = {(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 2.f};
 				write_data(compute_idx(x, y - 1), e);
 			}
 			else if (in_bounds(x + 1, y - 1) && is_empty(x + 1, y - 1)) {
 				particle_t e = particle_ember();
-				e.velocity = (gs_vec2){(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 2.f};
+				e.velocity = {(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 2.f};
 				write_data(compute_idx(x + 1, y - 1), e);
 			}
 			else if (in_bounds(x - 1, y - 1) && is_empty(x - 1, y - 1)) {
 				particle_t e = particle_ember();
-				e.velocity = (gs_vec2){(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 2.f};
+				e.velocity = {(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 2.f};
 				write_data(compute_idx(x - 1, y - 1), e);
 			}
 		}
@@ -3220,4 +3281,3 @@ particle_t particle_acid()
 	p.color.a = 200;
 	return p;
 }
-#pragma endregion
