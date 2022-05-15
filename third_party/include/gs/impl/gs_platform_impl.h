@@ -670,7 +670,7 @@ int32_t gs_platform_file_size_in_bytes_default_impl(const char* file_path)
 {
     #ifdef GS_PLATFORM_WIN
 
-        HANDLE hFile = CreateFile(file_path, GENERIC_READ, 
+        HANDLE hFile = CreateFile((LPCWSTR)file_path, GENERIC_READ, 
         FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 
         FILE_ATTRIBUTE_NORMAL, NULL);
         if (hFile==INVALID_HANDLE_VALUE)
