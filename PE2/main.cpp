@@ -471,27 +471,27 @@ do {\
 	}\
 } while (0)
 
-//#define __check_dist_euclidean(c0, c1, p_func)\
-//	do {\
-//		gs_vec4 c0_vec = (gs_vec4){(f32)c0.r, c0.g, c0.b, 255.f};\
-//		gs_vec4 c1_vec = (gs_vec4){(f32)c1.r, c1.g, c1.b, 255.f};\
-//		f32 d = gs_vec4_dist(c0_vec, c1_vec);\
-//		if (d < min_dist) {\
-//			min_dist = d;\
-//			p = p_func();\
-//		}\
-//	} while (0)
-inline void __check_dist_euclidean(color_t c0, color_t c1, particle_t (*p_func))
-{
-	do {
-		gs_vec4 c0_vec = { (f32)c0.r, c0.g, c0.b, 255.f };
-		gs_vec4 c1_vec = { (f32)c1.r, c1.g, c1.b, 255.f };
-		f32 d = gs_vec4_dist(c0_vec, c1_vec);
-		if (d < min_dist) {
-			min_dist = d;
-			p = p_func();
-		}
+#define __check_dist_euclidean(c0, c1, p_func)\
+	do {\
+		gs_vec4 c0_vec = (gs_vec4){(f32)c0.r, c0.g, c0.b, 255.f};\
+		gs_vec4 c1_vec = (gs_vec4){(f32)c1.r, c1.g, c1.b, 255.f};\
+		f32 d = gs_vec4_dist(c0_vec, c1_vec);\
+		if (d < min_dist) {\
+			min_dist = d;\
+			p = p_func();\
+		}\
 	} while (0)
+inline particle_t f__check_dist_euclidean(particle_t& p, color_t c0, color_t c1, particle_t (*p_func)())
+{
+	f32 min_dist = FLT_MAX;
+	gs_vec4 c0_vec = { (f32)c0.r, c0.g, c0.b, 255.f };
+	gs_vec4 c1_vec = { (f32)c1.r, c1.g, c1.b, 255.f };
+	f32 d = gs_vec4_dist(c0_vec, c1_vec);
+	if (d < min_dist) {
+		min_dist = d;
+		p = p_func();
+		return p;
+	}
 }
 
 #define __check_dist(c0, c1, p_func)\
@@ -515,18 +515,18 @@ particle_t get_closest_particle_from_color(color_t c)
 	gs_vec4 c_vec = {(f32)c.r, (f32)c.g, (f32)c.b, (f32)c.a};
 	u8 id = mat_id_empty;
 
-	__check_dist_euclidean(c, mat_col_sand, particle_sand);
-	__check_dist_euclidean(c, mat_col_water, particle_water);
-	__check_dist_euclidean(c, mat_col_salt, particle_salt);
-	__check_dist_euclidean(c, mat_col_wood, particle_wood);
-	__check_dist_euclidean(c, mat_col_fire, particle_fire);
-	__check_dist_euclidean(c, mat_col_smoke, particle_smoke);
-	__check_dist_euclidean(c, mat_col_steam, particle_steam);
-	__check_dist_euclidean(c, mat_col_gunpowder, particle_gunpowder);
-	__check_dist_euclidean(c, mat_col_oil, particle_oil);
-	__check_dist_euclidean(c, mat_col_lava, particle_lava);
-	__check_dist_euclidean(c, mat_col_stone, particle_stone);
-	__check_dist_euclidean(c, mat_col_acid, particle_acid);
+	f__check_dist_euclidean(p, c, mat_col_sand, particle_sand);
+	f__check_dist_euclidean(p, c, mat_col_water, particle_water);
+	f__check_dist_euclidean(p, c, mat_col_salt, particle_salt);
+	f__check_dist_euclidean(p, c, mat_col_wood, particle_wood);
+	f__check_dist_euclidean(p, c, mat_col_fire, particle_fire);
+	f__check_dist_euclidean(p, c, mat_col_smoke, particle_smoke);
+	f__check_dist_euclidean(p, c, mat_col_steam, particle_steam);
+	f__check_dist_euclidean(p, c, mat_col_gunpowder, particle_gunpowder);
+	f__check_dist_euclidean(p, c, mat_col_oil, particle_oil);
+	f__check_dist_euclidean(p, c, mat_col_lava, particle_lava);
+	f__check_dist_euclidean(p, c, mat_col_stone, particle_stone);
+	f__check_dist_euclidean(p, c, mat_col_acid, particle_acid);
 
 	return p;
 }
@@ -1210,6 +1210,34 @@ do {\
 		g_material_selection = id;\
 	}\
 } while (0)
+inline void f__gui_interaction(b32& interaction, s32 x, s32 y, int w, int h, color_t c, const char* str, int id)
+{
+	if ((id) == g_material_selection) 
+	{
+		const s32 b = 2;
+		gui_rect(g_ui_buffer, x - b / 2, y - b / 2, w + b, h + b, {200, 150, 20, 255});
+	}
+	gs_vec2 mp = calculate_mouse_position();
+	gs_vec2 v1{ (x),(y) };
+	gs_vec2 v2{ (w),(h) };
+	if (in_rect(mp, v1, v2))
+	{
+		interaction |= true;
+		char* _str = nullptr;
+		strcpy(_str, str);
+		color_t col = {255, 255, 255, 255};
+		color_t s_col = {10, 10, 10, 255};
+		color_t r_col = {5, 5, 5, 170};
+		/*Draw rect around text as well for easier viewing*/
+		gui_rect(g_ui_buffer, g_texture_width / 2 - 50, 15, 100, 20, r_col);
+		draw_string_at(&g_font, g_ui_buffer, g_texture_width / 2 + 1 - (sizeof(str) * 5) / 2, 20 - 1, _str, sizeof(_str), s_col);
+		draw_string_at(&g_font, g_ui_buffer, g_texture_width / 2 - (sizeof(str) * 5) / 2, 20, _str, sizeof(_str), col);
+	}
+	if (gui_rect(g_ui_buffer, x, y, w, h, c)) 
+	{
+		g_material_selection = (material_selection)id;
+	}
+}
 
 b32 update_ui(gs_command_buffer_t* cb)
 {
@@ -1229,18 +1257,18 @@ b32 update_ui(gs_command_buffer_t* cb)
 		s32 base = 10;
 
 		// Sand Selection
-		__gui_interaction(g_texture_width - xoff, base + offset * 0, 10, 10, mat_col_sand, "Sand", mat_sel_sand);
-		__gui_interaction(g_texture_width - xoff, base + offset * 1, 10, 10, mat_col_water, "Water", mat_sel_water);
-		__gui_interaction(g_texture_width - xoff, base + offset * 2, 10, 10, mat_col_smoke, "Smoke", mat_sel_smoke);
-		__gui_interaction(g_texture_width - xoff, base + offset * 3, 10, 10, mat_col_fire, "Fire", mat_sel_fire);
-		__gui_interaction(g_texture_width - xoff, base + offset * 4, 10, 10, mat_col_steam, "Steam", mat_sel_steam);
-		__gui_interaction(g_texture_width - xoff, base + offset * 5, 10, 10, mat_col_oil, "Oil", mat_sel_oil);
-		__gui_interaction(g_texture_width - xoff, base + offset * 6, 10, 10, mat_col_salt, "Salt", mat_sel_salt);
-		__gui_interaction(g_texture_width - xoff, base + offset * 7, 10, 10, mat_col_wood, "Wood", mat_sel_wood);
-		__gui_interaction(g_texture_width - xoff, base + offset * 8, 10, 10, mat_col_stone, "Stone", mat_sel_stone);
-		__gui_interaction(g_texture_width - xoff, base + offset * 9, 10, 10, mat_col_lava, "Lava", mat_sel_lava);
-		__gui_interaction(g_texture_width - xoff, base + offset * 10, 10, 10, mat_col_gunpowder, "GunPowder", mat_sel_gunpowder);
-		__gui_interaction(g_texture_width - xoff, base + offset * 11, 10, 10, mat_col_acid, "Acid", mat_sel_acid);
+		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 0, 10, 10, mat_col_sand, "Sand", mat_sel_sand);
+		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 1, 10, 10, mat_col_water, "Water", mat_sel_water);
+		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 2, 10, 10, mat_col_smoke, "Smoke", mat_sel_smoke);
+		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 3, 10, 10, mat_col_fire, "Fire", mat_sel_fire);
+		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 4, 10, 10, mat_col_steam, "Steam", mat_sel_steam);
+		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 5, 10, 10, mat_col_oil, "Oil", mat_sel_oil);
+		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 6, 10, 10, mat_col_salt, "Salt", mat_sel_salt);
+		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 7, 10, 10, mat_col_wood, "Wood", mat_sel_wood);
+		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 8, 10, 10, mat_col_stone, "Stone", mat_sel_stone);
+		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 9, 10, 10, mat_col_lava, "Lava", mat_sel_lava);
+		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 10, 10, 10, mat_col_gunpowder, "GunPowder", mat_sel_gunpowder);
+		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 11, 10, 10, mat_col_acid, "Acid", mat_sel_acid);
 	}
 
 	if (g_show_frame_count) {
