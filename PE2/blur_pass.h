@@ -1,8 +1,51 @@
+#ifndef SS_BLUR_RENDER_PASS
+#define SS_BLUR_RENDER_PASS
 
-#include "render_pass/blur_pass.h"
+#include "render_pass_i.h"
+
+typedef struct blur_data_t
+{
+	u32 iterations;
+	gs_handle(gs_graphics_texture_t) blur_render_target_a;
+	gs_handle(gs_graphics_texture_t) blur_render_target_b;
+	gs_handle(gs_graphics_texture_t) small_blur_render_target_a;
+	gs_handle(gs_graphics_texture_t) small_blur_render_target_b;
+	gs_handle(gs_graphics_texture_t) medium_blur_render_target_a;
+	gs_handle(gs_graphics_texture_t) medium_blur_render_target_b;
+	gs_handle(gs_graphics_texture_t) large_blur_render_target_a;
+	gs_handle(gs_graphics_texture_t) large_blur_render_target_b;
+	gs_handle(gs_graphics_shader_t) horizontal_blur_shader;
+	gs_handle(gs_graphics_shader_t) vertical_blur_shader;
+	gs_handle (gs_graphics_uniform_t) u_input_tex;
+	gs_handle (gs_graphics_uniform_t) u_tex_size;
+	gs_handle(gs_graphics_vertex_buffer_t) vbo;
+	gs_handle(gs_graphics_index_buffer_t) ibo;
+	gs_handle(gs_graphics_render_pass_t) rp_vertical;
+	gs_handle(gs_graphics_render_pass_t) rp_horizontal;
+	gs_handle(gs_graphics_pipeline_t) pip_horizontal;
+	gs_handle(gs_graphics_pipeline_t) pip_vertical;
+} blur_data_t;
+
+typedef struct blur_pass_t
+{
+	_base(render_pass_i);
+	blur_data_t data;
+} blur_pass_t;
+
+// Use this to pass in parameters for the pass ( will check for this)
+typedef struct blur_pass_parameters_t {
+	gs_handle(gs_graphics_texture_t) input_texture;
+} blur_pass_parameters_t;
+
+// Used to construct new instance of a blur pass
+blur_pass_t blur_pass_ctor(gs_handle(gs_graphics_framebuffer_t) fb);
+
+#endif
+
+//#################################################
 
 // Forward Decls.
-void calculate_blur_weights(blur_pass_t* pass);
+// 함수 정의 없음 void calculate_blur_weights(blur_pass_t* pass);
 void _blur_pass(gs_command_buffer_t* cb, render_pass_i* _pass, void* _params);
 
 /*===============
@@ -10,12 +53,9 @@ void _blur_pass(gs_command_buffer_t* cb, render_pass_i* _pass, void* _params);
 ================*/
 
 // Shaders
-#if (defined GS_PLATFORM_WEB || defined GS_PLATFORM_ANDROID)
-    #define GL_VERSION_STR "#version 300 es\n"
-#else
-    #define GL_VERSION_STR "#version 330 core\n"
-#endif
+#define GL_VERSION_STR "#version 330 core\n"
 
+#pragma region 이게뭐지
 const char* v_h_blur_src =
 GL_VERSION_STR
 "precision mediump float;\n"
@@ -78,6 +118,7 @@ GL_VERSION_STR
 "	frag_color += texture(u_tex, v_blur_tex_coods[9]) * 0.028002;\n"
 "	frag_color += texture(u_tex, v_blur_tex_coods[10]) * 0.0093;\n"
 "}\n";
+#pragma endregion
 
 // Vertex data layout for our mesh (for this shader, it's a single float2 attribute for position)
 // gs_global gs_vertex_attribute_type layout[] = {
@@ -88,7 +129,7 @@ GL_VERSION_STR
 // gs_global u32 layout_count = sizeof(layout) / sizeof(gs_vertex_attribute_type); 
 
 // Vertex data for triangle
-gs_global f32 v_data[] = {
+gs_global f32 bp_v_data[] = {
 	// Positions  UVs
 	-1.0f, -1.0f,  0.0f, 0.0f,	// Top Left
 	 1.0f, -1.0f,  1.0f, 0.0f,	// Top Right 
@@ -96,7 +137,7 @@ gs_global f32 v_data[] = {
 	 1.0f,  1.0f,  1.0f, 1.0f   // Bottom Right
 };
 
-gs_global u32 i_data[] = {
+gs_global u32 bp_i_data[] = {
 	0, 2, 3,
 	3, 1, 0
 };
@@ -179,16 +220,16 @@ blur_pass_t blur_pass_ctor(gs_handle(gs_graphics_framebuffer_t) fb)
     // Construct vertex buffer
     bp.data.vbo = gs_graphics_vertex_buffer_create(
         &(gs_graphics_vertex_buffer_desc_t) {
-            .data = v_data,
-            .size = sizeof(v_data)
+            .data = bp_v_data,
+            .size = sizeof(bp_v_data)
         }
     );
 
     // Construct index buffer
     bp.data.ibo = gs_graphics_index_buffer_create(
         &(gs_graphics_index_buffer_desc_t) {
-            .data = i_data,
-            .size = sizeof(i_data)
+            .data = bp_i_data,
+            .size = sizeof(bp_i_data)
         }
     );
 
@@ -249,8 +290,8 @@ blur_pass_t blur_pass_ctor(gs_handle(gs_graphics_framebuffer_t) fb)
         }
     );
 
-	// bp.data.vb = gfx->construct_vertex_buffer(layout, layout_count, v_data, sizeof(v_data));
-	// bp.data.ib = gfx->construct_index_buffer(i_data, sizeof(i_data));
+	// bp.data.vb = gfx->construct_vertex_buffer(layout, layout_count, bp_v_data, sizeof(bp_v_data));
+	// bp.data.ib = gfx->construct_index_buffer(bp_i_data, sizeof(bp_i_data));
 
 	return bp;
 }
@@ -348,20 +389,3 @@ void _blur_pass(gs_command_buffer_t* cb, render_pass_i* _pass, void* _params)
 		// }
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

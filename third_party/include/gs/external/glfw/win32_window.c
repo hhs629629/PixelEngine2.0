@@ -37,7 +37,7 @@
 #include <shellapi.h>
 
 // Returns the window style for the specified window
-//
+// 사용 glfw/win32_window.c
 static DWORD getWindowStyle(const _GLFWwindow* window)
 {
     DWORD style = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
@@ -63,7 +63,7 @@ static DWORD getWindowStyle(const _GLFWwindow* window)
 }
 
 // Returns the extended window style for the specified window
-//
+// 사용 glfw/win32_window.c
 static DWORD getWindowExStyle(const _GLFWwindow* window)
 {
     DWORD style = WS_EX_APPWINDOW;
@@ -187,7 +187,7 @@ static HICON createIcon(const GLFWimage* image,
 }
 
 // Translate content area size to full window size according to styles and DPI
-//
+// 사용 glfw/win32_window.c
 static void getFullWindowSize(DWORD style, DWORD exStyle,
                               int contentWidth, int contentHeight,
                               int* fullWidth, int* fullHeight,
@@ -504,7 +504,8 @@ static void releaseMonitor(_GLFWwindow* window)
 }
 
 // Window callback function (handles window messages)
-//
+// 사용 glfw/win32_window.c
+// 현상: 루프를 계속 돌며 창을 띄움 
 static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
                                    WPARAM wParam, LPARAM lParam)
 {
@@ -1188,7 +1189,7 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
 }
 
 // Creates the GLFW window
-//
+// 사용 gs_platform_impl.h
 static int createNativeWindow(_GLFWwindow* window,
                               const _GLFWwndconfig* wndconfig,
                               const _GLFWfbconfig* fbconfig)
@@ -1315,7 +1316,7 @@ static int createNativeWindow(_GLFWwindow* window,
 //////////////////////////////////////////////////////////////////////////
 
 // Registers the GLFW window class
-//
+// 사용 glfw/win32_window.c
 GLFWbool _glfwRegisterWindowClassWin32(void)
 {
     WNDCLASSEXW wc;
@@ -1362,6 +1363,7 @@ void _glfwUnregisterWindowClassWin32(void)
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
 
+// 사용 glfw/win32_window.c
 int _glfwPlatformCreateWindow(_GLFWwindow* window,
                               const _GLFWwndconfig* wndconfig,
                               const _GLFWctxconfig* ctxconfig,
@@ -1625,6 +1627,7 @@ void _glfwPlatformGetWindowFrameSize(_GLFWwindow* window,
         *bottom = rect.bottom - height;
 }
 
+// 사용 glfw/win32_window.c
 void _glfwPlatformGetWindowContentScale(_GLFWwindow* window,
                                         float* xscale, float* yscale)
 {
@@ -1648,6 +1651,7 @@ void _glfwPlatformMaximizeWindow(_GLFWwindow* window)
     ShowWindow(window->win32.handle, SW_MAXIMIZE);
 }
 
+// 사용 glfw/win32_window.c
 void _glfwPlatformShowWindow(_GLFWwindow* window)
 {
     ShowWindow(window->win32.handle, SW_SHOWNA);
@@ -1663,10 +1667,11 @@ void _glfwPlatformRequestWindowAttention(_GLFWwindow* window)
     FlashWindow(window->win32.handle, TRUE);
 }
 
+// 사용 glfw/win32_window.c
 void _glfwPlatformFocusWindow(_GLFWwindow* window)
 {
     BringWindowToTop(window->win32.handle);
-    SetForegroundWindow(window->win32.handle);
+    SetForegroundWindow(window->win32.handle); // 매우 긴 루프 주의
     SetFocus(window->win32.handle);
 }
 
@@ -1884,6 +1889,7 @@ GLFWbool _glfwPlatformRawMouseMotionSupported(void)
     return GLFW_TRUE;
 }
 
+// 사용 glfw/win32_window.c
 void _glfwPlatformPollEvents(void)
 {
     MSG msg;
@@ -2053,6 +2059,7 @@ int _glfwPlatformCreateCursor(_GLFWcursor* cursor,
     return GLFW_TRUE;
 }
 
+// 사용 glfw/win32_window.c
 int _glfwPlatformCreateStandardCursor(_GLFWcursor* cursor, int shape)
 {
     int id = 0;

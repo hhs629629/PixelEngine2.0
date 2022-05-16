@@ -44,7 +44,7 @@
 #define _GLFW_JOYSTICK_HATBIT   3
 
 // Finds a mapping based on joystick GUID
-//
+// 사용 glfw/input.c
 static _GLFWmapping* findMapping(const char* guid)
 {
     int i;
@@ -111,7 +111,7 @@ static _GLFWmapping* findValidMapping(const _GLFWjoystick* js)
 }
 
 // Parses an SDL_GameControllerDB line and adds it to the mapping list
-//
+// 사용 glfw/input.c
 static GLFWbool parseMapping(_GLFWmapping* mapping, const char* string)
 {
     const char* c = string;
@@ -748,6 +748,7 @@ GLFWAPI GLFWcursor* glfwCreateCursor(const GLFWimage* image, int xhot, int yhot)
     return (GLFWcursor*) cursor;
 }
 
+// 사용 glfw/input.c
 GLFWAPI GLFWcursor* glfwCreateStandardCursor(int shape)
 {
     _GLFWcursor* cursor;
@@ -830,6 +831,7 @@ GLFWAPI void glfwSetCursor(GLFWwindow* windowHandle, GLFWcursor* cursorHandle)
     _glfwPlatformSetCursor(window, cursor);
 }
 
+// 사용 glfw/input.c
 GLFWAPI GLFWkeyfun glfwSetKeyCallback(GLFWwindow* handle, GLFWkeyfun cbfun)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
@@ -1116,6 +1118,7 @@ GLFWAPI GLFWjoystickfun glfwSetJoystickCallback(GLFWjoystickfun cbfun)
     return cbfun;
 }
 
+// 사용 glfw/input.c
 GLFWAPI int glfwUpdateGamepadMappings(const char* string)
 {
     int jid;
@@ -1326,6 +1329,7 @@ GLFWAPI const char* glfwGetClipboardString(GLFWwindow* handle)
     return _glfwPlatformGetClipboardString();
 }
 
+// 사용 glfw/input.c
 GLFWAPI double glfwGetTime(void)
 {
     _GLFW_REQUIRE_INIT_OR_RETURN(0.0);

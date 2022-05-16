@@ -113,6 +113,7 @@ static void _glfw_terminate(void)
 //////                       GLFW internal API                      //////
 //////////////////////////////////////////////////////////////////////////
 
+// 사용 glfw/init.c
 char* _glfw_strdup(const char* source)
 {
     const size_t length = strlen(source);
@@ -223,6 +224,7 @@ void _glfwInputError(int code, const char* format, ...)
 //////                        GLFW public API                       //////
 //////////////////////////////////////////////////////////////////////////
 
+// 사용 glfw/init.c
 GLFWAPI int glfwInit(void)
 {
     if (_glfw.initialized)

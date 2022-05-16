@@ -1,15 +1,44 @@
-#include "render_pass/bright_filter_pass.h"
+#ifndef SS_BRIGHT_FILTER_PASS_H
+#define SS_BRIGHT_FILTER_PASS_H
+
+#include "render_pass_i.h"
+
+typedef struct bright_filter_data_t
+{
+	gs_handle(gs_graphics_shader_t) shader;
+	gs_handle(gs_graphics_uniform_t) u_input_tex;
+	gs_handle(gs_graphics_texture_t) rt;
+	gs_handle(gs_graphics_vertex_buffer_t) vbo;
+	gs_handle(gs_graphics_index_buffer_t) ibo;
+    gs_handle(gs_graphics_render_pass_t) rp;
+    gs_handle(gs_graphics_pipeline_t) pip;
+} bright_filter_data_t;
+
+typedef struct bright_filter_pass_t
+{
+	_base(render_pass_i);
+	bright_filter_data_t data;
+} bright_filter_pass_t;
+
+// Use this to pass in parameters for the pass ( will check for this)
+typedef struct bright_filter_pass_parameters_t 
+{
+	gs_handle(gs_graphics_texture_t) input_texture;
+} bright_filter_pass_parameters_t;
+
+bright_filter_pass_t bright_filter_pass_ctor(gs_handle(gs_graphics_framebuffer_t) fb);
+
+#endif
+
+//###############################################
 
 // Foward Decls
 void bp_pass(gs_command_buffer_t* cb, struct render_pass_i* pass, void* paramters);
 
 // Shaders
-#if (defined GS_PLATFORM_WEB || defined GS_PLATFORM_ANDROID)
-    #define GL_VERSION_STR "#version 300 es\n"
-#else
-    #define GL_VERSION_STR "#version 330 core\n"
-#endif
+#define GL_VERSION_STR "#version 330 core\n"
 
+#pragma region ÀÌ°Ô¹¹Áö
 const char* bp_v_src =
 GL_VERSION_STR
 "precision mediump float;\n"
@@ -36,6 +65,7 @@ GL_VERSION_STR
 "		frag_color = vec4(op * 0.1, 1.0);\n"
 "	}\n"
 "}\n";
+#pragma endregion
 
 // Vertex data layout for our mesh (for this shader, it's a single float2 attribute for position)
 // gs_global gs_vertex_attribute_type layout[] = {
@@ -46,7 +76,7 @@ GL_VERSION_STR
 // gs_global u32 layout_count = sizeof(layout) / sizeof(gs_vertex_attribute_type); 
 
 // Vertex data for triangle
-gs_global f32 v_data[] = {
+gs_global f32 bfp_v_data[] = {
 	// Positions  UVs
 	-1.0f, -1.0f,  0.0f, 0.0f,	// Top Left
 	 1.0f, -1.0f,  1.0f, 0.0f,	// Top Right 
@@ -54,7 +84,7 @@ gs_global f32 v_data[] = {
 	 1.0f,  1.0f,  1.0f, 1.0f   // Bottom Right
 };
 
-gs_global u32 i_data[] = {
+gs_global u32 bfp_i_data[] = {
 	0, 2, 3,
 	3, 1, 0
 };
@@ -68,16 +98,16 @@ bright_filter_pass_t bright_filter_pass_ctor(gs_handle(gs_graphics_framebuffer_t
     // Construct vertex buffer
     bp.data.vbo = gs_graphics_vertex_buffer_create(
         &(gs_graphics_vertex_buffer_desc_t) {
-            .data = v_data,
-            .size = sizeof(v_data)
+            .data = bfp_v_data,
+            .size = sizeof(bfp_v_data)
         }
     );
 
     // Construct index buffer
     bp.data.ibo = gs_graphics_index_buffer_create(
         &(gs_graphics_index_buffer_desc_t) {
-            .data = i_data,
-            .size = sizeof(i_data)
+            .data = bfp_i_data,
+            .size = sizeof(bfp_i_data)
         }
     );
 
@@ -223,5 +253,7 @@ bright_filter_pass_t bright_filter_pass_ctor(gs_handle(gs_graphics_framebuffer_t
 	// 	gfx->draw_indexed(cb, 6);
 	// }
 }
+
+
 
 

@@ -36,6 +36,7 @@
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
 
+// 사용 glfw/win32_thread.c
 GLFWbool _glfwPlatformCreateTls(_GLFWtls* tls)
 {
     assert(tls->win32.allocated == GLFW_FALSE);
@@ -59,18 +60,21 @@ void _glfwPlatformDestroyTls(_GLFWtls* tls)
     memset(tls, 0, sizeof(_GLFWtls));
 }
 
+// 사용 glfw/win32_thread.c
 void* _glfwPlatformGetTls(_GLFWtls* tls)
 {
     assert(tls->win32.allocated == GLFW_TRUE);
     return TlsGetValue(tls->win32.index);
 }
 
+// 사용 glfw/win32_thread.c
 void _glfwPlatformSetTls(_GLFWtls* tls, void* value)
 {
     assert(tls->win32.allocated == GLFW_TRUE);
     TlsSetValue(tls->win32.index, value);
 }
 
+// 사용 glfw/win32_thread.c
 GLFWbool _glfwPlatformCreateMutex(_GLFWmutex* mutex)
 {
     assert(mutex->win32.allocated == GLFW_FALSE);

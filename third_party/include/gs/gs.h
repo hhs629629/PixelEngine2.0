@@ -1,4 +1,7 @@
-﻿/*==============================================================================================================
+﻿#pragma warning(disable: 4996)
+#pragma warning(disable: 4146)
+
+/*==============================================================================================================
     * Copyright: 2020 John Jackson 
     * Gunslinger: A simple, header-only c99 multi-media framework
     * File: gs.h
@@ -39,15 +42,6 @@
 #ifndef GS_H
 #define GS_H
 
-/*═█═════════════════════════════════════════════════════════════════════════════════════█═╗
-████ ██████╗ ██╗   ██╗███╗   ██╗███████╗██╗     ██╗███╗   ██╗ ██████╗ ███████╗██████╗ ██████═█
-█║█ ██╔════╝ ██║   ██║████╗  ██║██╔════╝██║     ██║████╗  ██║██╔════╝ ██╔════╝██╔══██╗ ██═████
-███ ██║  ███╗██║   ██║██╔██╗ ██║███████╗██║     ██║██╔██╗ ██║██║ ███╗█████╗  ██████╔╝ █████═██
-╚██ ██║   ██║██║   ██║██║╚██╗██║╚════██║██║     ██║██║╚██╗██║██║   ██║██╔══╝  ██╔══██╗ ███ █╝█
-█║█ ╚██████╔╝╚██████╔╝██║ ╚████║███████║███████╗██║██║ ╚████║╚██████╔╝███████╗██║  ██║ ██═████
-████ ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝╚══════╝╚══════╝╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝ █═█═██
-╚═██════════════════════════════════════════════════════════════════════════════════════██═╝*/
-
 /*
     Gunslinger is a header-only, c99 framework for multi-media applications and tools.
 
@@ -85,7 +79,6 @@
 		* GS_LEXER
         * GS_PLATFORM
         * GS_GRAPHICS
-        * GS_AUDIO
 
     ================================================================================================================
 
@@ -459,14 +452,6 @@
             gs_platform_mouse_pressed(gs_platform_mouse_button_code)    // Checks to see if mouse button was pressed this frame (not pressed last frame)
             gs_platform_mouse_released(gs_platform_mouse_button_code)   // Checks to see if mouse button was released this frame
 
-    GS_AUDIO:
-
-        By default, Gunslinger includes and uses miniaudio for its audio backend. 
-        To define your own custom implementation and not use the included miniaudio implementation, define GS_AUDIO_IMPL_CUSTOM in your
-        project. Gunslinger will see this and leave the implementation of the audio API up to you:
-
-            // For custom audio implementation
-            #define GS_AUDIO_IMPL_CUSTOM
 
     GS_GRAPHICS:
 
@@ -711,7 +696,7 @@ typedef bool32_t          bool32;
     } while (0) 
 
 /*===================================
-// Memory Allocation Utils
+// Memory Allocation Utils - C style
 ===================================*/
 
 #ifndef gs_malloc
@@ -730,6 +715,7 @@ typedef bool32_t          bool32;
     #define gs_calloc(__NUM, __AZ) calloc(__NUM, __AZ)
 #endif
 
+// 사용 gs.h
 gs_force_inline 
 void* _gs_malloc_init_impl(size_t sz)
 {
@@ -1170,25 +1156,16 @@ void gs_util_normalize_path
 }
 
 // Custom printf defines
+// 사용 gs.h
 #ifndef gs_printf
 
     #ifdef __MINGW32__
-
         #define gs_printf(__FMT, ...) __mingw_printf(__FMT, ##__VA_ARGS__)
-
     #elif (defined GS_PLATFORM_ANDROID)
-
         #include <android/log.h>
-
         #define gs_printf(__FMT, ...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __FMT, ## __VA_ARGS__))
-
     #else
-        gs_force_inline void
-        gs_printf
-        (
-            const char* fmt,
-            ...
-        )
+        gs_force_inline void gs_printf(const char* fmt,...)
         {
             va_list args;
             va_start (args, fmt);
@@ -1196,7 +1173,6 @@ void gs_util_normalize_path
             va_end(args);
         }
     #endif
-
 #endif
 
 #define gs_println(__FMT, ...)\
@@ -1662,6 +1638,7 @@ void* gs_dyn_array_resize_impl(void* arr, size_t sz, size_t amount)
 #define gs_dyn_array_grow_size(__ARR, __SZ  )\
     gs_dyn_array_resize_impl((__ARR), (__SZ ), gs_dyn_array_capacity(__ARR) ? gs_dyn_array_capacity(__ARR) * 2 : 1)
 
+// 사용 gs.h
 gs_force_inline
 void** gs_dyn_array_init(void** arr, size_t val_len)
 {
@@ -1675,6 +1652,7 @@ void** gs_dyn_array_init(void** arr, size_t val_len)
     return NULL;
 }
 
+// 사용 gs.h
 gs_force_inline
 void gs_dyn_array_push_data(void** arr, void* val, size_t val_len)
 {
@@ -1698,6 +1676,7 @@ void gs_dyn_array_push_data(void** arr, void* val, size_t val_len)
     gs_dyn_array_head(*arr)->size++;
 }
 
+// 사용 gs.h
 gs_force_inline
 void gs_dyn_array_set_data_i(void** arr, void* val, size_t val_len, uint32_t offset)
 {
@@ -2058,6 +2037,7 @@ typedef struct __gs_slot_array_dummy_header {
 #define gs_slot_array_new(__T)\
     NULL
 
+// 사용 gs.h
 gs_force_inline
 uint32_t __gs_slot_array_find_next_available_index(gs_dyn_array(uint32_t) indices)
 {
@@ -2079,6 +2059,7 @@ uint32_t __gs_slot_array_find_next_available_index(gs_dyn_array(uint32_t) indice
     return idx;
 }
 
+// 사용 gs.h
 gs_force_inline
 void** gs_slot_array_init(void** sa, size_t sz)
 {
@@ -2096,6 +2077,7 @@ void** gs_slot_array_init(void** sa, size_t sz)
     (gs_slot_array_init((void**)&(__SA), sizeof(*(__SA))), gs_dyn_array_init((void**)&((__SA)->indices), sizeof(uint32_t)),\
         gs_dyn_array_init((void**)&((__SA)->data), sizeof((__SA)->tmp)))
 
+// 사용 gs.h
 gs_force_inline
 uint32_t gs_slot_array_insert_func(void** indices, void** data, void* val, size_t val_len, uint32_t* ip)
 {
@@ -2215,6 +2197,7 @@ typedef uint32_t gs_slot_array_iter;
 #define gs_slot_array_iter_valid(__SA, __IT)\
     (__SA && gs_slot_array_exists(__SA, __IT))
 
+// 사용 gs.h
 gs_force_inline
 void _gs_slot_array_iter_advance_func(gs_dyn_array(uint32_t) indices, uint32_t* it)
 {
@@ -2665,6 +2648,7 @@ typedef struct
     };
 } gs_vec2;
 
+// 사용 gs.h
 gs_inline gs_vec2 
 gs_vec2_ctor(f32 _x, f32 _y) 
 {
@@ -4845,157 +4829,6 @@ GS_API_DECL void     gs_platform_set_character_callback(uint32_t handle, gs_char
 /** @} */ // end of gs_platform
 
 /*=============================
-// GS_AUDIO
-=============================*/
-
-/** @defgroup gs_audio Audio
- *  Gunslinger Audio
- *  @{
- */
-
-typedef enum gs_audio_file_type
-{
-    GS_OGG = 0x00,
-    GS_WAV,
-    GS_MP3  
-} gs_audio_file_type;
-
-/*==================
-// Audio Source
-==================*/
-
-typedef struct gs_audio_source_t
-{
-    int32_t channels;
-    int32_t sample_rate;
-    void* samples;
-    int32_t sample_count;
-} gs_audio_source_t;
-
-gs_handle_decl(gs_audio_source_t);
-
-typedef struct gs_audio_instance_decl_t
-{
-    gs_handle(gs_audio_source_t) src;
-    float volume;
-    bool32_t loop;
-    bool32_t persistent;
-    bool32_t playing;
-    double sample_position;
-    void* user_data;
-} gs_audio_instance_decl_t;
-
-typedef gs_audio_instance_decl_t gs_audio_instance_t;
-gs_handle_decl(gs_audio_instance_t);
-
-typedef void (* gs_audio_commit)(int16_t* output, uint32_t num_channels, uint32_t sample_rate, uint32_t frame_count);
-
-/*=============================
-// Audio Interface
-=============================*/
-
-typedef struct gs_audio_t
-{
-    // Audio source data cache
-    gs_slot_array(gs_audio_source_t) sources;
-
-    // Audio instance data cache
-    gs_slot_array(gs_audio_instance_t) instances;
-
-    // Max global volume setting
-    float max_audio_volume;
-
-    // Min global volume setting
-    float min_audio_volume;
-
-    // Samples to actually write to hardware
-    void* sample_out; 
-
-    // Custom user commit function
-    gs_audio_commit commit;
-
-    // User data for custom impl
-    void* user_data;
-} gs_audio_t;
-
-/*=============================
-// Audio API
-=============================*/
-
-/* Audio Create, Destroy, Init, Shutdown, Submit */
-GS_API_DECL gs_audio_t* gs_audio_create();
-GS_API_DECL void        gs_audio_destroy(gs_audio_t* audio);
-GS_API_DECL gs_result   gs_audio_init(gs_audio_t* audio);
-GS_API_DECL gs_result   gs_audio_shutdown(gs_audio_t* audio);
-
-// Register commit function
-GS_API_DECL void gs_audio_register_commit(gs_audio_commit commit);
-
-/* Audio create source */
-GS_API_DECL gs_handle(gs_audio_source_t) gs_audio_load_from_file(const char* file_path);
-
-/* Audio create instance */
-GS_API_DECL gs_handle(gs_audio_instance_t) gs_audio_instance_create(gs_audio_instance_decl_t* decl);
-
-/* Locking audio thread (optional) */
-GS_API_DECL void gs_audio_mutex_lock(gs_audio_t* audio);
-GS_API_DECL void gs_audio_mutex_unlock(gs_audio_t* audio);
-
-/* Audio play instance */
-GS_API_DECL void     gs_audio_play_source(gs_handle(gs_audio_source_t) src, float volume);
-GS_API_DECL void     gs_audio_play(gs_handle(gs_audio_instance_t) inst);
-GS_API_DECL void     gs_audio_pause(gs_handle(gs_audio_instance_t) inst);
-GS_API_DECL void     gs_audio_stop(gs_handle(gs_audio_instance_t) inst);
-GS_API_DECL void     gs_audio_restart(gs_handle(gs_audio_instance_t) inst);
-GS_API_DECL bool32_t gs_audio_is_playing(gs_handle(gs_audio_instance_t) inst);
-
-/* Audio instance data */
-GS_API_DECL void                     gs_audio_set_instance_data(gs_handle(gs_audio_instance_t) inst, gs_audio_instance_decl_t decl);
-GS_API_DECL gs_audio_instance_decl_t gs_audio_get_instance_data(gs_handle(gs_audio_instance_t) inst);
-GS_API_DECL float                    gs_audio_get_volume(gs_handle(gs_audio_instance_t) inst);
-GS_API_DECL void                     gs_audio_set_volume(gs_handle(gs_audio_instance_t) inst, float volume);
-
-/* Audio source data */
-GS_API_DECL gs_audio_source_t* gs_audio_get_source_data(gs_handle(gs_audio_source_t) src);
-GS_API_DECL void               gs_audio_get_runtime(gs_handle(gs_audio_source_t) src, int32_t* minutes, int32_t* seconds);
-GS_API_DECL void               gs_audio_convert_to_runtime(int32_t sample_count, int32_t sample_rate, int32_t num_channels, int32_t position, int32_t* minutes_out, int32_t* seconds_out);
-GS_API_DECL int32_t            gs_audio_get_sample_count(gs_handle(gs_audio_source_t) src);
-GS_API_DECL int32_t            gs_audio_get_sample_rate(gs_handle(gs_audio_source_t) src);
-GS_API_DECL int32_t            gs_audio_get_num_channels(gs_handle(gs_audio_source_t) src);
-
-/* Resource Loading */
-GS_API_DECL bool32_t gs_audio_load_ogg_data_from_file(const char* file_path, int32_t* sample_count, int32_t* channels, int32_t* sample_rate, void** samples);
-GS_API_DECL bool32_t gs_audio_load_wav_data_from_file(const char* file_path, int32_t* sample_count, int32_t* channels, int32_t* sample_rate, void** samples);
-GS_API_DECL bool32_t gs_audio_load_mp3_data_from_file(const char* file_path, int32_t* sample_count, int32_t* channels, int32_t* sample_rate, void** samples);
-
-/* Short name definitions for convenience */
-#ifndef GS_NO_SHORT_NAME
-    /* Resources */
-    #define gsa_src      gs_handle(gs_audio_source_t)
-    #define gsa_inst     gs_handle(gs_audio_instance_t)
-    #define gsa_instdecl gs_audio_instance_decl_t
-    /* Create */
-    #define gsa_create   gs_audio_create
-    #define gsa_destroy  gs_audio_destroy
-    #define gsa_init     gs_audio_init
-    #define gsa_shutdown gs_audio_shutdown
-    #define gsa_submit   gs_audio_submit
-    /* Source */
-    #define gsa_load     gs_audio_load_from_file            
-    /* Instance */
-    #define gsa_make_inst gs_audio_instance_create
-
-    /* Audio play instance */
-    #define gsa_isplaying gs_audio_is_playing
-    #define gsa_play      gs_audio_play
-    #define gsa_play_src  gs_audio_play_source
-    #define gsa_pause     gs_audio_pause
-    #define gsa_restart   gs_audio_restart
-#endif
-
-/** @} */ // end of gs_audio
-
-/*=============================
 // GS_GRAPHICS
 =============================*/
 
@@ -5248,6 +5081,7 @@ gs_handle_decl(gs_graphics_uniform_buffer_t);
 gs_handle_decl(gs_graphics_framebuffer_t);
 gs_handle_decl(gs_graphics_uniform_t);
 gs_handle_decl(gs_graphics_render_pass_t);
+// 사용 gs.h
 gs_handle_decl(gs_graphics_pipeline_t);
 
 /* Graphics Shader Source Desc */
@@ -5683,13 +5517,6 @@ GS_API_DECL bool gs_asset_font_load_from_memory(const void* memory, size_t sz, v
 GS_API_DECL gs_vec2 gs_asset_font_text_dimensions(const gs_asset_font_t* font, const char* text, int32_t len);
 GS_API_DECL float gs_asset_font_max_height(const gs_asset_font_t* font);
 
-// Audio
-typedef struct gs_asset_audio_t
-{
-    gs_handle(gs_audio_source_t) hndl;
-} gs_asset_audio_t;
-
-GS_API_DECL bool gs_asset_audio_load_from_file(const char* path, void* out);
 
 // Mesh
 gs_enum_decl(gs_asset_mesh_attribute_type,
@@ -5817,7 +5644,6 @@ typedef struct gs_engine_context_t
 {
     gs_platform_t* platform;
     gs_graphics_t* graphics;
-    gs_audio_t* audio;
     gs_app_desc_t app;
 } gs_engine_context_t;
 
@@ -5905,18 +5731,6 @@ GS_API_DECL gs_app_desc_t gs_main(int32_t argc, char** argv);
 #endif
 
 #include "impl/gs_graphics_impl.h"
-
-/*=============================
-// GS_AUDIO
-=============================*/
-
-#ifndef GS_AUDIO_IMPL_CUSTOM
-
-#define GS_AUDIO_IMPL_MINIAUDIO
-
-#endif
-
-#include "impl/gs_audio_impl.h"
 
 /*========================
 // gs_byte_buffer
@@ -6751,8 +6565,8 @@ void gs_camera_offset_orientation(gs_camera_t* cam, f32 yaw, f32 pitch)
 
 // CGLTF
 #include "external/cgltf/cgltf.h"
-
-bool32_t gs_util_load_texture_data_from_file(const char* file_path, int32_t* width, int32_t* height, uint32_t* num_comps, void** data, bool32_t flip_vertically_on_load)
+// 수정
+bool32_t gs_util_load_texture_data_from_file(const char* file_path, int32_t* width, int32_t* height, int32_t* num_comps, void** data, bool32_t flip_vertically_on_load)
 {
     size_t len = 0;
     char* file_data = gs_platform_read_file_contents(file_path, "rb", &len);
@@ -6994,13 +6808,6 @@ GS_API_DECL gs_vec2 gs_asset_font_text_dimensions(const gs_asset_font_t* fp, con
     return dimensions;
 }
 
-// Audio
-bool gs_asset_audio_load_from_file(const char* path, void* out)
-{
-    gs_asset_audio_t* a = (gs_asset_audio_t*)out;
-    a->hndl = gs_audio_load_from_file(path);
-    return gs_handle_is_valid(a->hndl);
-}
 
 bool gs_util_load_gltf_data_from_file(const char* path, gs_asset_mesh_decl_t* decl, gs_asset_mesh_raw_data_t** out, uint32_t* mesh_count)
 {
@@ -7795,6 +7602,7 @@ void gs_default_main_window_close_callback(void* window);
 // Global instance of gunslinger engine (...THERE CAN ONLY BE ONE)
 gs_global gs_engine_t* __g_engine_instance = gs_default_val();
 
+// 사용 gs.h
 gs_engine_t* gs_engine_create(gs_app_desc_t app_desc)
 {
     if (gs_engine_instance() == NULL)
@@ -7826,13 +7634,13 @@ gs_engine_t* gs_engine_create(gs_app_desc_t app_desc)
         // Default initialization for platform here
         gs_platform_init(gs_engine_subsystem(platform));
 
-        // Set frame rate for application
+        // Set frame rate for application - 빨리 끝남
         gs_engine_subsystem(platform)->time.max_fps = app_desc.frame_rate;
 
-        // Construct main window
+        // Construct main window - 윈도우 창 생성 시점
         gs_platform_create_window(app_desc.window_title, app_desc.window_width, app_desc.window_height, app_desc.monitor_index);
 
-        // Set vsync for video
+        // Set vsync for video - 꽤 김
         gs_platform_enable_vsync(app_desc.enable_vsync); 
 
         // Construct graphics api 
@@ -7840,12 +7648,6 @@ gs_engine_t* gs_engine_create(gs_app_desc_t app_desc)
 
         // Initialize graphics here
         gs_graphics_init(gs_engine_subsystem(graphics));
-
-        // Construct audio api
-        gs_engine_subsystem(audio) = gs_audio_create();
-
-        // Initialize audio
-        gs_audio_init(gs_engine_subsystem(audio));
 
         // Initialize application
         app_desc.init();
@@ -7859,23 +7661,27 @@ gs_engine_t* gs_engine_create(gs_app_desc_t app_desc)
     return gs_engine_instance();
 }
 
-gs_engine_t* gs_engine_instance()
+// 사용 gs.h
+inline gs_engine_t* gs_engine_instance()
 {
     return __g_engine_instance;
 }
 
-gs_engine_context_t* gs_engine_ctx()
+// 사용 gs.h
+inline gs_engine_context_t* gs_engine_ctx()
 {
     return &gs_engine_instance()->ctx;
 }
 
-gs_app_desc_t* gs_engine_app()
+// 사용 gs.h
+inline gs_app_desc_t* gs_engine_app()
 {
     return &gs_engine_instance()->ctx.app;
 }
 
 // Define main frame function for engine to step
 // Get rid of this eventually and just allow for the internal platform layer to decide how to update.
+// 사용 gs.h - 메인루프에서 매번 호출됨
 GS_API_DECL void gs_engine_frame()
 {
     // Remove these...
@@ -7923,7 +7729,8 @@ GS_API_DECL void gs_engine_frame()
     platform->time.current  = gs_platform_elapsed_time();
     platform->time.render   = platform->time.current - platform->time.previous;
     platform->time.previous = platform->time.current;
-    platform->time.frame    = platform->time.update + platform->time.render;            // Total frame time
+    platform->time.frame    = platform->time.update + platform->time.render;            
+    // Total frame time
     platform->time.delta    = platform->time.frame / 1000.f;
 
     float target = (1000.f / platform->time.max_fps);
@@ -7940,6 +7747,7 @@ GS_API_DECL void gs_engine_frame()
     }
 }
 
+// 사용 gs.h - 창을 닫을 시 호출됨
 void gs_engine_destroy()
 {
     // Shutdown application
@@ -7950,14 +7758,12 @@ void gs_engine_destroy()
     gs_graphics_shutdown(gs_engine_subsystem(graphics));
     gs_graphics_destroy(gs_engine_subsystem(graphics));
 
-    gs_audio_shutdown(gs_engine_subsystem(audio));
-    gs_audio_destroy(gs_engine_subsystem(audio));
-
     gs_platform_shutdown(gs_engine_subsystem(platform)); 
     gs_platform_destroy(gs_engine_subsystem(platform));
 }
 
-void gs_default_app_func()
+// 사용 gs.h
+inline void gs_default_app_func()
 {
     // Nothing...
 }
@@ -7977,254 +7783,3 @@ void gs_engine_quit()
 #undef GS_IMPL
 #endif // GS_IMPL 
 #endif // GS_H
-
-/*
-    Layout decl
-
-    // Pipeline should have layout desc for vertices?
-    // Or should it have layout for EACH buffer?
-        
-    non-interleaved vertex data
-    have to be able to specific stride/offset for vertex layouts
-
-    What are ways to interleave data?
-
-    layout descriptor? 
-
-    gs_vertex_attribute_type layouts[] = 
-    {
-
-    };
-
-    // Need to codify strides/offsets/divisors
-
-    // This can hold multiple layouts
-    gs_vertex_layout_desc_t layout = 
-    {
-        .layouts = layouts, 
-        .size = sizeof(layouts) 
-    };
-
-    Don't want to have to make user calculate strides, right?
-
-    // If you don't provide manual stride/offset, then it'll calculate it for you based on layout?
-
-    #version 330 core
-    layout (location = 0) in vec2 aPos;
-    layout (location = 1) in vec3 aColor;
-    layout (location = 2) in vec2 aOffset;
-
-    out vec3 fColor;
-
-    void main()
-    {
-        gl_Position = vec4(aPos + aOffset, 0.0, 1.0);
-        fColor = aColor;
-    }
-
-    typedef struct gs_vertex_attribute_layout_desc_t {
-        gs_vertex_attribute_type format; 
-        size_t stride;
-        size_t offset;
-        size_t divisor;
-    } gs_vertex_attribute_layout_desc_t;
-
-    gs_vertex_attribute_layout_desc_t layout[] = {
-        {.format = GS_VERTEX_ATTRIBUTE_FLOAT2},
-        {.format = GS_VERTEX_ATTRIBUTE_FLOAT3},
-        {.format = GS_VERTEX_ATTRIBUTE_FLOAT2, .stride = 2 * sizeof(float), .offset = 0, .divisor = 1}
-    };
-
-    What about non-interleaved data? Almost would need to provide an offset.
-    It's specific to the data itself, so have to provide manual offsets for data in binding data
-
-    gs_graphics_bind_desc_t binds[] = {
-        {.type = GS_GRAPHICS_BIND_VERTEX_BUFFER, .buffer = , .offset = };
-    }
-
-    gs_graphics_bind_desc_t binds[] = {
-        (gs_graphics_bind_desc_t){.type = GS_GRAPHICS_BIND_VERTEX_BUFFER, .buffer = vbo, .offset = ...},
-        (gs_graphics_bind_desc_t){.type = GS_GRAPHICS_BIND_VERTEX_BUFFER, .buffer = vbo, .offset = ...},
-    };
-
-    .layout = {
-        .attributes = &(){
-            {.format = GS_VERTEX_ATTRIBUTE_FLOAT2},
-            {.format = GS_VERTEX_ATTRIBUTE_FLOAT2},
-            {.format = GS_VERTEX_ATTRIBUTE_FLOAT4, .stride = 64, .offset =, .divisor = }
-        } 
-    };
-
-    sg_pipeline pip = sg_make_pipeline(&(sg_pipeline_desc){
-        .shader = shd,
-        .layout = {
-            .attrs = {
-                [0].format=SG_VERTEXFORMAT_FLOAT3,
-                [1].format=SG_VERTEXFORMAT_FLOAT4
-            }
-        }
-    });
-
-    .layout = {
-        .attrs = attrs, 
-        .attr_size = sizeof(attrs), 
-        .strides = strides, 
-        .stride_size = sizeof(strides),
-
-    }
-
-    sg_pipeline pip = sg_make_pipeline(&(sg_pipeline_desc){
-        .layout = {
-            .buffers = {
-                [0] = { .stride = 28 },
-                [1] = { .stride = 12, .step_func=SG_VERTEXSTEP_PER_INSTANCE }
-            },
-            .attrs = {
-                [0] = { .offset = 0,  .format=SG_VERTEXFORMAT_FLOAT3, .buffer_index=0 },
-                [1] = { .offset = 12, .format=SG_VERTEXFORMAT_FLOAT4, .buffer_index=0 },
-                [2] = { .offset = 0,  .format=SG_VERTEXFORMAT_FLOAT3, .buffer_index=1 }
-            }
-        },
-        .shader = shd,
-        .index_type = SG_INDEXTYPE_UINT16,
-        .depth_stencil = {
-            .depth_compare_func = SG_COMPAREFUNC_LESS_EQUAL,
-            .depth_write_enabled = true
-        },
-        .rasterizer.cull_mode = SG_CULLMODE_BACK
-    });
-
-    float quadVertices[] = {
-        // positions     // colors
-        -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
-         0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
-        -0.05f, -0.05f,  0.0f, 0.0f, 1.0f,
-
-        -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
-         0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
-         0.05f,  0.05f,  0.0f, 1.0f, 1.0f
-    };
-
-    // also set instance data
-    glEnableVertexAttribArray(2);
-    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO); // this attribute comes from a different vertex buffer
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glVertexAttribDivisor(2, 1); // tell OpenGL this is an instanced vertex attribute.
-
-    gltf loading
-
-    Mesh Attributes:
-        cgltf_attribute_type_invalid,
-        cgltf_attribute_type_position,
-        cgltf_attribute_type_normal,
-        cgltf_attribute_type_tangent,
-        cgltf_attribute_type_texcoord,
-        cgltf_attribute_type_color,
-        cgltf_attribute_type_joints,
-        cgltf_attribute_type_weights,
-
-    Primitive types:
-        cgltf_primitive_type_points,
-        cgltf_primitive_type_lines,
-        cgltf_primitive_type_line_loop,
-        cgltf_primitive_type_line_strip,
-        cgltf_primitive_type_triangles,
-        cgltf_primitive_type_triangle_strip,
-        cgltf_primitive_type_triangle_fan,
-
-    For each mesh: 
-        For each primitive: 
-            For each attribute:
-                Get data and push into mesh definition
-
-    Is there a way to have the user be able to specify a layout and then use that for the mesh?
-
-    gs_enum_decl(gs_asset_mesh_attribute_type,
-        GS_ASSET_MESH_ATTRIBUTE_TYPE_POSITION,
-        GS_ASSET_MESH_ATTRIBUTE_TYPE_NORMAL,
-        GS_ASSET_MESH_ATTRIBUTE_TYPE_TANGENT,
-        GS_ASSET_MESH_ATTRIBUTE_TYPE_JOINT,
-        GS_ASSET_MESH_ATTRIBUTE_TYPE_WEIGHT,
-        GS_ASSET_MESH_ATTRIBUTE_TYPE_TEXCOORD,
-        GS_ASSET_MESH_ATTRIBUTE_TYPE_COLOR
-    });
-
-    typedef struct gs_asset_mesh_layout_t {
-        gs_asset_mesh_attribute_type type;     // Type of attribute
-        uint32_t idx;                          // Optional index (for joint/weight/texcoord/color)
-    } gs_asset_mesh_layout_t;
-
-    typedef struct gs_asset_mesh_decl_t
-    {
-        gs_asset_mesh_layout_t* layout;        // Mesh attribute layout array
-        size_t layout_size;                    // Size of mesh attribute layout array in bytes
-    } gs_asset_mesh_decl_t;
-
-    // Mesh holds...what?
-    // A pipeline? Shouldn't have to.
-    // Material? Nope.
-    // It's just mesh data. (so an index/vertex buffer)
-
-    typedef struct gs_asset_mesh_t
-    {
-        gs_handle(gs_graphics_buffer_t) vbo;
-        gs_handle(gs_graphics_buffer_t) ibo;
-    } gs_asset_mesh_t;
-
-    void gs_asset_mesh_load_from_file(const char* path, void* out, gs_asset_mesh_decl_t* decl, void* data_out, size_t data_size)
-    {
-        gs_asset_mesh_t* mesh = (gs_asset_mesh_t*)out;
-
-        // Parse gltf data
-    }
-
-    Does this need to line up with a pipeline? Not necessarily, right?
-
-    // At LEAST position is required to be passed in for the layout, so maybe it's not necessary 
-    // to provide this in the layout?
-    // Can you duplicate? I don't think so...
-    gs_asset_mesh_attribute_type layout[] =
-    {
-        POSITION,
-        NORMAL,
-        TANGENT,
-        JOINTS_XXX,
-        WEIGHTS_XXX,
-        TEXCOORD_XXX,
-        COLOR_XXX
-
-    };
-
-    gs_asset_mesh_t mesh = gs_asset_load_gltf(path, layout, sizeof(layout));
-
-    // Do you HAVE to have certain attributes for a mesh to make any sense? For instance, do you HAVE to have position?
-    // What if position is NOT the first attribute layout for your vertex attribute?
-
-    // Need to fill out data for each attribute, then interleave?
-
-    ^()
-    {
-        For each mesh: 
-            For each primitive: 
-                For each attribute:
-                    Get data and push into mesh definition 
-    }
-
-
-    main update for web? android? probably want to move to different "main" implementations:
-        gs_win32_main
-        gs_glfw_linux_main
-        gs_glfw_osx_main
-        gs_glfw_win32_main
-        gs_glfw_emsc_main
-
-        Each platform should define its own main function, control its own loop, reach into application code, then
-        run how it needs to.
-
-        int main(int32_t argc, char** argv) 
-        {
-            emscripten_set_main_loop(gs_engine_create(gs_main(argc, argv))->run(), 0, true);
-        }
-
-*/

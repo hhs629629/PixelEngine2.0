@@ -73,25 +73,25 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)Bin\$(Configuration)_$(Platform)\</OutDir>
-    <IncludePath>$(SolutionDir)\include\;$(SolutionDir)\third_party\include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\third_party\include\;$(IncludePath)</IncludePath>
     <IntDir>$(SolutionDir)Temp\$(Configuration)_$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Bin\$(Configuration)_$(Platform)\</OutDir>
-    <IncludePath>$(SolutionDir)\include\;$(SolutionDir)\third_party\include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\third_party\include\;$(IncludePath)</IncludePath>
     <IntDir>$(SolutionDir)Temp\$(Configuration)_$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)Bin\$(Configuration)_$(Platform)\</OutDir>
-    <IncludePath>$(SolutionDir)\include\;$(SolutionDir)\third_party\include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\third_party\include\;$(IncludePath)</IncludePath>
     <IntDir>$(SolutionDir)Temp\$(Configuration)_$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Bin\$(Configuration)_$(Platform)\</OutDir>
-    <IncludePath>$(SolutionDir)\include\;$(SolutionDir)\third_party\include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\third_party\include\;$(IncludePath)</IncludePath>
     <IntDir>$(SolutionDir)Temp\$(Configuration)_$(Platform)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -102,9 +102,10 @@
       <ConformanceMode>true</ConformanceMode>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <DisableSpecificWarnings>4996;4146;</DisableSpecificWarnings>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <LanguageStandard_C>stdc11</LanguageStandard_C>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,9 +122,10 @@
       <ConformanceMode>true</ConformanceMode>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <DisableSpecificWarnings>4996;4146;</DisableSpecificWarnings>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <LanguageStandard_C>stdc11</LanguageStandard_C>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -140,9 +142,10 @@
       <ConformanceMode>true</ConformanceMode>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <DisableSpecificWarnings>4996;4146;</DisableSpecificWarnings>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <LanguageStandard_C>stdc11</LanguageStandard_C>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -159,9 +162,10 @@
       <ConformanceMode>true</ConformanceMode>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <DisableSpecificWarnings>4996;4146;</DisableSpecificWarnings>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <LanguageStandard_C>stdc11</LanguageStandard_C>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -172,9 +176,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="render_passes\blur_pass.c" />
-    <ClCompile Include="render_passes\bright_filter_pass.c" />
-    <ClCompile Include="render_passes\composite_pass.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="blur_pass.h" />
+    <ClInclude Include="bright_filter_pass.h" />
+    <ClInclude Include="composite_pass.h" />
+    <ClInclude Include="font.h" />
+    <ClInclude Include="render_pass_i.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ProgressLog.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
