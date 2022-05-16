@@ -2508,6 +2508,7 @@ static void find_coreGL(void) {
     }
 }
 
+// »ç¿ë glad/glad_impl.h
 int gladLoadGLLoader(GLADloadproc load) {
     GLVersion.major = 0; GLVersion.minor = 0;
     glGetString = (PFNGLGETSTRINGPROC)load("glGetString");

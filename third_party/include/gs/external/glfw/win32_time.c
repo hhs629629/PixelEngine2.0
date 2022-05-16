@@ -35,7 +35,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 // Initialise timer
-//
+// 사용 glfw/win32_time.c
 void _glfwInitTimerWin32(void)
 {
     uint64_t frequency;
@@ -57,6 +57,7 @@ void _glfwInitTimerWin32(void)
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
 
+// 사용 glfw/win32_time.c
 uint64_t _glfwPlatformGetTimerValue(void)
 {
     if (_glfw.timer.win32.hasPC)
@@ -69,6 +70,7 @@ uint64_t _glfwPlatformGetTimerValue(void)
         return (uint64_t) timeGetTime();
 }
 
+// 사용 glfw/win32_time.c
 uint64_t _glfwPlatformGetTimerFrequency(void)
 {
     return _glfw.timer.win32.frequency;

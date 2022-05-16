@@ -45,7 +45,7 @@
 // This function checks things like whether the specified client API version
 // exists and whether all relevant options have supported and non-conflicting
 // values
-//
+// 사용 glfw/context.c
 GLFWbool _glfwIsValidContextConfig(const _GLFWctxconfig* ctxconfig)
 {
     if (ctxconfig->share)
@@ -610,6 +610,7 @@ GLFWbool _glfwStringInExtensionString(const char* string, const char* extensions
 //////                        GLFW public API                       //////
 //////////////////////////////////////////////////////////////////////////
 
+// 사용 glfw/context.c
 GLFWAPI void glfwMakeContextCurrent(GLFWwindow* handle)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
@@ -640,6 +641,7 @@ GLFWAPI GLFWwindow* glfwGetCurrentContext(void)
     return (GLFWwindow*)_glfwPlatformGetTls(&_glfw.contextSlot);
 }
 
+// 사용 glfw/context.c
 GLFWAPI void glfwSwapBuffers(GLFWwindow* handle)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
@@ -657,6 +659,7 @@ GLFWAPI void glfwSwapBuffers(GLFWwindow* handle)
     window->context.swapBuffers(window);
 }
 
+// 사용 glfw/context
 GLFWAPI void glfwSwapInterval(int interval)
 {
     _GLFWwindow* window;

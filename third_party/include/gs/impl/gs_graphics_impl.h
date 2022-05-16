@@ -159,6 +159,7 @@ typedef enum gs_opengl_op_code_type
     GS_OPENGL_OP_DRAW,
 } gs_opengl_op_code_type;
 
+// 사용 gs_graphics_impl.h
 void gsgl_reset_data_cache(gsgl_data_cache_t* cache)
 {
     cache->ibo = 0;
@@ -526,6 +527,7 @@ size_t gsgl_uniform_data_size_in_bytes(gs_graphics_uniform_type type)
 }
 
 /* Graphics Interface Creation / Initialization / Shutdown / Destruction */
+// 사용 gs_graphics_impl.h
 gs_graphics_t* gs_graphics_create()
 {
     // Construct new graphics interface
@@ -537,6 +539,7 @@ gs_graphics_t* gs_graphics_create()
     return gfx;
 }
 
+// 사용 gs_graphics_impl.h - 종료 시퀀스
 void gs_graphics_destroy(gs_graphics_t* graphics)
 {
     // Free all resources (assuming they've been freed from the GPU already)
@@ -592,6 +595,7 @@ void gs_graphics_destroy(gs_graphics_t* graphics)
     graphics = NULL;
 }
 
+// 사용 gs_graphics_impl.h
 void gs_graphics_init(gs_graphics_t* graphics)
 {
     // Push back 0 handles into slot arrays (for 0 init validation)
@@ -622,13 +626,17 @@ void gs_graphics_init(gs_graphics_t* graphics)
     gsgl_reset_data_cache(&ogl->cache);
 
     // Init info object
+    // 사용 gs_graphics_impl.h
     gs_graphics_info_t* info = &gs_engine_subsystem(graphics)->info;
 
     // Major/Minor version
+    // 사용 gs_graphics_impl.h
     glGetIntegerv(GL_MAJOR_VERSION, (GLint*)&info->major_version);
+    // 사용 gs_graphics_impl.h
     glGetIntegerv(GL_MINOR_VERSION, (GLint*)&info->minor_version);
 
     // Compute shader info
+    // 사용 gs_graphics_impl.h
     CHECK_GL_CORE(
         info->compute.available = info->major_version >= 4 && info->minor_version >= 3;
         if (info->compute.available)
@@ -647,7 +655,8 @@ void gs_graphics_init(gs_graphics_t* graphics)
     )
 }
 
-void gs_graphics_shutdown(gs_graphics_t* graphics)
+// 사용 gs_graphics_impl.h - 종료 시퀀스
+inline void gs_graphics_shutdown(gs_graphics_t* graphics)
 {
 }
 

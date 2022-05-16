@@ -149,6 +149,7 @@ void _glfwInputWindowMonitor(_GLFWwindow* window, _GLFWmonitor* monitor)
 //////                        GLFW public API                       //////
 //////////////////////////////////////////////////////////////////////////
 
+// 사용 glfw/window.c
 GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
                                      const char* title,
                                      GLFWmonitor* monitor,
@@ -246,6 +247,7 @@ GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
     return (GLFWwindow*) window;
 }
 
+// 사용 glfw/window.c
 void glfwDefaultWindowHints(void)
 {
     _GLFW_REQUIRE_INIT();
@@ -285,6 +287,7 @@ void glfwDefaultWindowHints(void)
     _glfw.hints.window.ns.retina = GLFW_TRUE;
 }
 
+// 사용 glfw/window.c
 GLFWAPI void glfwWindowHint(int hint, int value)
 {
     _GLFW_REQUIRE_INIT();
@@ -992,6 +995,7 @@ GLFWAPI GLFWwindowsizefun glfwSetWindowSizeCallback(GLFWwindow* handle,
     return cbfun;
 }
 
+// 사용 glfw/window.c
 GLFWAPI GLFWwindowclosefun glfwSetWindowCloseCallback(GLFWwindow* handle,
                                                       GLFWwindowclosefun cbfun)
 {
@@ -1069,6 +1073,7 @@ GLFWAPI GLFWwindowcontentscalefun glfwSetWindowContentScaleCallback(GLFWwindow* 
     return cbfun;
 }
 
+// 사용 glfw/window.c
 GLFWAPI void glfwPollEvents(void)
 {
     _GLFW_REQUIRE_INIT();

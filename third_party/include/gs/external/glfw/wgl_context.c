@@ -292,6 +292,7 @@ static int choosePixelFormat(_GLFWwindow* window,
 #undef addAttrib
 #undef findAttribValue
 
+// 사용 glfw/wgl_context.c
 static void makeContextCurrentWGL(_GLFWwindow* window)
 {
     if (window)
@@ -340,6 +341,7 @@ static void swapBuffersWGL(_GLFWwindow* window)
     SwapBuffers(window->context.wgl.dc);
 }
 
+// glfw/wgl_context.c
 static void swapIntervalWGL(int interval)
 {
     _GLFWwindow* window = (_GLFWwindow*)_glfwPlatformGetTls(&_glfw.contextSlot);

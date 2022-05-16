@@ -37,7 +37,7 @@
 
 
 // Callback for EnumDisplayMonitors in createMonitor
-//
+// 사용 glfw/win32_monitor.c
 static BOOL CALLBACK monitorCallback(HMONITOR handle,
                                      HDC dc,
                                      RECT* rect,
@@ -58,7 +58,7 @@ static BOOL CALLBACK monitorCallback(HMONITOR handle,
 }
 
 // Create monitor from an adapter and (optionally) a display
-//
+// 사용 glfw/win32_monitor.c
 static _GLFWmonitor* createMonitor(DISPLAY_DEVICEW* adapter,
                                    DISPLAY_DEVICEW* display)
 {
@@ -133,7 +133,7 @@ static _GLFWmonitor* createMonitor(DISPLAY_DEVICEW* adapter,
 //////////////////////////////////////////////////////////////////////////
 
 // Poll for changes in the set of connected monitors
-//
+// 사용 glfw/win32_monitor.c
 void _glfwPollMonitorsWin32(void)
 {
     int i, disconnectedCount;
@@ -312,6 +312,7 @@ void _glfwRestoreVideoModeWin32(_GLFWmonitor* monitor)
     }
 }
 
+// 사용 glfw/win32_monitor.c
 void _glfwGetMonitorContentScaleWin32(HMONITOR handle, float* xscale, float* yscale)
 {
     UINT xdpi, ydpi;

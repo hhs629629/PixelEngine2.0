@@ -32,6 +32,7 @@
 
 /*== Platform Window ==*/
 
+// 사용 gs_platform_impl.h
 gs_platform_t* gs_platform_create()
 {
     // Construct new platform interface
@@ -46,6 +47,7 @@ gs_platform_t* gs_platform_create()
     return platform;
 }
 
+// 사용 gs_platform_impl.h - 종료 시퀀스
 void gs_platform_destroy(gs_platform_t* platform)
 {
     if (platform == NULL) return;
@@ -58,6 +60,7 @@ void gs_platform_destroy(gs_platform_t* platform)
     platform = NULL;
 }
 
+// 사용 gs_platform_impl.h
 uint32_t gs_platform_create_window(const char* title, uint32_t width, uint32_t height, uint32_t monitor_index)
 {
     gs_assert(gs_engine_instance() != NULL);
@@ -66,6 +69,7 @@ uint32_t gs_platform_create_window(const char* title, uint32_t width, uint32_t h
     return (gs_slot_array_insert(platform->windows, win));
 }
 
+// 사용 gs_platform_impl.h
 uint32_t gs_platform_main_window()
 {
     // Should be the first element of the slot array...Great assumption to make.
@@ -159,6 +163,8 @@ uint32_t gs_platform_uuid_hash(const gs_uuid_t* uuid)
     (&gs_engine_subsystem(platform)->input)
 
 /*=== Platform Input ===*/
+
+// 사용 gs_platform_impl.h
 void gs_platform_update_input(gs_platform_input_t* input)
 {
     // Update all input and mouse keys from previous frame
@@ -183,6 +189,7 @@ void gs_platform_update_input(gs_platform_input_t* input)
     }
 }
 
+// 사용 gs_platform_impl.h
 void gs_platform_poll_all_events()
 {
     gs_platform_t* platform = gs_engine_subsystem(platform);
@@ -326,6 +333,7 @@ void gs_platform_poll_all_events()
     }
 }
 
+// 사용 gs_platform_impl.h
 void gs_platform_update(gs_platform_t* platform)
 {
     // Update platform input from previous frame        
@@ -338,6 +346,7 @@ void gs_platform_update(gs_platform_t* platform)
     gs_platform_poll_all_events();
 }
 
+// 사용 gs_platform_impl.h
 bool gs_platform_poll_events(gs_platform_event_t* evt, bool32_t consume)
 {
     gs_platform_t* platform = gs_engine_subsystem(platform);
@@ -670,7 +679,7 @@ int32_t gs_platform_file_size_in_bytes_default_impl(const char* file_path)
 {
     #ifdef GS_PLATFORM_WIN
 
-        HANDLE hFile = CreateFile((LPCWSTR)file_path, GENERIC_READ, 
+        HANDLE hFile = CreateFile((LPCWSTR)file_path, GENERIC_READ,  //(LPCWSTR) 추가
         FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 
         FILE_ATTRIBUTE_NORMAL, NULL);
         if (hFile==INVALID_HANDLE_VALUE)
@@ -749,6 +758,7 @@ void __glfw_drop_callback(GLFWwindow* window);
 
 /*== Platform Init / Shutdown == */
 
+// 사용 gs_platform_impl.h
 void gs_platform_init(gs_platform_t* pf)
 {
     gs_assert(pf);
@@ -756,6 +766,7 @@ void gs_platform_init(gs_platform_t* pf)
     gs_println("Initializing GLFW");
     glfwInit();
 
+    // 더럽게 오래동안 루프를 도니 주의. 쓰레드 반환 시점
     switch (pf->settings.video.driver)
     {
         case GS_PLATFORM_VIDEO_DRIVER_TYPE_OPENGL:
@@ -805,6 +816,7 @@ void gs_platform_init(gs_platform_t* pf)
     pf->cursors[(u32)GS_PLATFORM_CURSOR_NO]         = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
 }
 
+// 사용 gs_platform_impl.h - 종료 시퀀스
 void gs_platform_shutdown(gs_platform_t* pf)
 {
     // Free all windows in glfw
@@ -1367,7 +1379,7 @@ void __glfw_frame_buffer_size_callback(GLFWwindow* window, s32 width, s32 height
 }
 
 /*== Platform Input == */
-
+// 사용 gs_platform_impl.h
 void gs_platform_process_input(gs_platform_input_t* input)
 {
     glfwPollEvents();
@@ -1391,6 +1403,7 @@ void  gs_platform_sleep(float ms)
     #endif
 }
 
+// 사용 gs_platform_impl.h
 double gs_platform_elapsed_time()
 {
     return (glfwGetTime() * 1000.0);
@@ -1398,6 +1411,7 @@ double gs_platform_elapsed_time()
 
 /*== Platform Video == */
 
+// 사용 gs_platform_impl.h
 void  gs_platform_enable_vsync(int32_t enabled)
 {
     glfwSwapInterval(enabled ? 1 : 0);
@@ -1415,6 +1429,7 @@ void GLAPIENTRY __gs_platform_gl_debug(GLenum source, GLenum type, GLuint id, GL
 
 /*== Platform Window == */
 
+// 사용 gs_platform_impl.h
 void* gs_platform_create_window_internal(const char* title, uint32_t width, uint32_t height, uint32_t monitor_index)
 {
     // Grab window hints from application desc
@@ -1446,7 +1461,7 @@ void* gs_platform_create_window_internal(const char* title, uint32_t width, uint
     // Callbacks for window
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, &__glfw_key_callback);
-    glfwSetCharCallback(window, &__glfw_char_callback);
+    glfwSetCharCallback(window, &__glfw_char_callback); // 여기서 부터 glfw 라이브러리 안에 있는 함수까지 "사용" 주석 남기는 걸 포기했음
     glfwSetMouseButtonCallback(window, &__glfw_mouse_button_callback);
     glfwSetCursorEnterCallback(window, &__glfw_mouse_cursor_enter_callback);
     glfwSetCursorPosCallback(window, &__glfw_mouse_cursor_position_callback);
@@ -1487,6 +1502,7 @@ GS_API_DECL void gs_platform_set_dropped_files_callback(uint32_t handle, gs_drop
     glfwSetDropCallback(win, (GLFWdropfun)cb);
 }
 
+// 사용 gs_graphics_impl.h
 GS_API_DECL void gs_platform_set_window_close_callback(uint32_t handle, gs_window_close_callback_t cb)
 {
     gs_platform_t* platform = gs_engine_subsystem(platform);
@@ -1525,6 +1541,7 @@ void* gs_platform_raw_window_handle(uint32_t handle)
     return (void*)win;
 }
 
+// 사용 gs_platform_impl.h
 void gs_platform_window_swap_buffer(uint32_t handle)
 {
     // Grab instance of platform from engine
@@ -1682,18 +1699,18 @@ void gs_platform_lock_mouse(uint32_t handle, bool32_t lock)
 
 /* Main entry point for platform*/
 #ifndef GS_NO_HIJACK_MAIN
+int32_t main(int32_t argv, char** argc)
+{
+    gs_engine_t* inst = gs_engine_create(gs_main(argv, argc));
 
-    int32_t main(int32_t argv, char** argc)
-    {
-        gs_engine_t* inst = gs_engine_create(gs_main(argv, argc));
-        while (gs_engine_app()->is_running) {
-            gs_engine_frame();
-        }
-        // Free engine
-        gs_free(inst);
-        return 0;
+    // 메인 루프
+    while (gs_engine_app()->is_running) {
+        gs_engine_frame();
     }
-
+    // Free engine
+    gs_free(inst);
+    return 0;
+}
 #endif // GS_NO_HIJACK_MAIN
 
 #undef GS_PLATFORM_IMPL_GLFW

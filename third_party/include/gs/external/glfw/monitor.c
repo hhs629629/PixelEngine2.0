@@ -93,7 +93,7 @@ static GLFWbool refreshVideoModes(_GLFWmonitor* monitor)
 //////////////////////////////////////////////////////////////////////////
 
 // Notifies shared code of a monitor connection or disconnection
-//
+// 사용 glfw/monitor.c
 void _glfwInputMonitor(_GLFWmonitor* monitor, int action, int placement)
 {
     if (action == GLFW_CONNECTED)
@@ -163,7 +163,7 @@ void _glfwInputMonitorWindow(_GLFWmonitor* monitor, _GLFWwindow* window)
 //////////////////////////////////////////////////////////////////////////
 
 // Allocates and returns a monitor object with the specified name and dimensions
-//
+// 사용 glfw/win32_monitor.c
 _GLFWmonitor* _glfwAllocMonitor(const char* name, int widthMM, int heightMM)
 {
     _GLFWmonitor* monitor = (_GLFWmonitor*)calloc(1, sizeof(_GLFWmonitor));

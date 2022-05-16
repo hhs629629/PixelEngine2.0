@@ -530,7 +530,7 @@ static BOOL CALLBACK deviceCallback(const DIDEVICEINSTANCE* di, void* user)
 //////////////////////////////////////////////////////////////////////////
 
 // Initialize joystick interface
-//
+// 사용 glfw/win32_joystick.c
 void _glfwInitJoysticksWin32(void)
 {
     if (_glfw.win32.dinput8.instance)
@@ -571,7 +571,7 @@ void _glfwTerminateJoysticksWin32(void)
 }
 
 // Checks for new joysticks after DBT_DEVICEARRIVAL
-//
+// 사용 glfw/win32_joystick.c
 void _glfwDetectJoystickConnectionWin32(void)
 {
     if (_glfw.win32.xinput.instance)
@@ -796,6 +796,7 @@ int _glfwPlatformPollJoystick(_GLFWjoystick* js, int mode)
     return GLFW_TRUE;
 }
 
+// 사용 glfw/win32_joystick.c
 void _glfwPlatformUpdateGamepadGUID(char* guid)
 {
     if (strcmp(guid + 20, "504944564944") == 0)

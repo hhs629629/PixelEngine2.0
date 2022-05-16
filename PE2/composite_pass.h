@@ -1,5 +1,42 @@
+#ifndef SS_COMPOSITE_PASS_H
+#define SS_COMPOSITE_PASS_H
 
-#include "render_pass/composite_pass.h"
+#include "render_pass_i.h"
+
+typedef struct composite_pass_data_t
+{
+	gs_handle(gs_graphics_shader_t) shader;
+	gs_handle(gs_graphics_uniform_t) u_input_tex;
+	gs_handle(gs_graphics_uniform_t) u_blur_tex;
+	gs_handle(gs_graphics_uniform_t) u_exposure;
+	gs_handle(gs_graphics_uniform_t) u_gamma;
+	gs_handle(gs_graphics_uniform_t) u_bloom_scalar;
+	gs_handle(gs_graphics_uniform_t) u_saturation;
+	gs_handle(gs_graphics_texture_t) rt;
+	gs_handle(gs_graphics_vertex_buffer_t) vbo;
+	gs_handle(gs_graphics_index_buffer_t) ibo;
+	gs_handle(gs_graphics_render_pass_t) rp;
+	gs_handle(gs_graphics_pipeline_t) pip;
+} composite_pass_data_t;
+
+typedef struct composite_pass_t
+{
+	_base(render_pass_i);
+	composite_pass_data_t data;
+} composite_pass_t;
+
+// Use this to pass in parameters for the pass ( will check for this)
+typedef struct composite_pass_parameters_t 
+{
+	gs_handle(gs_graphics_texture_t) input_texture;
+	gs_handle(gs_graphics_texture_t) blur_texture;
+} composite_pass_parameters_t;
+
+composite_pass_t composite_pass_ctor(gs_handle(gs_graphics_framebuffer_t) fb);
+
+#endif
+
+//######################################################
 
 // typedef struct composite_pass_data_t
 // {
@@ -32,6 +69,7 @@ void cp_pass(gs_command_buffer_t* cb, struct render_pass_i* pass, void* paramter
     #define GL_VERSION_STR "#version 330 core\n"
 #endif
 
+#pragma region 이게뭐지
 const char* cp_v_src =
 GL_VERSION_STR
 "precision mediump float;\n"
@@ -75,6 +113,7 @@ GL_VERSION_STR
 "	frag_color = vec4(vec3(diff) * u_saturation + lum, 1.0);\n"
 "	frag_color = vec4(hdr, 1.0);\n"
 "}\n";
+#pragma endregion
 
 // // Vertex data layout for our mesh (for this shader, it's a single float2 attribute for position)
 // gs_global gs_vertex_attribute_type layout[] = {
@@ -85,7 +124,7 @@ GL_VERSION_STR
 // gs_global u32 layout_count = sizeof(layout) / sizeof(gs_vertex_attribute_type); 
 
 // Vertex data for triangle
-gs_global f32 v_data[] = {
+gs_global f32 cp_v_data[] = {
 	// Positions  UVs
 	-1.0f, -1.0f,  0.0f, 0.0f,	// Top Left
 	 1.0f, -1.0f,  1.0f, 0.0f,	// Top Right 
@@ -93,7 +132,7 @@ gs_global f32 v_data[] = {
 	 1.0f,  1.0f,  1.0f, 1.0f   // Bottom Right
 };
 
-gs_global u32 i_data[] = {
+gs_global u32 cp_i_data[] = {
 	0, 2, 3,
 	3, 1, 0
 };
@@ -105,16 +144,16 @@ composite_pass_t composite_pass_ctor(gs_handle(gs_graphics_framebuffer_t) fb)
     // Construct vertex buffer
     bp.data.vbo = gs_graphics_vertex_buffer_create(
         &(gs_graphics_vertex_buffer_desc_t) {
-            .data = v_data,
-            .size = sizeof(v_data)
+            .data = cp_v_data,
+            .size = sizeof(cp_v_data)
         }
     );
 
     // Construct index buffer
     bp.data.ibo = gs_graphics_index_buffer_create(
         &(gs_graphics_index_buffer_desc_t) {
-            .data = i_data,
-            .size = sizeof(i_data)
+            .data = cp_i_data,
+            .size = sizeof(cp_i_data)
         }
     );
 
@@ -130,9 +169,9 @@ composite_pass_t composite_pass_ctor(gs_handle(gs_graphics_framebuffer_t) fb)
     );
 
 	// Construct shaders resources
-	// p.data.vb = gfx->construct_vertex_buffer(layout, layout_count, cp_v_data, sizeof(cp_v_data));
+	// p.data.vb = gfx->construct_vertex_buffer(layout, layout_count, cp_cp_v_data, sizeof(cp_cp_v_data));
 
-	// p.data.ib = gfx->construct_index_buffer(cp_i_data, sizeof(cp_i_data));
+	// p.data.ib = gfx->construct_index_buffer(cp_cp_i_data, sizeof(cp_cp_i_data));
 
 	// p.data.shader = gfx->construct_shader(cp_v_src, cp_f_src);
 

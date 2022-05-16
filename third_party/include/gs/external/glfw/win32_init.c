@@ -65,7 +65,7 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 #endif // _GLFW_BUILD_DLL
 
 // Load necessary libraries (DLLs)
-//
+// 사용 glfw/win32_init.c
 static GLFWbool loadLibraries(void)
 {
     _glfw.win32.winmm.instance = LoadLibraryA("winmm.dll");
@@ -191,7 +191,7 @@ static void freeLibraries(void)
 }
 
 // Create key code translation tables
-//
+// 사용 glfw/win32_init.c
 static void createKeyTables(void)
 {
     int scancode;
@@ -330,7 +330,7 @@ static void createKeyTables(void)
 }
 
 // Creates a dummy window for behind-the-scenes work
-//
+// 사용 glfw/win32_init.c
 static GLFWbool createHelperWindow(void)
 {
     MSG msg;
@@ -385,7 +385,7 @@ static GLFWbool createHelperWindow(void)
 //////////////////////////////////////////////////////////////////////////
 
 // Returns a wide string version of the specified UTF-8 string
-//
+// 사용 glfw/win32_init.c
 WCHAR* _glfwCreateWideStringFromUTF8Win32(const char* source)
 {
     WCHAR* target;
@@ -413,7 +413,7 @@ WCHAR* _glfwCreateWideStringFromUTF8Win32(const char* source)
 }
 
 // Returns a UTF-8 string version of the specified wide string
-//
+// 사용 glfw/win32_init.c
 char* _glfwCreateUTF8FromWideStringWin32(const WCHAR* source)
 {
     char* target;
@@ -462,7 +462,8 @@ void _glfwInputErrorWin32(int error, const char* description)
 }
 
 // Updates key names according to the current keyboard layout
-//
+// 사용 glfw/win32_init.c
+// 루프를 존나 돌음
 void _glfwUpdateKeyNamesWin32(void)
 {
     int key;
@@ -516,7 +517,7 @@ void _glfwUpdateKeyNamesWin32(void)
 }
 
 // Replacement for IsWindowsVersionOrGreater as MinGW lacks versionhelpers.h
-//
+// glfw/win32_init.c
 BOOL _glfwIsWindowsVersionOrGreaterWin32(WORD major, WORD minor, WORD sp)
 {
     OSVERSIONINFOEXW osvi = { sizeof(osvi), major, minor, 0, 0, {0}, sp };
@@ -531,7 +532,7 @@ BOOL _glfwIsWindowsVersionOrGreaterWin32(WORD major, WORD minor, WORD sp)
 }
 
 // Checks whether we are on at least the specified build of Windows 10
-//
+// 사용 glfw/win32_init.c
 BOOL _glfwIsWindows10BuildOrGreaterWin32(WORD build)
 {
     OSVERSIONINFOEXW osvi = { sizeof(osvi), 10, 0, build };
@@ -550,6 +551,7 @@ BOOL _glfwIsWindows10BuildOrGreaterWin32(WORD build)
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
 
+// 사용 glfw/win32_init.c
 int _glfwPlatformInit(void)
 {
     // To make SetForegroundWindow work as we want, we need to fiddle

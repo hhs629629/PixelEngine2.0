@@ -6,13 +6,12 @@
 #define GS_IMMEDIATE_DRAW_IMPL
 #include <gs/util/gs_idraw.h>
 
-#include "render_pass/blur_pass.h"
-#include "render_pass/bright_filter_pass.h"
-#include "render_pass/composite_pass.h"
-#include "font/font.h"
-#include "font/font_data.c"
+#include "blur_pass.h"
+#include "bright_filter_pass.h"
+#include "composite_pass.h"
+#include "font.h"
 
-gs_global const s32 g_window_width		= 800;
+gs_global const s32 g_window_width 		= 800;
 gs_global const s32 g_window_height 	= 800;
 gs_global const s32 g_texture_width 	= 512;
 gs_global const s32 g_texture_height 	= 512;
@@ -25,7 +24,6 @@ typedef struct color_t {
 	u8 a;
 } color_t;
 
-// particle = pixel 
 typedef struct particle_t {
 	u8 id;
 	f32 life_time;
@@ -33,10 +31,9 @@ typedef struct particle_t {
 	color_t color;
 	b32 has_been_updated_this_frame;
 } particle_t;
-// Should have a hash map of glyph character to glyph metric
+// particle 메모리크기를 줄이기 위해서는 Should have a hash map of glyph character to glyph metric
 
-#pragma region // Globals
-gs_global gs_command_buffer_t 						g_cb = {0};
+gs_global gs_command_buffer_t			g_cb = {0};
 gs_global gs_handle(gs_graphics_vertex_buffer_t) 	g_vbo = {0};
 gs_global gs_handle(gs_graphics_index_buffer_t) 	g_ibo = {0};
 gs_global gs_handle(gs_graphics_shader_t) 			g_shader = {0};
@@ -52,45 +49,61 @@ gs_global blur_pass_t 								g_blur_pass = {0};
 gs_global bright_filter_pass_t 						g_bright_pass = {0};
 gs_global composite_pass_t 							g_composite_pass = {0};
 gs_global font_t									g_font = {0};
-#pragma endregion
 
 // For now, all particle information will simply be a value to determine its material id
-#pragma region Material_ids
-#define mat_id_empty (u8)0
-#define mat_id_sand (u8)1
-#define mat_id_water (u8)2
-#define mat_id_salt (u8)3
-#define mat_id_wood (u8)4
-#define mat_id_fire (u8)5
-#define mat_id_smoke (u8)6
-#define mat_id_ember (u8)7
-#define mat_id_steam (u8)8
-#define mat_id_gunpowder (u8)9
-#define mat_id_oil (u8)10
-#define mat_id_lava (u8)11
-#define mat_id_stone (u8)12
-#define mat_id_acid (u8)13
-#pragma endregion
+//#define mat_id_empty (u8)0
+//#define mat_id_sand (u8)1
+//#define mat_id_water (u8)2
+//#define mat_id_salt (u8)3
+//#define mat_id_wood (u8)4
+//#define mat_id_fire (u8)5
+//#define mat_id_smoke (u8)6
+//#define mat_id_ember (u8)7
+//#define mat_id_steam (u8)8
+//#define mat_id_gunpowder (u8)9
+//#define mat_id_oil (u8)10
+//#define mat_id_lava (u8)11
+//#define mat_id_stone (u8)12
+//#define mat_id_acid (u8)13
 
-// Colors
-#define mat_col_empty {0, 0, 0, 0}
-#define mat_col_sand  {150, 100, 50, 255}
-#define mat_col_salt  {200, 180, 190, 255}
-#define mat_col_water {20, 100, 170, 200}
-#define mat_col_stone {120, 110, 120, 255}
-#define mat_col_wood {60, 40, 20, 255}
-#define mat_col_fire {150, 20, 0, 255}
-#define mat_col_smoke {50, 50, 50, 255}
-#define mat_col_ember {200, 120, 20, 255}
-#define mat_col_steam {220, 220, 250, 255}
-#define mat_col_gunpowder {60, 60, 60, 255}
-#define mat_col_oil {80, 70, 60, 255}
-#define mat_col_lava  {200, 50, 0, 255}
-#define mat_col_acid  {90, 200, 60, 255}
+// Mat_id : id
+typedef enum Material_id
+{
+	mat_id_empty,
+	mat_id_sand,
+	mat_id_water,
+	mat_id_salt,
+	mat_id_wood,
+	mat_id_fire,
+	mat_id_smoke,
+	mat_id_ember,
+	mat_id_steam,
+	mat_id_gunpowder,
+	mat_id_oil,
+	mat_id_lava,
+	mat_id_stone,
+	mat_id_acid
+}Material_id;
+
+// Mat_col : colors
+constexpr color_t mat_col_empty		= { 0, 0, 0, 0 };
+constexpr color_t mat_col_sand		= { 150, 100, 50, 255 };
+constexpr color_t mat_col_water		= { 20, 100, 170, 200 };
+constexpr color_t mat_col_salt		= { 200, 180, 190, 255 };
+constexpr color_t mat_col_wood		= { 60, 40, 20, 255 };
+constexpr color_t mat_col_fire		= { 150, 20, 0, 255 };
+constexpr color_t mat_col_smoke		= { 50, 50, 50, 255 };
+constexpr color_t mat_col_ember		= { 200, 120, 20, 255 };
+constexpr color_t mat_col_steam		= { 220, 220, 250, 255 };
+constexpr color_t mat_col_gunpowder	= { 60, 60, 60, 255 };
+constexpr color_t mat_col_oil		= { 80, 70, 60, 255 };
+constexpr color_t mat_col_lava		= { 200, 50, 0, 255 };
+constexpr color_t mat_col_stone		= { 120, 110, 120, 255 };
+constexpr color_t mat_col_acid		= { 90, 200, 60, 255 };
 
 typedef enum material_selection
 {
-	mat_sel_sand = 0x00,
+	mat_sel_sand,
 	mat_sel_water,
 	mat_sel_salt,
 	mat_sel_wood,
@@ -133,11 +146,7 @@ gs_global b32 g_show_frame_count = true;
 gs_global b32 g_use_post_processing = true;
 
 // Shaders
-#if (defined GS_PLATFORM_WEB || defined GS_PLATFORM_ANDROID)
-    #define GL_VERSION_STR "#version 300 es\n"
-#else
-    #define GL_VERSION_STR "#version 330 core\n"
-#endif
+#define GL_VERSION_STR "#version 330 core\n"
 
 const char* v_src =
 GL_VERSION_STR
@@ -163,6 +172,7 @@ GL_VERSION_STR
 "	frag_color = texture(u_tex, texCoord);\n"
 "}";
 
+//##################################################################
 // Forward Decls.
 void app_init();
 void app_update();
@@ -211,6 +221,8 @@ void render_scene(gs_command_buffer_t* cb);
 void construct_font_data();
 font_glyph_t get_glyph(font_t* f, char c);
 
+//##################################################################
+
 gs_vec2 calculate_mouse_position()
 {
 	gs_vec2 ws = gs_platform_window_sizev(gs_platform_main_window());
@@ -218,9 +230,7 @@ gs_vec2 calculate_mouse_position()
 	// Need to place mouse into frame
 	f32 x_scale = pmp.x / (f32)ws.x;
 	f32 y_scale = pmp.y / (f32)ws.y;
-
-	gs_vec2 ret = { x_scale * (f32)g_texture_width, y_scale * (f32)g_texture_height };
-	return ret;
+	return {x_scale * (f32)g_texture_width, y_scale * (f32)g_texture_height}; //(gs_vec2) 
 }
 
 s32 random_val(s32 lower, s32 upper)
@@ -374,33 +384,17 @@ b32 is_in_water(s32 x, s32 y, s32* lx, s32* ly)
 	return false;
 }
 
-
-// gs_main 함수 -> return 응용프로그램 정보
-gs_app_desc_t gs_main(int32_t argc, char** argv)
-{
-	gs_app_desc_t app = {0};
-	app.window_title 		= "PixelEngine2.0";
-	app.window_width 		= g_window_width;		//s32
-	app.window_height 	= g_window_height;	//s32
-	app.init 					= app_init;
-	app.update 				= app_update;
-	app.shutdown 			= app_shutdown;
-	app.frame_rate 			= 60.f;
-	app.enable_vsync 		= false;
-	return app;
-}
-
 typedef struct hsv_t
 {
 	f32 h;	// 색상
 	f32 s;	// 채도
-	f32 v; // 명도
+	f32 v;	// 명도
 } hsv_t;
  
 // From on: https://gist.github.com/fairlight1337/4935ae72bcbcc1ba5c72
 hsv_t rgb_to_hsv(color_t c) 
 {
-	gs_vec3 cv = {(f32)c.r / 255.f, (f32)c.g / 255.f, (f32)c.b / 255.f};
+	gs_vec3 cv = {(f32)c.r / 255.f, (f32)c.g / 255.f, (f32)c.b / 255.f}; //(gs_vec3)
 	f32 fR = cv.x, fG = cv.y, fB = cv.z;
 
 	f32 fCMax = gs_max(gs_max(fR, fG), fB);
@@ -438,8 +432,7 @@ hsv_t rgb_to_hsv(color_t c)
 	return hsv;
 }
 
-// Implemented from: https://stackoverflow.com/questions/27374550/how-to-compare-color-object-and-get-closest-color-in-an-color
-// distance between two hues:
+// distance between two hues: https://stackoverflow.com/questions/27374550/how-to-compare-color-object-and-get-closest-color-in-an-color
 f32 hue_dist(f32 h1, f32 h2)
 {
     f32 d = fabsf(h1 -  h2); 
@@ -471,32 +464,29 @@ do {\
 	}\
 } while (0)
 
-#define __check_dist_euclidean(c0, c1, p_func)\
-	do {\
-		gs_vec4 c0_vec = (gs_vec4){(f32)c0.r, c0.g, c0.b, 255.f};\
-		gs_vec4 c1_vec = (gs_vec4){(f32)c1.r, c1.g, c1.b, 255.f};\
-		f32 d = gs_vec4_dist(c0_vec, c1_vec);\
-		if (d < min_dist) {\
-			min_dist = d;\
-			p = p_func();\
-		}\
-	} while (0)
-inline particle_t f__check_dist_euclidean(particle_t& p, color_t c0, color_t c1, particle_t (*p_func)())
+inline void __check_dist_euclidean(color_t c0, color_t c1, particle_t (*p_func)())
 {
-	f32 min_dist = FLT_MAX;
-	gs_vec4 c0_vec = { (f32)c0.r, c0.g, c0.b, 255.f };
-	gs_vec4 c1_vec = { (f32)c1.r, c1.g, c1.b, 255.f };
+	gs_vec4 c0_vec = { (f32)c0.r, c0.g, c0.b, 255.f }; //(gs_vec4)
+	gs_vec4 c1_vec = { (f32)c1.r, c1.g, c1.b, 255.f }; //(gs_vec4)
 	f32 d = gs_vec4_dist(c0_vec, c1_vec);
 	if (d < min_dist) {
 		min_dist = d;
 		p = p_func();
-		return p;
 	}
 }
+//#define __check_dist_euclidean(c0, c1, p_func)\
+//	do {\
+//		gs_vec4 c0_vec = (gs_vec4){(f32)c0.r, c0.g, c0.b, 255.f};\
+//		gs_vec4 c1_vec = (gs_vec4){(f32)c1.r, c1.g, c1.b, 255.f};\
+//		f32 d = gs_vec4_dist(c0_vec, c1_vec);\
+//		if (d < min_dist) {\
+//			min_dist = d;\
+//			p = p_func();\
+//		}\
+//	} while (0)
 
 #define __check_dist(c0, c1, p_func)\
-	do\
-	{\
+	do{\
 		f32 rd = (f32)c0.r - (f32)c1.r;\
 		f32 gd = (f32)c0.g - (f32)c1.g;\
 		f32 bd = (f32)c0.b - (f32)c1.b;\
@@ -512,21 +502,21 @@ particle_t get_closest_particle_from_color(color_t c)
 {
 	particle_t p = particle_empty();
 	f32 min_dist = FLT_MAX;
-	gs_vec4 c_vec = {(f32)c.r, (f32)c.g, (f32)c.b, (f32)c.a};
+	gs_vec4 c_vec = {(f32)c.r, (f32)c.g, (f32)c.b, (f32)c.a}; //(gs_vec4)
 	u8 id = mat_id_empty;
 
-	f__check_dist_euclidean(p, c, mat_col_sand, particle_sand);
-	f__check_dist_euclidean(p, c, mat_col_water, particle_water);
-	f__check_dist_euclidean(p, c, mat_col_salt, particle_salt);
-	f__check_dist_euclidean(p, c, mat_col_wood, particle_wood);
-	f__check_dist_euclidean(p, c, mat_col_fire, particle_fire);
-	f__check_dist_euclidean(p, c, mat_col_smoke, particle_smoke);
-	f__check_dist_euclidean(p, c, mat_col_steam, particle_steam);
-	f__check_dist_euclidean(p, c, mat_col_gunpowder, particle_gunpowder);
-	f__check_dist_euclidean(p, c, mat_col_oil, particle_oil);
-	f__check_dist_euclidean(p, c, mat_col_lava, particle_lava);
-	f__check_dist_euclidean(p, c, mat_col_stone, particle_stone);
-	f__check_dist_euclidean(p, c, mat_col_acid, particle_acid);
+	__check_dist_euclidean(c, mat_col_sand, particle_sand);
+	__check_dist_euclidean(c, mat_col_water, particle_water);
+	__check_dist_euclidean(c, mat_col_salt, particle_salt);
+	__check_dist_euclidean(c, mat_col_wood, particle_wood);
+	__check_dist_euclidean(c, mat_col_fire, particle_fire);
+	__check_dist_euclidean(c, mat_col_smoke, particle_smoke);
+	__check_dist_euclidean(c, mat_col_steam, particle_steam);
+	__check_dist_euclidean(c, mat_col_gunpowder, particle_gunpowder);
+	__check_dist_euclidean(c, mat_col_oil, particle_oil);
+	__check_dist_euclidean(c, mat_col_lava, particle_lava);
+	__check_dist_euclidean(c, mat_col_stone, particle_stone);
+	__check_dist_euclidean(c, mat_col_acid, particle_acid);
 
 	return p;
 }
@@ -552,8 +542,7 @@ void drop_file_callback(void* platform_window, s32 count, const char** file_path
 			 gs_string_compare_equal(temp_file_extension_buffer, "bmp"))
 		{
 			// Load texture into memory
-			s32 _w, _h;
-			u32	_n;
+			s32 _w, _h, _n;
 			void* texture_data = NULL;
 
 			// Force texture data to 3 components
@@ -605,37 +594,31 @@ void app_init()
 	g_cb = gs_command_buffer_new();
 
     // Create shader
-	gs_graphics_shader_desc_t temp_594{};
-	gs_graphics_shader_source_desc_t temp_595[2]{};
-	temp_595[0].type = GS_GRAPHICS_SHADER_STAGE_VERTEX;
-	temp_595[0].source = v_src;
-	temp_595[1].type = GS_GRAPHICS_SHADER_STAGE_FRAGMENT;
-	temp_595[1].source = f_src;
-
-	temp_594.sources = temp_595;
-	temp_594.size = 2 * sizeof(gs_graphics_shader_source_desc_t);
-	strcpy(temp_594.name, "g_shader");
-	g_shader = gs_graphics_shader_create(&temp_594);
+    g_shader = gs_graphics_shader_create (
+        &(gs_graphics_shader_desc_t) {
+            .sources = (gs_graphics_shader_source_desc_t[]) {
+                {.type = GS_GRAPHICS_SHADER_STAGE_VERTEX, .source = v_src},
+                {.type = GS_GRAPHICS_SHADER_STAGE_FRAGMENT, .source = f_src}
+            }, 
+            .size = 2 * sizeof(gs_graphics_shader_source_desc_t),
+            .name = "g_shader"
+        }
+    );
 
 	// Construct uniforms for shader
-	gs_graphics_uniform_desc_t temp_607{};
-	gs_graphics_uniform_layout_desc_t temp_608{};
-	temp_608.type = GS_GRAPHICS_UNIFORM_SAMPLER2D;
-	temp_607.layout = &temp_608;
-	strcpy(temp_607.name, "u_tex");
-	u_tex = gs_graphics_uniform_create(&temp_607);
+    u_tex = gs_graphics_uniform_create (
+        &(gs_graphics_uniform_desc_t) {
+            .name = "u_tex",
+            .layout = &(gs_graphics_uniform_layout_desc_t){.type = GS_GRAPHICS_UNIFORM_SAMPLER2D}
+        }
+    );
 
-	gs_graphics_uniform_layout_desc_t temp_614{};
-	temp_614.type = GS_GRAPHICS_UNIFORM_INT;
-	gs_graphics_uniform_desc_t temp_615{};
-	temp_615.layout = &temp_614;
-	strcpy(temp_615.name, "u_flip_y");
-	u_flip_y = gs_graphics_uniform_create(&temp_615);
-    //    &(gs_graphics_uniform_desc_t) {
-    //        .name = "u_flip_y",
-    //        .layout = &(gs_graphics_uniform_layout_desc_t){.type = GS_GRAPHICS_UNIFORM_INT}
-    //    }
-    //);
+    u_flip_y = gs_graphics_uniform_create (
+        &(gs_graphics_uniform_desc_t) {
+            .name = "u_flip_y",
+            .layout = &(gs_graphics_uniform_layout_desc_t){.type = GS_GRAPHICS_UNIFORM_INT}
+        }
+    );
 
 	// Vertex data for triangle
 	f32 v_data[] = {
@@ -652,26 +635,20 @@ void app_init()
 	};
 
     // Construct vertex buffer
-	gs_graphics_vertex_buffer_desc_t temp641{};
-	temp641.data = v_data;
-	temp641.size = sizeof(v_data);
-	g_vbo = gs_graphics_vertex_buffer_create(&temp641);
-    //    &(gs_graphics_vertex_buffer_desc_t) {
-    //        .data = v_data,
-    //        .size = sizeof(v_data)
-    //    }
-    //);
+    g_vbo = gs_graphics_vertex_buffer_create(
+        &(gs_graphics_vertex_buffer_desc_t) {
+            .data = v_data,
+            .size = sizeof(v_data)
+        }
+    );
 
     // Construct index buffer
-	gs_graphics_index_buffer_desc_t tmp652{};
-	tmp652.data = i_data;
-	tmp652.size = sizeof(i_data);
-	g_ibo = gs_graphics_index_buffer_create(&tmp652);
-    //    &(gs_graphics_index_buffer_desc_t) {
-    //        .data = i_data,
-    //        .size = sizeof(i_data)
-    //    }
-    //);
+    g_ibo = gs_graphics_index_buffer_create(
+        &(gs_graphics_index_buffer_desc_t) {
+            .data = i_data,
+            .size = sizeof(i_data)
+        }
+    );
 
 	// Construct world data (for now, it'll just be the size of the screen)
 	g_world_particle_data = (particle_t*)gs_malloc(g_texture_width * g_texture_height * sizeof(particle_t));
@@ -709,27 +686,34 @@ void app_init()
 	g_fb = gs_graphics_framebuffer_create(NULL);
 
 	// Construct render pass
-	gs_graphics_render_pass_desc_t temp_686{};
-	temp_686.fbo = g_fb;	// Frame buffer to bind for render pass
-	temp_686.color = &g_rt;	// Color buffer array to bind to frame buffer 
-	temp_686.color_size = sizeof(g_rt);	// Size of color attachment array in bytes
-    g_rp = gs_graphics_render_pass_create(&temp_686);
+    g_rp = gs_graphics_render_pass_create(
+        &(gs_graphics_render_pass_desc_t){
+            .fbo = g_fb,                      // Frame buffer to bind for render pass
+            .color = &g_rt,                    // Color buffer array to bind to frame buffer    
+            .color_size = sizeof(g_rt)         // Size of color attachment array in bytes
+        }
+    );
 
     // Pipeline
-	gs_graphics_pipeline_desc_t temp_693{};
-	temp_693.raster.shader = g_shader;
-	temp_693.blend.func = GS_GRAPHICS_BLEND_EQUATION_ADD;
-	temp_693.blend.src = GS_GRAPHICS_BLEND_MODE_SRC_ALPHA;
-	temp_693.blend.dst = GS_GRAPHICS_BLEND_MODE_ONE_MINUS_SRC_ALPHA;
-
-	gs_graphics_vertex_attribute_desc_t temp_699[2]{};
-	temp_699[0].format = GS_GRAPHICS_VERTEX_ATTRIBUTE_FLOAT2; // Named attribute required for lower GL versions / ES2 / ES3
-	strcpy(temp_699[0].name, "a_position");				
-	temp_699[1].format = GS_GRAPHICS_VERTEX_ATTRIBUTE_FLOAT2; // Named attribute required for lower GL versions / ES2 / ES3
-	strcpy(temp_699[1].name, "a_texCoord");
-	temp_693.layout.attrs = temp_699;
-	temp_693.layout.size = 2 * sizeof(gs_graphics_vertex_attribute_desc_t);
-	g_pip = gs_graphics_pipeline_create(&temp_693);
+    g_pip = gs_graphics_pipeline_create(
+        &(gs_graphics_pipeline_desc_t) {
+            .raster = {
+                .shader = g_shader
+            },
+            .blend = {
+            	.func = GS_GRAPHICS_BLEND_EQUATION_ADD,
+            	.src = GS_GRAPHICS_BLEND_MODE_SRC_ALPHA,
+            	.dst = GS_GRAPHICS_BLEND_MODE_ONE_MINUS_SRC_ALPHA
+            },
+            .layout = {
+                .attrs = (gs_graphics_vertex_attribute_desc_t[]){
+                    {.format = GS_GRAPHICS_VERTEX_ATTRIBUTE_FLOAT2, .name = "a_position"}, // Named attribute required for lower GL versions / ES2 / ES3
+                    {.format = GS_GRAPHICS_VERTEX_ATTRIBUTE_FLOAT2, .name = "a_texCoord"}  // Named attribute required for lower GL versions / ES2 / ES3
+                },
+                .size = 2 * sizeof(gs_graphics_vertex_attribute_desc_t)
+            }
+        }
+    );
 
 	// Initialize render passes
 	g_blur_pass = blur_pass_ctor(g_fb);
@@ -774,7 +758,6 @@ void app_update()
 	g_frame_counter = (g_frame_counter + 1) % UINT32_MAX;
 }
 
-// 프로그램 종료시 출력
 void app_shutdown() 
 {
 	gs_println("shutdown");
@@ -797,8 +780,7 @@ void construct_font_data()
 		for (u32 c = 0; c < 18; ++c) 
 		{
 			u32 idx = r * 18 + c;
-			//(font_glyph_t)
-			g_font.glyphs[idx] = {c * 5, r * 7, 5, 7};
+			g_font.glyphs[idx] = (font_glyph_t){c * 5, r * 7, 5, 7};
 		}
 	}
 }
@@ -904,21 +886,19 @@ font_glyph_t get_glyph(font_t* f, char c)
 		case '~': return g_font.glyphs[94];
 
 		// For anything not supported, just return empty space
-		default: 
-			font_glyph_t temp_889{ 0 };
-			return temp_889;
-			break;
+		default: {
+			return (font_glyph_t){0};
+		} break;
 	}
 }
 
 void putpixel(int x, int y) {
 	if (in_bounds(x, y)) {
-		g_ui_buffer[compute_idx(x, y)] = {255, 255, 255, 255}; // (color_t)
+		g_ui_buffer[compute_idx(x, y)] = (color_t){255, 255, 255, 255};
 	}
 }
 
-// Function to put pixels 
-// at subsequence points 
+// Function to put pixels at subsequence points 
 void drawCircle(int xc, int yc, int x, int y) 
 {
     putpixel(xc+x, yc+y); 
@@ -931,8 +911,7 @@ void drawCircle(int xc, int yc, int x, int y)
     putpixel(xc-y, yc-x); 
 }
 
-// Function for circle-generation 
-// using Bresenham's algorithm 
+// Function for circle-generation; using Bresenham's algorithm 
 void circleBres(int xc, int yc, int r) 
 {
     int x = 0, y = r; 
@@ -1031,8 +1010,7 @@ void update_input(gs_command_buffer_t* cb)
 					case mat_sel_stone: p = particle_stone(); break;
 					case mat_sel_acid: p = particle_acid(); break;
 				}
-				gs_vec2 temp_1014{ random_val(-1, 1), random_val(-2, 5) };
-				p.velocity = temp_1014;
+				p.velocity = (gs_vec2){random_val(-1, 1), random_val(-2, 5)};
 				write_data(idx, p);
 			}
 		}
@@ -1054,7 +1032,7 @@ void update_input(gs_command_buffer_t* cb)
 			{
 				s32 rx = ((s32)mp_x + j); 
 				s32 ry = ((s32)mp_y + i);
-				gs_vec2 r = {rx, ry}; //(gs_vec2)
+				gs_vec2 r = (gs_vec2){rx, ry};
 
 				if (in_bounds(rx, ry) && gs_vec2_dist(mp, r) <= _R) {
 					write_data(compute_idx(rx, ry), particle_empty());
@@ -1181,11 +1159,8 @@ b32 gui_rect(color_t* buffer, s32 _x, s32 _y, s32 _w, s32 _h, color_t c)
 	}
 
 	b32 clicked = gs_platform_mouse_pressed(GS_MOUSE_LBUTTON);
-	gs_vec2 temp_1164{ _x, _y };
-	gs_vec2 temp_1165{ _w, _h };
-	bool fff = (bool)in_rect(mp, temp_1164, temp_1165);
-	bool bbb = (bool)clicked;
-	return fff && bbb;
+
+	return in_rect(mp, (gs_vec2){_x, _y}, (gs_vec2){_w, _h}) && clicked ; 
 }
 
 #define __gui_interaction(x, y, w, h, c, str, id)\
@@ -1210,34 +1185,6 @@ do {\
 		g_material_selection = id;\
 	}\
 } while (0)
-inline void f__gui_interaction(b32& interaction, s32 x, s32 y, int w, int h, color_t c, const char* str, int id)
-{
-	if ((id) == g_material_selection) 
-	{
-		const s32 b = 2;
-		gui_rect(g_ui_buffer, x - b / 2, y - b / 2, w + b, h + b, {200, 150, 20, 255});
-	}
-	gs_vec2 mp = calculate_mouse_position();
-	gs_vec2 v1{ (x),(y) };
-	gs_vec2 v2{ (w),(h) };
-	if (in_rect(mp, v1, v2))
-	{
-		interaction |= true;
-		char* _str = nullptr;
-		strcpy(_str, str);
-		color_t col = {255, 255, 255, 255};
-		color_t s_col = {10, 10, 10, 255};
-		color_t r_col = {5, 5, 5, 170};
-		/*Draw rect around text as well for easier viewing*/
-		gui_rect(g_ui_buffer, g_texture_width / 2 - 50, 15, 100, 20, r_col);
-		draw_string_at(&g_font, g_ui_buffer, g_texture_width / 2 + 1 - (sizeof(str) * 5) / 2, 20 - 1, _str, sizeof(_str), s_col);
-		draw_string_at(&g_font, g_ui_buffer, g_texture_width / 2 - (sizeof(str) * 5) / 2, 20, _str, sizeof(_str), col);
-	}
-	if (gui_rect(g_ui_buffer, x, y, w, h, c)) 
-	{
-		g_material_selection = (material_selection)id;
-	}
-}
 
 b32 update_ui(gs_command_buffer_t* cb)
 {
@@ -1257,29 +1204,28 @@ b32 update_ui(gs_command_buffer_t* cb)
 		s32 base = 10;
 
 		// Sand Selection
-		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 0, 10, 10, mat_col_sand, "Sand", mat_sel_sand);
-		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 1, 10, 10, mat_col_water, "Water", mat_sel_water);
-		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 2, 10, 10, mat_col_smoke, "Smoke", mat_sel_smoke);
-		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 3, 10, 10, mat_col_fire, "Fire", mat_sel_fire);
-		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 4, 10, 10, mat_col_steam, "Steam", mat_sel_steam);
-		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 5, 10, 10, mat_col_oil, "Oil", mat_sel_oil);
-		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 6, 10, 10, mat_col_salt, "Salt", mat_sel_salt);
-		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 7, 10, 10, mat_col_wood, "Wood", mat_sel_wood);
-		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 8, 10, 10, mat_col_stone, "Stone", mat_sel_stone);
-		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 9, 10, 10, mat_col_lava, "Lava", mat_sel_lava);
-		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 10, 10, 10, mat_col_gunpowder, "GunPowder", mat_sel_gunpowder);
-		f__gui_interaction(interaction, g_texture_width - xoff, base + offset * 11, 10, 10, mat_col_acid, "Acid", mat_sel_acid);
+		__gui_interaction(g_texture_width - xoff, base + offset * 0, 10, 10, mat_col_sand, "Sand", mat_sel_sand);
+		__gui_interaction(g_texture_width - xoff, base + offset * 1, 10, 10, mat_col_water, "Water", mat_sel_water);
+		__gui_interaction(g_texture_width - xoff, base + offset * 2, 10, 10, mat_col_smoke, "Smoke", mat_sel_smoke);
+		__gui_interaction(g_texture_width - xoff, base + offset * 3, 10, 10, mat_col_fire, "Fire", mat_sel_fire);
+		__gui_interaction(g_texture_width - xoff, base + offset * 4, 10, 10, mat_col_steam, "Steam", mat_sel_steam);
+		__gui_interaction(g_texture_width - xoff, base + offset * 5, 10, 10, mat_col_oil, "Oil", mat_sel_oil);
+		__gui_interaction(g_texture_width - xoff, base + offset * 6, 10, 10, mat_col_salt, "Salt", mat_sel_salt);
+		__gui_interaction(g_texture_width - xoff, base + offset * 7, 10, 10, mat_col_wood, "Wood", mat_sel_wood);
+		__gui_interaction(g_texture_width - xoff, base + offset * 8, 10, 10, mat_col_stone, "Stone", mat_sel_stone);
+		__gui_interaction(g_texture_width - xoff, base + offset * 9, 10, 10, mat_col_lava, "Lava", mat_sel_lava);
+		__gui_interaction(g_texture_width - xoff, base + offset * 10, 10, 10, mat_col_gunpowder, "GunPowder", mat_sel_gunpowder);
+		__gui_interaction(g_texture_width - xoff, base + offset * 11, 10, 10, mat_col_acid, "Acid", mat_sel_acid);
 	}
 
 	if (g_show_frame_count) {
 		char frame_time_str[256];
 		gs_snprintf (frame_time_str, sizeof(frame_time_str), "frame: %.2f ms", gs_engine_subsystem(platform)->time.frame);
-		color_t temp_1229 = { 255, 255, 255, 255 };
-		draw_string_at(&g_font, g_ui_buffer, 10, 10, frame_time_str, strlen(frame_time_str), temp_1229);
+		draw_string_at(&g_font, g_ui_buffer, 10, 10, frame_time_str, strlen(frame_time_str), (color_t){255, 255, 255, 255}); 
 
 		char sim_state_str[256];
 		gs_snprintf (sim_state_str, sizeof(sim_state_str), "state: %s", g_run_simulation ? "running" : "paused");
-		draw_string_at(&g_font, g_ui_buffer, 10, 20, sim_state_str, strlen(sim_state_str), temp_1229);
+		draw_string_at(&g_font, g_ui_buffer, 10, 20, sim_state_str, strlen(sim_state_str), (color_t){255, 255, 255, 255});
 	}
 
 	// Draw circle around mouse pointer
@@ -1317,32 +1263,23 @@ void render_scene(gs_command_buffer_t* cb)
 	b32 flip_y = false;
 
     // Render pass action for clearing the screen
-	{
-		gs_graphics_clear_action_t temp_1267{};
-		temp_1267.color[0] = 0.1f;
-		temp_1267.color[1] = 0.1f;
-		temp_1267.color[2] = 0.1f;
-		temp_1267.color[3] = 1.f;
-		gs_graphics_clear_desc_t clear{};
-		clear.actions = &temp_1267;
+    {
+	    gs_graphics_clear_desc_t clear = (gs_graphics_clear_desc_t){
+	        .actions = &(gs_graphics_clear_action_t){.color = {0.1f, 0.1f, 0.1f, 1.f}}
+	    };
 
 	    // Uniform buffer array
-		gs_graphics_bind_uniform_desc_t temp_x = { temp_x.uniform = u_tex, temp_x.data = &g_tex, temp_x.binding = 0 };
-		gs_graphics_bind_uniform_desc_t temp_y = { temp_y.uniform = u_flip_y, temp_y.data = &flip_y };
-	    gs_graphics_bind_uniform_desc_t uniforms[] = {temp_x,temp_y};
+	    gs_graphics_bind_uniform_desc_t uniforms[] = {
+	        (gs_graphics_bind_uniform_desc_t){.uniform = u_tex, .data = &g_tex, .binding = 0},
+	        (gs_graphics_bind_uniform_desc_t){.uniform = u_flip_y, .data = &flip_y}
+	    };
 
 	    // Binding descriptor for vertex buffer
-		gs_graphics_bind_vertex_buffer_desc_t temp_1281{};
-		gs_graphics_bind_index_buffer_desc_t temp_1282{};
-		temp_1281.buffer = g_vbo;
-		temp_1282.buffer = g_ibo;
-		gs_graphics_bind_desc_t binds{};
-		binds.vertex_buffers.desc = &temp_1281;
-		binds.index_buffers.desc = &temp_1282;
-		binds.uniforms.desc = uniforms;
-		binds.uniforms.size = sizeof(uniforms);
-
-	    
+	    gs_graphics_bind_desc_t binds = {
+	        .vertex_buffers = {.desc = &(gs_graphics_bind_vertex_buffer_desc_t){.buffer = g_vbo}},
+	        .index_buffers = {.desc = &(gs_graphics_bind_index_buffer_desc_t){.buffer = g_ibo}},
+	        .uniforms = {.desc = uniforms, .size = sizeof(uniforms)}
+	    };
 
 		// Bind render pass, bind pipeline, set up everything...
 		gs_graphics_begin_render_pass(cb, g_rp);
@@ -1350,10 +1287,7 @@ void render_scene(gs_command_buffer_t* cb)
 			gs_graphics_set_viewport(cb, 0, 0, (u32)(g_texture_width), (u32)(g_texture_height));
 			gs_graphics_clear(cb, &clear);
 			gs_graphics_apply_bindings(cb, &binds);
-			gs_graphics_draw_desc_t temp_1299{};
-			temp_1299.start = 0;
-			temp_1299.count = 6;
-			gs_graphics_draw(cb, &temp_1299);
+			gs_graphics_draw(cb, &(gs_graphics_draw_desc_t){.start = 0, .count = 6});
 		gs_graphics_end_render_pass(cb);
     }
 
@@ -1361,21 +1295,21 @@ void render_scene(gs_command_buffer_t* cb)
 	{
 		// Brightness pass
 		{
-			bright_filter_pass_parameters_t params = {g_rt};
+			bright_filter_pass_parameters_t params = (bright_filter_pass_parameters_t){g_rt};
 			render_pass_i* p = gs_cast(render_pass_i, &g_bright_pass);
 			p->pass(&g_cb, p, &params);
 		}
 
 		// Blur pass
 		{
-			blur_pass_parameters_t params = {g_bright_pass.data.rt};
+			blur_pass_parameters_t params = (blur_pass_parameters_t){g_bright_pass.data.rt};
 			render_pass_i* p = gs_cast(render_pass_i, &g_blur_pass);
 			p->pass(&g_cb, p, &params);
 		}
 
 		// composite pass w/ gamma correction
 		{
-			composite_pass_parameters_t params = {g_rt, g_blur_pass.data.blur_render_target_b};
+			composite_pass_parameters_t params = (composite_pass_parameters_t){g_rt, g_blur_pass.data.blur_render_target_b};
 			render_pass_i* p = gs_cast(render_pass_i, &g_composite_pass);
 			p->pass(&g_cb, p, &params);
 		}
@@ -1383,28 +1317,18 @@ void render_scene(gs_command_buffer_t* cb)
 
 	// Back buffer Presentation
 	{
-		gs_graphics_clear_action_t temp_1332{};
-		temp_1332.color[0] = 0.2f;
-		temp_1332.color[1] = 0.2f;
-		temp_1332.color[2] = 0.2f;
-		temp_1332.color[3] = 1.f;
-		gs_graphics_clear_desc_t clear{};
-		clear.actions = &temp_1332;
+	    gs_graphics_clear_desc_t clear = (gs_graphics_clear_desc_t){
+	        .actions = &(gs_graphics_clear_action_t){.color = {0.2f, 0.2f, 0.2f, 1.f}}
+	    };
 
 	    b32 flip_y = true;
 
 	    // Binding descriptor for vertex buffer
-		gs_graphics_bind_vertex_buffer_desc_t temp_1343{};
-		gs_graphics_bind_index_buffer_desc_t temp_1344{};
-		gs_graphics_bind_uniform_desc_t temp_1345{};
-		temp_1343.buffer = g_vbo;
-		temp_1344.buffer = g_ibo;
-		temp_1345.uniform = u_flip_y;
-		temp_1345.data = &flip_y;
-		gs_graphics_bind_desc_t vbinds{};
-		vbinds.vertex_buffers.desc = &temp_1343;
-		vbinds.index_buffers.desc = &temp_1344;
-		vbinds.uniforms.desc = &temp_1345;
+	    gs_graphics_bind_desc_t vbinds = {
+	        .vertex_buffers = {.desc = &(gs_graphics_bind_vertex_buffer_desc_t){.buffer = g_vbo}},
+	        .index_buffers = {.desc = &(gs_graphics_bind_index_buffer_desc_t){.buffer = g_ibo}},
+	    	.uniforms = {.desc = &(gs_graphics_bind_uniform_desc_t){.uniform = u_flip_y, .data = &flip_y}}
+	    };
 
 	    gs_vec2 fbs = gs_platform_framebuffer_sizev(gs_platform_main_window());
 
@@ -1415,31 +1339,19 @@ void render_scene(gs_command_buffer_t* cb)
 			gs_graphics_clear(cb, &clear);
 			gs_graphics_apply_bindings(cb, &vbinds);
 
-			gs_graphics_bind_uniform_desc_t temp_1364{};
-			temp_1364.uniform = u_tex;
-			temp_1364.data = &g_composite_pass.data.rt;
-			temp_1364.binding = 0;
-			gs_graphics_bind_desc_t tbind{};
-			tbind.uniforms.desc = &temp_1364;
+		    gs_graphics_bind_desc_t tbind = (gs_graphics_bind_desc_t){
+		    	.uniforms = {.desc = &(gs_graphics_bind_uniform_desc_t){.uniform = u_tex, .data = &g_composite_pass.data.rt, .binding = 0}}
+		    };
 
 			gs_graphics_apply_bindings(cb, &tbind);
-			gs_graphics_draw_desc_t temp_1372{};
-			temp_1372.start = 0;
-			temp_1372.count = 6;
-			gs_graphics_draw(cb, &temp_1372);
+			gs_graphics_draw(cb, &(gs_graphics_draw_desc_t){.start = 0, .count = 6});
 
 			// Do UI on top
-			gs_graphics_bind_uniform_desc_t temp_1378{};
-			temp_1378.uniform = u_tex;
-			temp_1378.data = &g_tex_ui;
-			temp_1378.binding = 0;
-			tbind.uniforms.desc = &temp_1378;
-
+		    tbind = (gs_graphics_bind_desc_t){
+		    	.uniforms = {.desc = &(gs_graphics_bind_uniform_desc_t){.uniform = u_tex, .data = &g_tex_ui, .binding = 0}}
+		    };
 			gs_graphics_apply_bindings(cb, &tbind);
-			gs_graphics_draw_desc_t temp_1385{};
-			temp_1385.start = 0;
-			temp_1385.count = 6;
-			gs_graphics_draw(cb, &temp_1385);
+			gs_graphics_draw(cb, &(gs_graphics_draw_desc_t){.start = 0, .count = 6});
 
 		gs_graphics_end_render_pass(cb);
 	}
@@ -1573,8 +1485,9 @@ void update_sand(u32 x, u32 y)
 		// Try to throw water out
 		if (tmp_b.id == mat_id_water) {
 
-			f32 rx = (f32)random_val(-2, 2);
-			tmp_b.velocity = {rx, -4.f};
+			// 수정
+			s64 rx = random_val(-2, 2);
+			tmp_b.velocity = {(float)rx, -4.f}; //(gs_vec2)
 
 			write_data(compute_idx(vi_x, vi_y), tmp_a);	
 
@@ -1666,8 +1579,9 @@ void update_gunpowder(u32 x, u32 y)
 		// Try to throw water out
 		if (tmp_b.id == mat_id_water) {
 
-			f32 rx = (f32)random_val(-2, 2);
-			tmp_b.velocity = {rx, -4.f};
+			//수정
+			s64 rx = random_val(-2, 2);
+			tmp_b.velocity = {(float)rx, -4.f}; //(gs_vec2)
 
 			write_data(compute_idx(vi_x, vi_y), tmp_a);	
 
@@ -1764,8 +1678,9 @@ void update_steam(u32 x, u32 y)
 
 			tmp_b.has_been_updated_this_frame = true;
 
-			f32 rx = (f32)random_val(-2, 2);
-			tmp_b.velocity = {rx, -3.f};
+			// 수정
+			s64 rx = random_val(-2, 2);
+			tmp_b.velocity = {(float)rx, -3.f}; //(gs_vec2)
 
 			write_data(compute_idx(vi_x, vi_y), *p);
 			write_data(read_idx, tmp_b);
@@ -1863,8 +1778,9 @@ void update_smoke(u32 x, u32 y)
 
 			tmp_b.has_been_updated_this_frame = true;
 
-			f32 rx = (f32)random_val(-2, 2);
-			tmp_b.velocity = {rx, -3.f};
+			// 수정: 코드 좆같이도 짰네진짜
+			s64 rx = random_val(-2, 2);
+			tmp_b.velocity = {(float)rx, -3.f}; //(gs_vec2)
 
 			write_data(compute_idx(vi_x, vi_y), *p);
 			write_data(read_idx, tmp_b);
@@ -1992,8 +1908,9 @@ void update_ember(u32 x, u32 y)
 
 			tmp_b.has_been_updated_this_frame = true;
 
-			f32 rx = (f32)random_val(-2, 2);
-			tmp_b.velocity = {rx, -3.f};
+			// 수정: s32 rx -> s64 rx / rx -> (float)rx
+			s64 rx = random_val(-2, 2);
+			tmp_b.velocity = {(float)rx, -3.f}; //(gs_vec2)
 
 			write_data(compute_idx(vi_x, vi_y), *p);
 			write_data(read_idx, tmp_b);
@@ -2077,10 +1994,10 @@ void update_fire(u32 x, u32 y)
 	if (random_val(0, (s32)(p->life_time * 100.f)) % 200 == 0) {
 		s32 ran = random_val(0, 3);
 		switch (ran) {
-			case 0: p->color = {255, 80, 20, 255}; break;
-			case 1: p->color = {250, 150, 10, 255}; break;
-			case 2: p->color = {200, 150, 0, 255}; break;
-			case 3: p->color = {100, 50, 2, 255}; break;
+			case 0: p->color = {255, 80, 20, 255}; break; // (color_t)
+			case 1: p->color = {250, 150, 10, 255}; break; // (color_t)
+			case 2: p->color = {200, 150, 0, 255}; break; // (color_t)
+			case 3: p->color = {100, 50, 2, 255}; break; // (color_t)
 		}
 	}
 
@@ -2090,8 +2007,7 @@ void update_fire(u32 x, u32 y)
 		p->color.r = 255;
 	}
 
-	// In water, so create steam and DIE
-	// Should also kill the water...
+	// In water, so create steam and DIE. Should also kill the water...
 	s32 lx, ly;
 	if (is_in_water(x, y, &lx, &ly)) {
 		if (random_val(0, 1) == 0) {
@@ -2184,17 +2100,17 @@ void update_fire(u32 x, u32 y)
 		for (u32 i = 0; i < random_val(1, 100); ++i) {
 			if (in_bounds(x, y - 1) && is_empty(x, y - 1)) {
 				particle_t e = particle_ember();
-				e.velocity = {(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 10.f};
+				e.velocity = {(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 10.f}; // (gs_vec2)
 				write_data(compute_idx(x, y - 1), e);
 			}
 			else if (in_bounds(x + 1, y - 1) && is_empty(x + 1, y - 1)) {
 				particle_t e = particle_ember();
-				e.velocity = {(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 10.f};
+				e.velocity = {(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 10.f};// (gs_vec2)
 				write_data(compute_idx(x + 1, y - 1), e);
 			}
 			else if (in_bounds(x - 1, y - 1) && is_empty(x - 1, y - 1)) {
 				particle_t e = particle_ember();
-				e.velocity = {(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 10.f};
+				e.velocity = {(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 10.f};// (gs_vec2)
 				write_data(compute_idx(x - 1, y - 1), e);
 			}
 		}
@@ -2443,15 +2359,14 @@ void update_lava(u32 x, u32 y)
 	if (random_val(0, (s32)(p->life_time * 100.f)) % 200 == 0) {
 		s32 ran = random_val(0, 3);
 		switch (ran) {
-			case 0: p->color = {255, 80, 20, 255}; break;
-			case 1: p->color = {255, 100, 10, 255}; break;
-			case 2: p->color = {255, 50, 0, 255}; break;
-			case 3: p->color = {200, 50, 2, 255}; break;
+			case 0: p->color = {255, 80, 20, 255}; break; // (color_t)
+			case 1: p->color = {255, 100, 10, 255}; break;// (color_t)
+			case 2: p->color = {255, 50, 0, 255}; break;// (color_t)
+			case 3: p->color = {200, 50, 2, 255}; break;// (color_t)
 		}
 	}
 
-	// In water, so create steam and DIE
-	// Should also kill the water...
+	// In water, so create steam and DIE. Should also kill the water...
 	s32 lx, ly;
 	if (is_in_water(x, y, &lx, &ly)) {
 		if (random_val(0, 1) == 0) {
@@ -2521,17 +2436,17 @@ void update_lava(u32 x, u32 y)
 		for (u32 i = 0; i < random_val(1, 100); ++i) {
 			if (in_bounds(x, y - 1) && is_empty(x, y - 1)) {
 				particle_t e = particle_ember();
-				e.velocity = {(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 2.f};
+				e.velocity = {(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 2.f}; //(gs_vec2)
 				write_data(compute_idx(x, y - 1), e);
 			}
 			else if (in_bounds(x + 1, y - 1) && is_empty(x + 1, y - 1)) {
 				particle_t e = particle_ember();
-				e.velocity = {(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 2.f};
+				e.velocity = {(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 2.f}; //(gs_vec2)
 				write_data(compute_idx(x + 1, y - 1), e);
 			}
 			else if (in_bounds(x - 1, y - 1) && is_empty(x - 1, y - 1)) {
 				particle_t e = particle_ember();
-				e.velocity = {(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 2.f};
+				e.velocity = {(f32)random_val(-5, 5) / 5.f, -(f32)random_val(2, 10) / 2.f}; //(gs_vec2)
 				write_data(compute_idx(x - 1, y - 1), e);
 			}
 		}
@@ -3164,7 +3079,6 @@ void update_default(u32 w, u32 h)
 	write_data(read_idx, get_particle_at(w, h));
 }
 
-#pragma region Particle_property
 particle_t particle_empty()
 {
 	particle_t p = { 0 };
@@ -3308,4 +3222,18 @@ particle_t particle_acid()
 	p.color.b = (u8)(gs_interp_linear(0.1f, 0.12f, r) * 255.f);
 	p.color.a = 200;
 	return p;
+}
+
+gs_app_desc_t gs_main(int32_t argc, char** argv)
+{
+	gs_app_desc_t app = { 0 };
+	app.window_title = "pixelengine2.0";
+	app.window_width = g_window_width;
+	app.window_height = g_window_height;
+	app.init = app_init;
+	app.update = app_update;
+	app.shutdown = app_shutdown;
+	app.frame_rate = 60.f;
+	app.enable_vsync = false;
+	return app;
 }
