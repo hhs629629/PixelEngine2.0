@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{5E98725D-CA55-4B25-BC75-F4C2C20590D6}</ProjectGuid>
+    <RootNamespace>FallingSandSurvival</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <ProjectName>FallingSandSurvival</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Debug\.conan\conanbuildinfo.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Release\.conan\conanbuildinfo.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\x64\Debug\.conan\conanbuildinfo.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\x64\Release\.conan\conanbuildinfo.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)lib\FMOD\inc;$(ProjectDir)lib\FMOD_studio\inc;$(ProjectDir)lib\steam\include;$(ProjectDir)lib\discord_game_sdk\cpp\;$(ProjectDir)lib\imgui\backends\;$(ProjectDir)lib\imgui\libs\gl3w\;$(ConanIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessToFile>false</PreprocessToFile>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <PreprocessorDefinitions>IMGUI_IMPL_OPENGL_LOADER_GL3W;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;$(ConanPreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4244;4101;4018;4305</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnablePREfast>true</EnablePREfast>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>false</OmitFramePointers>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\FMOD\lib\x86;$(ProjectDir)lib\FMOD_studio\lib\x86;$(ProjectDir)lib\steam\redistributable_bin;$(ProjectDir)lib\discord_game_sdk\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>fmodL_vc.lib;fmodstudioL_vc.lib;ws2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+      <AdditionalOptions>/ignore:4099 $(ConanLinkerFlags) %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <PreBuildEvent>
+      <Command>del $(Configuration)\Game.obj
+exit 0</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)lib\FMOD\inc;$(ProjectDir)lib\FMOD_studio\inc;$(ProjectDir)lib\steam\include;$(ProjectDir)lib\discord_game_sdk\cpp\;$(ProjectDir)lib\imgui\backends\;$(ProjectDir)lib\imgui\libs\gl3w\;$(ConanIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>false</OmitFramePointers>
+      <PreprocessorDefinitions>IMGUI_IMPL_OPENGL_LOADER_GL3W;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4244;4101;4018;4305</DisableSpecificWarnings>
+      <EnablePREfast>true</EnablePREfast>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\FMOD\lib\x64;$(ProjectDir)lib\FMOD_studio\lib\x64;$(ProjectDir)lib\steam\redistributable_bin\win64;$(ProjectDir)lib\discord_game_sdk\lib\x86_64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>fmodL_vc.lib;fmodstudioL_vc.lib;ws2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+      <AdditionalOptions>/ignore:4099 $(ConanLinkerFlags) %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <PreBuildEvent>
+      <Command>del $(Configuration)\Game.obj
+exit 0</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)lib\FMOD\inc;$(ProjectDir)lib\FMOD_studio\inc;$(ProjectDir)lib\steam\include;$(ProjectDir)lib\discord_game_sdk\cpp\;$(ProjectDir)lib\imgui\backends\;$(ProjectDir)lib\imgui\libs\gl3w\;$(ConanIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <PreprocessorDefinitions>IMGUI_IMPL_OPENGL_LOADER_GL3W;_MBCS;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;$(ConanPreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <EnablePREfast>true</EnablePREfast>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4244;4101;4018;4305</DisableSpecificWarnings>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\FMOD\lib\x86;$(ProjectDir)lib\FMOD_studio\lib\x86;$(ProjectDir)lib\steam\redistributable_bin;$(ProjectDir)lib\discord_game_sdk\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>fmodL_vc.lib;fmodstudioL_vc.lib;ws2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+      <AdditionalOptions>/ignore:4099 $(ConanLinkerFlags) %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <PreBuildEvent>
+      <Command>del $(Configuration)\Game.obj
+exit 0</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>
+      </Message>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>
+      </Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)lib\FMOD\inc;$(ProjectDir)lib\FMOD_studio\inc;$(ProjectDir)lib\steam\include;$(ProjectDir)lib\discord_game_sdk\cpp\;$(ProjectDir)lib\imgui\backends\;$(ProjectDir)lib\imgui\libs\gl3w\;$(ConanIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>false</OmitFramePointers>
+      <PreprocessorDefinitions>IMGUI_IMPL_OPENGL_LOADER_GL3W;_MBCS;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;$(ConanPreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <EnablePREfast>true</EnablePREfast>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4244;4101;4018;4305</DisableSpecificWarnings>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\FMOD\lib\x64;$(ProjectDir)lib\FMOD_studio\lib\x64;$(ProjectDir)lib\steam\redistributable_bin\win64;$(ProjectDir)lib\discord_game_sdk\lib\x86_64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>fmodL_vc.lib;fmodstudioL_vc.lib;ws2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+      <AdditionalOptions>/ignore:4099 $(ConanLinkerFlags) %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <PreBuildEvent>
+      <Command>del $(Configuration)\Game.obj
+exit 0</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="b2DebugDraw_impl.cpp" />
+    <ClCompile Include="Background.cpp" />
+    <ClCompile Include="Biome.cpp" />
+    <ClCompile Include="Chunk.cpp" />
+    <ClCompile Include="Controls.cpp" />
+    <ClCompile Include="DiscordIntegration.cpp" />
+    <ClCompile Include="Drawing.cpp" />
+    <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameDir.cpp" />
+    <ClCompile Include="IngameUI.cpp" />
+    <ClCompile Include="Item.cpp" />
+    <ClCompile Include="lib\AudioAdventure\source\AudioEngine.cpp" />
+    <ClCompile Include="lib\discord_game_sdk\cpp\achievement_manager.cpp">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="lib\discord_game_sdk\cpp\activity_manager.cpp">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="lib\discord_game_sdk\cpp\application_manager.cpp">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="lib\discord_game_sdk\cpp\core.cpp">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="lib\discord_game_sdk\cpp\image_manager.cpp">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="lib\discord_game_sdk\cpp\lobby_manager.cpp">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="lib\discord_game_sdk\cpp\network_manager.cpp">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="lib\discord_game_sdk\cpp\overlay_manager.cpp">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="lib\discord_game_sdk\cpp\relationship_manager.cpp">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="lib\discord_game_sdk\cpp\storage_manager.cpp">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="lib\discord_game_sdk\cpp\store_manager.cpp">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="lib\discord_game_sdk\cpp\types.cpp">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="lib\discord_game_sdk\cpp\user_manager.cpp">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="lib\discord_game_sdk\cpp\voice_manager.cpp">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="lib\douglas-peucker\polygon-simplify.cc" />
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD.cpp" />
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_avx2.cpp" />
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_avx512.cpp" />
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_internal.cpp" />
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_neon.cpp" />
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_sse2.cpp" />
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_sse41.cpp" />
+    <ClCompile Include="lib\FastNoise\FastNoise.cpp" />
+    <ClCompile Include="lib\imgui\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="lib\imgui\backends\imgui_impl_sdl.cpp" />
+    <ClCompile Include="lib\imgui\libs\gl3w\GL\gl3w.c" />
+    <ClCompile Include="lib\polypartition-master\src\polypartition.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Materials.cpp" />
+    <ClCompile Include="MaterialTestGenerator.cpp" />
+    <ClCompile Include="Networking.cpp" />
+    <ClCompile Include="OptionsUI.cpp" />
+    <ClCompile Include="Particle.cpp" />
+    <ClCompile Include="PlacedStructure.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Populator.cpp" />
+    <ClCompile Include="Populators.cpp" />
+    <ClCompile Include="RigidBody.cpp" />
+    <ClCompile Include="Settings.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Structures.cpp" />
+    <ClCompile Include="Structure.cpp" />
+    <ClCompile Include="Textures.cpp" />
+    <ClCompile Include="MaterialInstance.cpp" />
+    <ClCompile Include="Tiles.cpp" />
+    <ClCompile Include="Material.cpp" />
+    <ClCompile Include="UTime.cpp" />
+    <ClCompile Include="world.cpp" />
+    <ClCompile Include="DefaultGenerator.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="b2DebugDraw_impl.h" />
+    <ClInclude Include="Background.hpp" />
+    <ClInclude Include="Biome.hpp" />
+    <ClInclude Include="Chunk.hpp" />
+    <ClInclude Include="ChunkReadyToMerge.hpp" />
+    <ClInclude Include="CLArgs.hpp" />
+    <ClInclude Include="Controls.hpp" />
+    <ClCompile Include="CreateWorldUI.cpp" />
+    <ClCompile Include="DebugCheatsUI.cpp" />
+    <ClCompile Include="DebugDrawUI.cpp" />
+    <ClCompile Include="DebugUI.cpp" />
+    <ClInclude Include="DiscordIntegration.hpp" />
+    <ClInclude Include="DiscordUtils.hpp" />
+    <ClInclude Include="Drawing.hpp" />
+    <ClInclude Include="Entity.hpp" />
+    <ClInclude Include="Game.hpp" />
+    <ClInclude Include="GameDir.hpp" />
+    <ClInclude Include="Item.hpp" />
+    <ClInclude Include="lib\AudioAdventure\include\AudioEngine.h" />
+    <ClInclude Include="lib\cpp-marching-squares-master\Direction.h" />
+    <ClInclude Include="lib\cpp-marching-squares-master\MarchingSquares.h" />
+    <ClInclude Include="lib\cpp-marching-squares-master\Utility.h" />
+    <ClInclude Include="lib\CTPL-ctpl_v.0.0.2\ctpl_stl.h" />
+    <ClInclude Include="lib\discord_game_sdk\cpp\achievement_manager.h">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="lib\discord_game_sdk\cpp\activity_manager.h">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="lib\discord_game_sdk\cpp\application_manager.h">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="lib\discord_game_sdk\cpp\core.h">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="lib\discord_game_sdk\cpp\discord.h">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="lib\discord_game_sdk\cpp\event.h">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="lib\discord_game_sdk\cpp\ffi.h">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="lib\discord_game_sdk\cpp\image_manager.h">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="lib\discord_game_sdk\cpp\lobby_manager.h">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="lib\discord_game_sdk\cpp\network_manager.h">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="lib\discord_game_sdk\cpp\overlay_manager.h">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="lib\discord_game_sdk\cpp\relationship_manager.h">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="lib\discord_game_sdk\cpp\storage_manager.h">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="lib\discord_game_sdk\cpp\store_manager.h">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="lib\discord_game_sdk\cpp\types.h">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="lib\discord_game_sdk\cpp\user_manager.h">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="lib\discord_game_sdk\cpp\voice_manager.h">
+      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="lib\douglas-peucker\polygon-simplify.hh" />
+    <ClInclude Include="lib\FastNoiseSIMD\FastNoiseSIMD.h" />
+    <ClInclude Include="lib\FastNoiseSIMD\FastNoiseSIMD_internal.h" />
+    <ClInclude Include="lib\FastNoise\FastNoise.h" />
+    <ClInclude Include="lib\imgui\backends\imgui_impl_opengl3.h" />
+    <ClInclude Include="lib\imgui\backends\imgui_impl_sdl.h" />
+    <ClInclude Include="lib\imgui\libs\gl3w\GL\gl3w.h" />
+    <ClInclude Include="lib\imgui\libs\gl3w\GL\glcorearb.h" />
+    <ClInclude Include="lib\polypartition-master\src\polypartition.h" />
+    <ClInclude Include="lib\sparsehash\dense_hash_map.h" />
+    <ClInclude Include="lib\sparsehash\internal\densehashtable.h" />
+    <ClInclude Include="lib\sparsehash\internal\hashtable-common.h" />
+    <ClInclude Include="lib\sparsehash\internal\libc_allocator_with_realloc.h" />
+    <ClInclude Include="lib\sparsehash\internal\sparsehashtable.h" />
+    <ClInclude Include="lib\sparsehash\sparse_hash_map.h" />
+    <ClInclude Include="Macros.hpp" />
+    <ClCompile Include="MainMenuUI.cpp" />
+    <ClInclude Include="Material.hpp" />
+    <ClInclude Include="MaterialInstance.hpp" />
+    <ClInclude Include="Materials.hpp" />
+    <ClInclude Include="Networking.hpp" />
+    <ClInclude Include="Particle.hpp" />
+    <ClInclude Include="PhysicsType.hpp" />
+    <ClInclude Include="PlacedStructure.hpp" />
+    <ClInclude Include="Player.hpp" />
+    <ClInclude Include="Populator.hpp" />
+    <ClInclude Include="ProfilerConfig.hpp" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="RigidBody.hpp" />
+    <ClInclude Include="Settings.hpp" />
+    <ClInclude Include="Shaders.hpp" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Structure.hpp" />
+    <ClInclude Include="Structures.hpp" />
+    <ClInclude Include="Textures.hpp" />
+    <ClInclude Include="Tiles.hpp" />
+    <ClInclude Include="UIs.hpp" />
+    <ClInclude Include="UTime.hpp" />
+    <ClInclude Include="world.hpp" />
+    <ClInclude Include="WorldGenerator.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".editorconfig" />
+    <None Include="cpp.hint" />
+    <None Include="lib\sparsehash\dense_hash_set" />
+    <None Include="lib\sparsehash\sparsetable" />
+    <None Include="lib\sparsehash\sparse_hash_set" />
+    <None Include="lib\sparsehash\traits" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="FallingSandSurvival.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+  <PropertyGroup Condition="'$(Language)'=='C++'">
+    <CAExcludePath>$(ProjectDir)lib;$(ConanIncludeDirectories);$(CAExcludePath)</CAExcludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
+    <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
+    <LinkIncremental>false</LinkIncremental>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+  </PropertyGroup>
+</Project>

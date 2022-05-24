@@ -1,8 +1,0 @@
-5/16 -김선우
-C 언어 기능중 compound literal 기능은 msvc c++ 컴파일러에서 지원하지 않음.
-https://stackoverflow.com/questions/61298933/initialize-a-struct-in-c-the-c-way
-GCC에서는 extension으로 지원함
-
-현재 VRAM 메모리 leak 현상이 심각함.
-게임을 pause해도 계속 진행됨
-
