@@ -22,20 +22,20 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{5E98725D-CA55-4B25-BC75-F4C2C20590D6}</ProjectGuid>
     <RootNamespace>FallingSandSurvival</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>FallingSandSurvival</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -67,6 +67,7 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\x64\Debug\.conan\conanbuildinfo.props" />
     <Import Project="..\x64\Debug\.conan\conanbuildinfo.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -226,7 +227,6 @@ exit 0</Command>
     <ClCompile Include="Biome.cpp" />
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="Controls.cpp" />
-    <ClCompile Include="DiscordIntegration.cpp" />
     <ClCompile Include="Drawing.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -292,7 +292,6 @@ exit 0</Command>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Materials.cpp" />
     <ClCompile Include="MaterialTestGenerator.cpp" />
-    <ClCompile Include="Networking.cpp" />
     <ClCompile Include="OptionsUI.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="PlacedStructure.cpp" />
@@ -329,8 +328,6 @@ exit 0</Command>
     <ClCompile Include="DebugCheatsUI.cpp" />
     <ClCompile Include="DebugDrawUI.cpp" />
     <ClCompile Include="DebugUI.cpp" />
-    <ClInclude Include="DiscordIntegration.hpp" />
-    <ClInclude Include="DiscordUtils.hpp" />
     <ClInclude Include="Drawing.hpp" />
     <ClInclude Include="Entity.hpp" />
     <ClInclude Include="Game.hpp" />
@@ -412,7 +409,6 @@ exit 0</Command>
     <ClInclude Include="Material.hpp" />
     <ClInclude Include="MaterialInstance.hpp" />
     <ClInclude Include="Materials.hpp" />
-    <ClInclude Include="Networking.hpp" />
     <ClInclude Include="Particle.hpp" />
     <ClInclude Include="PhysicsType.hpp" />
     <ClInclude Include="PlacedStructure.hpp" />

@@ -17,8 +17,6 @@
 #define BUILD_WITH_EASY_PROFILER
 #include <easy/profiler.h>
 
-#include "DiscordIntegration.hpp"
-
 #define timegm _mkgmtime
 
 #define W_PI 3.14159265358979323846
@@ -37,9 +35,6 @@ void Game::updateMaterialSounds() {
  On my machine this saves about 100ms during init
  */
 DWORD WINAPI glSpeedUp(LPVOID param) {
-    HDC dc = GetDC(NULL);
-    DescribePixelFormat(dc, 0, 0, NULL);
-    ReleaseDC(NULL, dc);
     return 0;
 };
 #endif
@@ -54,15 +49,11 @@ int Game::init(int argc, char *argv[]) {
 
     EASY_EVENT("Start Loading", profiler::colors::Magenta);
 
-    networkMode = clArgs->getBool("server") ? NetworkMode::SERVER : NetworkMode::HOST;
-
     EASY_BLOCK("warm up opengl");
-    if(networkMode != NetworkMode::SERVER) {
-        #ifdef _WIN32
-        // see comment on glSpeedUp
-        CreateThread(NULL, 3 * 64 * 1024, &glSpeedUp, NULL, STACK_SIZE_PARAM_IS_A_RESERVATION, NULL);
-        #endif
-    }
+    #ifdef _WIN32
+    // see comment on glSpeedUp
+    CreateThread(NULL, 3 * 64 * 1024, &glSpeedUp, NULL, STACK_SIZE_PARAM_IS_A_RESERVATION, NULL);
+    #endif
     EASY_END_BLOCK;
 
     // init console & print title
@@ -115,107 +106,52 @@ int Game::init(int argc, char *argv[]) {
 
     this->gameDir = GameDir(clArgs->getString("game-dir"));
 
-    Networking::init();
-    if(networkMode == NetworkMode::SERVER) {
-        int port = 1337;
-        if(argc >= 3) {
-            port = atoi(argv[2]);
-        }
-        server = Server::start(port);
-        //SDL_SetWindowTitle(window, "Falling Sand Survival (Server)");
-
-        /*while (true) {
-            logDebug("[SERVER] tick {0:d}", server->server->connectedPeers);
-            server->tick();
-            Sleep(500);
-        }
-        return 0;*/
-
-    } else {
-        client = Client::start();
-        //client->connect("172.23.16.150", 1337);
-
-        //while (true) {
-        //	logDebug("[CLIENT] tick");
-
-        //	/* Create a reliable packet of size 7 containing "packet\0" */
-        //	ENetPacket * packet = enet_packet_create("keepalive",
-        //		strlen("keepalive") + 1, 0);
-        //	/* Send the packet to the peer over channel id 0. */
-        //	/* One could also broadcast the packet by         */
-        //	/* enet_host_broadcast (host, 0, packet);         */
-        //	enet_peer_send(client->peer, 0, packet);
-
-        //	for (int i = 0; i < 1000; i++) {
-        //		client->tick();
-        //		Sleep(1);
-        //	}
-        //}
-        //return 0;
-
-        //SDL_SetWindowTitle(window, "Falling Sand Survival (Client)");
-    }
-
     ctpl::thread_pool* initThreadPool = new ctpl::thread_pool(1);
     std::future<void> initThread;
     ctpl::thread_pool* worldInitThreadPool = new ctpl::thread_pool(1);
     std::future<void> worldInitThread;
-    if(networkMode != NetworkMode::SERVER) {
-        #if BUILD_WITH_STEAM
-        // SteamAPI_RestartAppIfNecessary
-        #pragma region
-        logInfo("SteamAPI_RestartAppIfNecessary...");
-        EASY_BLOCK("SteamAPI_RestartAppIfNecessary", STEAM_PROFILER_COLOR);
-        if(SteamAPI_RestartAppIfNecessary(STEAM_APPID)) {
-            return 1; // restart game through steam (if ran directly)
-        }
+    // init fmod
+    #pragma region
+
+    initThread = initThreadPool->push([&](int id) {
+        EASY_THREAD("Async init");
+        EASY_BLOCK("init fmod");
+        logInfo("Initializing audio engine...");
+
+        EASY_BLOCK("init audioEngine");
+        audioEngine.Init();
         EASY_END_BLOCK;
-        #pragma endregion
-        #endif
 
-        // init fmod
-        #pragma region
+        EASY_BLOCK("load banks");
+        audioEngine.LoadBank("assets/audio/fmod/Build/Desktop/Master.bank", FMOD_STUDIO_LOAD_BANK_NORMAL);
+        audioEngine.LoadBank("assets/audio/fmod/Build/Desktop/Master.strings.bank", FMOD_STUDIO_LOAD_BANK_NORMAL);
+        EASY_END_BLOCK;
 
-        initThread = initThreadPool->push([&](int id) {
-            EASY_THREAD("Async init");
-            EASY_BLOCK("init fmod");
-            logInfo("Initializing audio engine...");
+        EASY_BLOCK("load events");
+        audioEngine.LoadEvent("event:/Music/Title");
 
-            EASY_BLOCK("init audioEngine");
-            audioEngine.Init();
-            EASY_END_BLOCK;
+        audioEngine.LoadEvent("event:/Player/Jump");
+        audioEngine.LoadEvent("event:/Player/Fly");
+        audioEngine.LoadEvent("event:/Player/Wind");
+        audioEngine.LoadEvent("event:/Player/Impact");
 
-            EASY_BLOCK("load banks");
-            audioEngine.LoadBank("assets/audio/fmod/Build/Desktop/Master.bank", FMOD_STUDIO_LOAD_BANK_NORMAL);
-            audioEngine.LoadBank("assets/audio/fmod/Build/Desktop/Master.strings.bank", FMOD_STUDIO_LOAD_BANK_NORMAL);
-            EASY_END_BLOCK;
+        audioEngine.LoadEvent("event:/World/Sand");
+        audioEngine.LoadEvent("event:/World/WaterFlow");
 
-            EASY_BLOCK("load events");
-            audioEngine.LoadEvent("event:/Music/Title");
+        audioEngine.LoadEvent("event:/GUI/GUI_Hover");
+        audioEngine.LoadEvent("event:/GUI/GUI_Slider");
+        EASY_END_BLOCK;
 
-            audioEngine.LoadEvent("event:/Player/Jump");
-            audioEngine.LoadEvent("event:/Player/Fly");
-            audioEngine.LoadEvent("event:/Player/Wind");
-            audioEngine.LoadEvent("event:/Player/Impact");
+        EASY_BLOCK("play events");
+        audioEngine.PlayEvent("event:/Player/Fly");
+        audioEngine.PlayEvent("event:/Player/Wind");
+        audioEngine.PlayEvent("event:/World/Sand");
+        audioEngine.PlayEvent("event:/World/WaterFlow");
+        EASY_END_BLOCK;
 
-            audioEngine.LoadEvent("event:/World/Sand");
-            audioEngine.LoadEvent("event:/World/WaterFlow");
-
-            audioEngine.LoadEvent("event:/GUI/GUI_Hover");
-            audioEngine.LoadEvent("event:/GUI/GUI_Slider");
-            EASY_END_BLOCK;
-
-            EASY_BLOCK("play events");
-            audioEngine.PlayEvent("event:/Player/Fly");
-            audioEngine.PlayEvent("event:/Player/Wind");
-            audioEngine.PlayEvent("event:/World/Sand");
-            audioEngine.PlayEvent("event:/World/WaterFlow");
-            EASY_END_BLOCK;
-
-            EASY_END_BLOCK; // init fmod
-        });
-        #pragma endregion
-    }
+        EASY_END_BLOCK; // init fmod
+    });
+    #pragma endregion
 
     // init sdl
     #pragma region
@@ -240,13 +176,11 @@ int Game::init(int argc, char *argv[]) {
     }
     EASY_END_BLOCK;
 
-    if(networkMode != NetworkMode::SERVER) {
-        EASY_BLOCK("load fonts");
-        font64 = TTF_OpenFont("assets/fonts/pixel_operator/PixelOperator.ttf", 64);
-        font16 = TTF_OpenFont("assets/fonts/pixel_operator/PixelOperator.ttf", 16);
-        font14 = TTF_OpenFont("assets/fonts/pixel_operator/PixelOperator.ttf", 14);
-        EASY_END_BLOCK;
-    }
+    EASY_BLOCK("load fonts");
+    font64 = TTF_OpenFont("assets/fonts/pixel_operator/PixelOperator.ttf", 64);
+    font16 = TTF_OpenFont("assets/fonts/pixel_operator/PixelOperator.ttf", 16);
+    font14 = TTF_OpenFont("assets/fonts/pixel_operator/PixelOperator.ttf", 14);
+    EASY_END_BLOCK;
 
     EASY_BLOCK("IMG_Init");
     logInfo("Initializing SDL_IMG...");
@@ -259,186 +193,185 @@ int Game::init(int argc, char *argv[]) {
     EASY_END_BLOCK;
     #pragma endregion
 
-    if(networkMode != NetworkMode::SERVER) {
-        // create the window
-        #pragma region
-        EASY_BLOCK("create window");
-        logInfo("Creating game window...");
-        EASY_BLOCK("SDL_CreateWindow", SDL_PROFILER_COLOR);
-        window = SDL_CreateWindow("Falling Sand Survival", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_OPENGL);
-        EASY_END_BLOCK;
+    // create the window
+    #pragma region
+    EASY_BLOCK("create window");
+    logInfo("Creating game window...");
+    EASY_BLOCK("SDL_CreateWindow", SDL_PROFILER_COLOR);
+    window = SDL_CreateWindow("Falling Sand Survival", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_OPENGL);
+    EASY_END_BLOCK;
 
-        if(window == nullptr) {
-            logCritical("Could not create SDL_Window: {}", SDL_GetError());
-            return EXIT_FAILURE;
-        }
-
-        #ifdef _WIN32
-        // get windows specific handle
-        SDL_SysWMinfo wmInfo;
-        SDL_VERSION(&wmInfo.version);
-        SDL_GetWindowWMInfo(window, &wmInfo);
-        this->hwnd = wmInfo.info.win.window;
-
-        // get windows taskbar handler
-        HRESULT hr = CoCreateInstance(CLSID_TaskbarList, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&win_taskbar));
-        if(SUCCEEDED(hr)) {
-            hr = win_taskbar->HrInit();
-            if(FAILED(hr)) {
-                win_taskbar->Release();
-                win_taskbar = NULL;
-            }
-        }
-        #endif
-
-        setWindowProgress(WindowProgressState::INDETERMINATE, 0.0f);
-
-        EASY_BLOCK("SDL_SetWindowIcon", SDL_PROFILER_COLOR);
-        SDL_SetWindowIcon(window, Textures::loadTexture("assets/Icon_32x.png"));
-        EASY_END_BLOCK;
-        EASY_END_BLOCK;
-        #pragma endregion
-
-        // create gpu target
-        #pragma region
-        EASY_BLOCK("create gpu target");
-        logInfo("Creating gpu target...");
-        EASY_BLOCK("GPU_SetPreInitFlags", GPU_PROFILER_COLOR);
-        GPU_SetDebugLevel(GPU_DEBUG_LEVEL_MAX);
-        GPU_SetPreInitFlags(GPU_INIT_DISABLE_VSYNC);
-        EASY_END_BLOCK;
-        EASY_BLOCK("GPU_SetInitWindow", GPU_PROFILER_COLOR);
-        GPU_SetInitWindow(SDL_GetWindowID(window));
-        EASY_END_BLOCK;
-        EASY_BLOCK("GPU_Init", GPU_PROFILER_COLOR);
-        target = GPU_Init(WIDTH, HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
-        EASY_END_BLOCK;
-
-        if(target == NULL) {
-            logCritical("Could not create GPU_Target: {}", SDL_GetError());
-            return EXIT_FAILURE;
-        }
-        realTarget = target;
-        EASY_END_BLOCK;
-        #pragma endregion
-
-        SDL_GLContext& gl_context = target->context->context;
-
-        SDL_GL_MakeCurrent(window, gl_context);
-
-        bool err = gl3wInit() != 0;
-
-        if(err) {
-            fprintf(stderr, "Failed to initialize OpenGL loader!\n");
-            return EXIT_FAILURE;
-        }
-
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-
-        ImGui::GetIO().Fonts->AddFontDefault();
-        ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/pixel_operator/PixelOperator.ttf", 32);
-
-        ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
-
-        const char* glsl_version = "#version 130";
-        ImGui_ImplOpenGL3_Init(glsl_version);
-
-        ImGui::StyleColorsClassic();
-        ImGui::GetStyle().WindowTitleAlign = ImVec2(0.5f, 0.5f);
-        ImVec4* colors = ImGui::GetStyle().Colors;
-        colors[ImGuiCol_Text]                   = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
-        colors[ImGuiCol_TextDisabled]           = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
-        colors[ImGuiCol_WindowBg]               = ImVec4(0.11f, 0.11f, 0.11f, 0.72f);
-        colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-        colors[ImGuiCol_PopupBg]                = ImVec4(0.11f, 0.11f, 0.14f, 0.92f);
-        colors[ImGuiCol_Border]                 = ImVec4(1.00f, 1.00f, 1.00f, 0.64f);
-        colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-        colors[ImGuiCol_FrameBg]                = ImVec4(0.43f, 0.43f, 0.43f, 0.43f);
-        colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.47f, 0.47f, 0.69f, 0.40f);
-        colors[ImGuiCol_FrameBgActive]          = ImVec4(0.42f, 0.41f, 0.64f, 0.69f);
-        colors[ImGuiCol_TitleBg]                = ImVec4(0.41f, 0.47f, 0.60f, 0.83f);
-        colors[ImGuiCol_TitleBgActive]          = ImVec4(0.29f, 0.43f, 0.73f, 0.87f);
-        colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.37f, 0.48f, 0.69f, 0.46f);
-        colors[ImGuiCol_MenuBarBg]              = ImVec4(0.27f, 0.32f, 0.44f, 0.87f);
-        colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.20f, 0.25f, 0.30f, 0.60f);
-        colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.44f, 0.60f, 0.86f, 0.44f);
-        colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.54f, 0.67f, 0.87f, 0.44f);
-        colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.64f, 0.74f, 0.90f, 0.44f);
-        colors[ImGuiCol_CheckMark]              = ImVec4(0.76f, 0.91f, 0.75f, 0.58f);
-        colors[ImGuiCol_SliderGrab]             = ImVec4(1.00f, 1.00f, 1.00f, 0.30f);
-        colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.41f, 0.39f, 0.80f, 0.60f);
-        colors[ImGuiCol_Button]                 = ImVec4(0.35f, 0.40f, 0.61f, 0.62f);
-        colors[ImGuiCol_ButtonHovered]          = ImVec4(0.40f, 0.48f, 0.71f, 0.79f);
-        colors[ImGuiCol_ButtonActive]           = ImVec4(0.46f, 0.54f, 0.80f, 1.00f);
-        colors[ImGuiCol_Header]                 = ImVec4(0.40f, 0.44f, 0.90f, 0.45f);
-        colors[ImGuiCol_HeaderHovered]          = ImVec4(0.45f, 0.45f, 0.90f, 0.80f);
-        colors[ImGuiCol_HeaderActive]           = ImVec4(0.53f, 0.53f, 0.87f, 0.80f);
-        colors[ImGuiCol_Separator]              = ImVec4(0.50f, 0.50f, 0.50f, 0.60f);
-        colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.60f, 0.60f, 0.70f, 1.00f);
-        colors[ImGuiCol_SeparatorActive]        = ImVec4(0.70f, 0.70f, 0.90f, 1.00f);
-        colors[ImGuiCol_ResizeGrip]             = ImVec4(1.00f, 1.00f, 1.00f, 0.16f);
-        colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.78f, 0.82f, 1.00f, 0.60f);
-        colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.78f, 0.82f, 1.00f, 0.90f);
-        colors[ImGuiCol_Tab]                    = ImVec4(0.35f, 0.41f, 0.57f, 0.77f);
-        colors[ImGuiCol_TabHovered]             = ImVec4(0.45f, 0.56f, 0.90f, 0.80f);
-        colors[ImGuiCol_TabActive]              = ImVec4(0.31f, 0.41f, 0.86f, 0.84f);
-        colors[ImGuiCol_TabUnfocused]           = ImVec4(0.28f, 0.28f, 0.57f, 0.82f);
-        colors[ImGuiCol_TabUnfocusedActive]     = ImVec4(0.35f, 0.35f, 0.65f, 0.84f);
-        colors[ImGuiCol_PlotLines]              = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-        colors[ImGuiCol_PlotLinesHovered]       = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-        colors[ImGuiCol_PlotHistogram]          = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-        colors[ImGuiCol_PlotHistogramHovered]   = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
-        colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.66f, 0.77f, 0.99f, 0.35f);
-        colors[ImGuiCol_DragDropTarget]         = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
-        colors[ImGuiCol_NavHighlight]           = ImVec4(0.45f, 0.45f, 0.90f, 0.80f);
-        colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
-        colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
-        colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
-
-        // load splash screen
-        #pragma region
-        EASY_BLOCK("load splash screen");
-        logInfo("Loading splash screen...");
-        EASY_BLOCK("GPU_Clear", GPU_PROFILER_COLOR);
-        GPU_Clear(target);
-        EASY_END_BLOCK;
-        EASY_BLOCK("GPU_Flip", GPU_PROFILER_COLOR);
-        GPU_Flip(target);
-        EASY_END_BLOCK;
-
-        SDL_Surface* splashSurf = Textures::loadTexture("assets/title/splash.png");
-        EASY_BLOCK("GPU_CopyImageFromSurface", GPU_PROFILER_COLOR);
-        GPU_Image* splashImg = GPU_CopyImageFromSurface(splashSurf);
-        EASY_END_BLOCK;
-        EASY_BLOCK("GPU_SetImageFilter", GPU_PROFILER_COLOR);
-        GPU_SetImageFilter(splashImg, GPU_FILTER_NEAREST);
-        EASY_END_BLOCK;
-        EASY_BLOCK("GPU_BlitRect", GPU_PROFILER_COLOR);
-        GPU_BlitRect(splashImg, NULL, target, NULL);
-        EASY_END_BLOCK;
-
-        EASY_BLOCK("GPU_FreeImage", GPU_PROFILER_COLOR);
-        GPU_FreeImage(splashImg);
-        EASY_END_BLOCK;
-        EASY_BLOCK("SDL_FreeSurface", SDL_PROFILER_COLOR);
-        SDL_FreeSurface(splashSurf);
-        EASY_END_BLOCK;
-        EASY_BLOCK("GPU_Flip", GPU_PROFILER_COLOR);
-        GPU_Flip(target);
-        EASY_END_BLOCK;
-        EASY_EVENT("splash screen visible", profiler::colors::Green);
-
-        EASY_BLOCK("wait for Fmod", THREAD_WAIT_PROFILER_COLOR);
-        initThread.get();
-        EASY_END_BLOCK;
-        EASY_BLOCK("play audio");
-        audioEngine.PlayEvent("event:/Music/Title");
-        audioEngine.Update();
-        EASY_END_BLOCK;
-        EASY_END_BLOCK;
-        #pragma endregion
+    if(window == nullptr) {
+        logCritical("Could not create SDL_Window: {}", SDL_GetError());
+        return EXIT_FAILURE;
     }
+
+    #ifdef _WIN32
+    // get windows specific handle
+    SDL_SysWMinfo wmInfo;
+    SDL_VERSION(&wmInfo.version);
+    SDL_GetWindowWMInfo(window, &wmInfo);
+    this->hwnd = wmInfo.info.win.window;
+
+    // get windows taskbar handler
+    HRESULT hr = CoCreateInstance(CLSID_TaskbarList, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&win_taskbar));
+    if(SUCCEEDED(hr)) {
+        hr = win_taskbar->HrInit();
+        if(FAILED(hr)) {
+            win_taskbar->Release();
+            win_taskbar = NULL;
+        }
+    }
+    #endif
+
+    setWindowProgress(WindowProgressState::INDETERMINATE, 0.0f);
+
+    EASY_BLOCK("SDL_SetWindowIcon", SDL_PROFILER_COLOR);
+    SDL_SetWindowIcon(window, Textures::loadTexture("assets/Icon_32x.png"));
+    EASY_END_BLOCK;
+    EASY_END_BLOCK;
+    #pragma endregion
+
+    // create gpu target
+    #pragma region
+    EASY_BLOCK("create gpu target");
+    logInfo("Creating gpu target...");
+    EASY_BLOCK("GPU_SetPreInitFlags", GPU_PROFILER_COLOR);
+    GPU_SetDebugLevel(GPU_DEBUG_LEVEL_MAX);
+    GPU_SetPreInitFlags(GPU_INIT_DISABLE_VSYNC);
+    EASY_END_BLOCK;
+    EASY_BLOCK("GPU_SetInitWindow", GPU_PROFILER_COLOR);
+    GPU_SetInitWindow(SDL_GetWindowID(window));
+    EASY_END_BLOCK;
+    EASY_BLOCK("GPU_Init", GPU_PROFILER_COLOR);
+    target = GPU_Init(WIDTH, HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
+    EASY_END_BLOCK;
+
+    if(target == NULL) {
+        logCritical("Could not create GPU_Target: {}", SDL_GetError());
+        return EXIT_FAILURE;
+    }
+    realTarget = target;
+    EASY_END_BLOCK;
+    #pragma endregion
+
+    SDL_GLContext& gl_context = target->context->context;
+
+    SDL_GL_MakeCurrent(window, gl_context);
+
+    bool err = gl3wInit() != 0;
+
+    if(err) {
+        fprintf(stderr, "Failed to initialize OpenGL loader!\n");
+        return EXIT_FAILURE;
+    }
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    ImGui::GetIO().Fonts->AddFontDefault();
+    ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/pixel_operator/PixelOperator.ttf", 32);
+
+    ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
+
+    const char* glsl_version = "#version 130";
+    ImGui_ImplOpenGL3_Init(glsl_version);
+
+    ImGui::StyleColorsClassic();
+    ImGui::GetStyle().WindowTitleAlign = ImVec2(0.5f, 0.5f);
+    ImVec4* colors = ImGui::GetStyle().Colors;
+    colors[ImGuiCol_Text]                   = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
+    colors[ImGuiCol_TextDisabled]           = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
+    colors[ImGuiCol_WindowBg]               = ImVec4(0.11f, 0.11f, 0.11f, 0.72f);
+    colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[ImGuiCol_PopupBg]                = ImVec4(0.11f, 0.11f, 0.14f, 0.92f);
+    colors[ImGuiCol_Border]                 = ImVec4(1.00f, 1.00f, 1.00f, 0.64f);
+    colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[ImGuiCol_FrameBg]                = ImVec4(0.43f, 0.43f, 0.43f, 0.43f);
+    colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.47f, 0.47f, 0.69f, 0.40f);
+    colors[ImGuiCol_FrameBgActive]          = ImVec4(0.42f, 0.41f, 0.64f, 0.69f);
+    colors[ImGuiCol_TitleBg]                = ImVec4(0.41f, 0.47f, 0.60f, 0.83f);
+    colors[ImGuiCol_TitleBgActive]          = ImVec4(0.29f, 0.43f, 0.73f, 0.87f);
+    colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.37f, 0.48f, 0.69f, 0.46f);
+    colors[ImGuiCol_MenuBarBg]              = ImVec4(0.27f, 0.32f, 0.44f, 0.87f);
+    colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.20f, 0.25f, 0.30f, 0.60f);
+    colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.44f, 0.60f, 0.86f, 0.44f);
+    colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.54f, 0.67f, 0.87f, 0.44f);
+    colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.64f, 0.74f, 0.90f, 0.44f);
+    colors[ImGuiCol_CheckMark]              = ImVec4(0.76f, 0.91f, 0.75f, 0.58f);
+    colors[ImGuiCol_SliderGrab]             = ImVec4(1.00f, 1.00f, 1.00f, 0.30f);
+    colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.41f, 0.39f, 0.80f, 0.60f);
+    colors[ImGuiCol_Button]                 = ImVec4(0.35f, 0.40f, 0.61f, 0.62f);
+    colors[ImGuiCol_ButtonHovered]          = ImVec4(0.40f, 0.48f, 0.71f, 0.79f);
+    colors[ImGuiCol_ButtonActive]           = ImVec4(0.46f, 0.54f, 0.80f, 1.00f);
+    colors[ImGuiCol_Header]                 = ImVec4(0.40f, 0.44f, 0.90f, 0.45f);
+    colors[ImGuiCol_HeaderHovered]          = ImVec4(0.45f, 0.45f, 0.90f, 0.80f);
+    colors[ImGuiCol_HeaderActive]           = ImVec4(0.53f, 0.53f, 0.87f, 0.80f);
+    colors[ImGuiCol_Separator]              = ImVec4(0.50f, 0.50f, 0.50f, 0.60f);
+    colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.60f, 0.60f, 0.70f, 1.00f);
+    colors[ImGuiCol_SeparatorActive]        = ImVec4(0.70f, 0.70f, 0.90f, 1.00f);
+    colors[ImGuiCol_ResizeGrip]             = ImVec4(1.00f, 1.00f, 1.00f, 0.16f);
+    colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.78f, 0.82f, 1.00f, 0.60f);
+    colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.78f, 0.82f, 1.00f, 0.90f);
+    colors[ImGuiCol_Tab]                    = ImVec4(0.35f, 0.41f, 0.57f, 0.77f);
+    colors[ImGuiCol_TabHovered]             = ImVec4(0.45f, 0.56f, 0.90f, 0.80f);
+    colors[ImGuiCol_TabActive]              = ImVec4(0.31f, 0.41f, 0.86f, 0.84f);
+    colors[ImGuiCol_TabUnfocused]           = ImVec4(0.28f, 0.28f, 0.57f, 0.82f);
+    colors[ImGuiCol_TabUnfocusedActive]     = ImVec4(0.35f, 0.35f, 0.65f, 0.84f);
+    colors[ImGuiCol_PlotLines]              = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+    colors[ImGuiCol_PlotLinesHovered]       = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+    colors[ImGuiCol_PlotHistogram]          = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+    colors[ImGuiCol_PlotHistogramHovered]   = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+    colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.66f, 0.77f, 0.99f, 0.35f);
+    colors[ImGuiCol_DragDropTarget]         = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
+    colors[ImGuiCol_NavHighlight]           = ImVec4(0.45f, 0.45f, 0.90f, 0.80f);
+    colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
+    colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
+    colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
+
+    // load splash screen
+    #pragma region
+    EASY_BLOCK("load splash screen");
+    logInfo("Loading splash screen...");
+    EASY_BLOCK("GPU_Clear", GPU_PROFILER_COLOR);
+    GPU_Clear(target);
+    EASY_END_BLOCK;
+    EASY_BLOCK("GPU_Flip", GPU_PROFILER_COLOR);
+    GPU_Flip(target);
+    EASY_END_BLOCK;
+
+    SDL_Surface* splashSurf = Textures::loadTexture("assets/title/splash.png");
+    EASY_BLOCK("GPU_CopyImageFromSurface", GPU_PROFILER_COLOR);
+    GPU_Image* splashImg = GPU_CopyImageFromSurface(splashSurf);
+    EASY_END_BLOCK;
+    EASY_BLOCK("GPU_SetImageFilter", GPU_PROFILER_COLOR);
+    GPU_SetImageFilter(splashImg, GPU_FILTER_NEAREST);
+    EASY_END_BLOCK;
+    EASY_BLOCK("GPU_BlitRect", GPU_PROFILER_COLOR);
+    GPU_BlitRect(splashImg, NULL, target, NULL);
+    EASY_END_BLOCK;
+
+    EASY_BLOCK("GPU_FreeImage", GPU_PROFILER_COLOR);
+    GPU_FreeImage(splashImg);
+    EASY_END_BLOCK;
+    EASY_BLOCK("SDL_FreeSurface", SDL_PROFILER_COLOR);
+    SDL_FreeSurface(splashSurf);
+    EASY_END_BLOCK;
+    EASY_BLOCK("GPU_Flip", GPU_PROFILER_COLOR);
+    GPU_Flip(target);
+    EASY_END_BLOCK;
+    EASY_EVENT("splash screen visible", profiler::colors::Green);
+
+    EASY_BLOCK("wait for Fmod", THREAD_WAIT_PROFILER_COLOR);
+    initThread.get();
+    EASY_END_BLOCK;
+    EASY_BLOCK("play audio");
+    audioEngine.PlayEvent("event:/Music/Title");
+    audioEngine.Update();
+    EASY_END_BLOCK;
+    EASY_END_BLOCK;
+    #pragma endregion
+
 
     // init the world
     #pragma region
@@ -449,61 +382,24 @@ int Game::init(int argc, char *argv[]) {
         logInfo("Initializing world...");
         world = new World();
         world->noSaveLoad = true;
-        world->init(gameDir.getWorldPath("mainMenu"), (int)ceil(MAX_WIDTH / 3 / (double)CHUNK_W) * CHUNK_W + CHUNK_W * 3, (int)ceil(MAX_HEIGHT / 3 / (double)CHUNK_H) * CHUNK_H + CHUNK_H * 3, target, &audioEngine, networkMode);
+        world->init(gameDir.getWorldPath("mainMenu"), (int)ceil(MAX_WIDTH / 3 / (double)CHUNK_W) * CHUNK_W + CHUNK_W * 3, (int)ceil(MAX_HEIGHT / 3 / (double)CHUNK_H) * CHUNK_H + CHUNK_H * 3, target, &audioEngine);
         EASY_END_BLOCK;
     });
     #pragma endregion
 
-    if(networkMode != NetworkMode::SERVER) {
-        // init steam and discord
-        #pragma region
-        initThread = initThreadPool->push([&](int id) {
-            EASY_THREAD("Async init");
-
-            #if BUILD_WITH_STEAM
-            // load SteamAPI
-            #pragma region
-            logInfo("Initializing SteamAPI...");
-            EASY_BLOCK("Init SteamAPI", STEAM_PROFILER_COLOR);
-            EASY_BLOCK("SteamAPI_Init", STEAM_PROFILER_COLOR);
-            steamAPI = SteamAPI_Init();
-            EASY_END_BLOCK;
-            if(!steamAPI) {
-                logError("SteamAPI_Init failed.");
-            } else {
-                logInfo("SteamAPI_Init successful.");
-                EASY_BLOCK("SteamHookMessages", STEAM_PROFILER_COLOR);
-                SteamHookMessages();
-                EASY_END_BLOCK;
-            }
-            EASY_END_BLOCK;
-            #pragma endregion
-            #endif
-
-            #if BUILD_WITH_DISCORD
-            // init discord
-            #pragma region
-            logInfo("Initializing Discord Game SDK...");
-            EASY_BLOCK("init discord", DISCORD_PROFILER_COLOR);
-            if(DiscordIntegration::init()) {
-                EASY_BLOCK("set activity", DISCORD_PROFILER_COLOR);
-                DiscordIntegration::setActivityState("On Main Menu");
-                DiscordIntegration::flushActivity();
-                EASY_END_BLOCK;
-            }
-            EASY_END_BLOCK;
-            #pragma endregion
-            #endif
-        });
+    // init steam and discord
+    #pragma region
+    initThread = initThreadPool->push([&](int id) {
+        EASY_THREAD("Async init");
+    });
     
-        // init the background
-        #pragma region
-        EASY_BLOCK("load backgrounds");
-        logInfo("Loading backgrounds...");
-        Backgrounds::TEST_OVERWORLD.init();
-        EASY_END_BLOCK;
-        #pragma endregion
-    }
+    // init the background
+    #pragma region
+    EASY_BLOCK("load backgrounds");
+    logInfo("Loading backgrounds...");
+    Backgrounds::TEST_OVERWORLD.init();
+    EASY_END_BLOCK;
+    #pragma endregion
 
     // init the rng
     #pragma region
@@ -530,32 +426,30 @@ int Game::init(int argc, char *argv[]) {
     worldInitThread.get();
     EASY_END_BLOCK;
 
-    if(networkMode != NetworkMode::SERVER) {
-        // set up main menu ui
-        #pragma region
-        EASY_BLOCK("init main menu UI");
-        logInfo("Setting up main menu...");
-        TTF_Font* labelFont = TTF_OpenFont("assets/fonts/pixel_operator/PixelOperator.ttf", 32);
-        TTF_Font* uiFont = TTF_OpenFont("assets/fonts/pixel_operator/PixelOperator.ttf", 16);
-        EASY_END_BLOCK;
+    // set up main menu ui
+    #pragma region
+    EASY_BLOCK("init main menu UI");
+    logInfo("Setting up main menu...");
+    TTF_Font* labelFont = TTF_OpenFont("assets/fonts/pixel_operator/PixelOperator.ttf", 32);
+    TTF_Font* uiFont = TTF_OpenFont("assets/fonts/pixel_operator/PixelOperator.ttf", 16);
+    EASY_END_BLOCK;
 
 
-        std::string displayMode = clArgs->getString("display-mode");
+    std::string displayMode = clArgs->getString("display-mode");
 
-        if(displayMode == "windowed") {
-            setDisplayMode(DisplayMode::WINDOWED);
-        } else if(displayMode == "borderless") {
-            setDisplayMode(DisplayMode::BORDERLESS);
-        } else if(displayMode == "fullscreen") {
-            setDisplayMode(DisplayMode::FULLSCREEN);
-        }
-
-        setVSync(clArgs->getBool("vsync"));
-
-        // TODO: load settings from settings file
-        // also note OptionsUI::minimizeOnFocus exists
-        setMinimizeOnLostFocus(false);
+    if(displayMode == "windowed") {
+        setDisplayMode(DisplayMode::WINDOWED);
+    } else if(displayMode == "borderless") {
+        setDisplayMode(DisplayMode::BORDERLESS);
+    } else if(displayMode == "fullscreen") {
+        setDisplayMode(DisplayMode::FULLSCREEN);
     }
+
+    setVSync(clArgs->getBool("vsync"));
+
+    // TODO: load settings from settings file
+    // also note OptionsUI::minimizeOnFocus exists
+    setMinimizeOnLostFocus(false);
 
     // init threadpools
     #pragma region
@@ -565,14 +459,12 @@ int Game::init(int argc, char *argv[]) {
     EASY_END_BLOCK;
     #pragma endregion
 
-    if(networkMode != NetworkMode::SERVER) {
-        // load shaders
-        loadShaders();
+    // load shaders
+    loadShaders();
 
-        EASY_BLOCK("wait for steam/discord init", THREAD_WAIT_PROFILER_COLOR);
-        initThread.get(); // steam & discord
-        EASY_END_BLOCK;
-    }
+    EASY_BLOCK("wait for steam/discord init", THREAD_WAIT_PROFILER_COLOR);
+    initThread.get(); // steam & discord
+    EASY_END_BLOCK;
 
     EASY_EVENT("Done Loading", profiler::colors::Magenta);
     EASY_END_BLOCK;
@@ -1077,683 +969,656 @@ int Game::run(int argc, char *argv[]) {
         now = Time::millis();
         deltaTime = now - lastTime;
 
-        if(networkMode != NetworkMode::SERVER) {
-            #if BUILD_WITH_DISCORD
-            DiscordIntegration::tick();
-            #endif
+        // handle window events
+        #pragma region
+        EASY_BLOCK("poll SDL events", SDL_PROFILER_COLOR);
+        while(SDL_PollEvent(&windowEvent)) {
 
-            #if BUILD_WITH_STEAM
-            if(steamAPI) {
-                EASY_BLOCK("SteamAPI tick");
-
-                EASY_END_BLOCK;
+            if(windowEvent.type == SDL_QUIT) {
+                goto exit;
             }
-            #endif
 
-            // handle window events
-            #pragma region
-            EASY_BLOCK("poll SDL events", SDL_PROFILER_COLOR);
-            while(SDL_PollEvent(&windowEvent)) {
+            ImGui_ImplSDL2_ProcessEvent(&windowEvent);
 
-                if(windowEvent.type == SDL_QUIT) {
-                    goto exit;
+            if(ImGui::GetIO().WantCaptureMouse) {
+                if(windowEvent.type == SDL_MOUSEBUTTONDOWN || windowEvent.type == SDL_MOUSEBUTTONUP || windowEvent.type == SDL_MOUSEMOTION || windowEvent.type == SDL_MOUSEWHEEL) {
+                    continue;
                 }
+            }
 
-                ImGui_ImplSDL2_ProcessEvent(&windowEvent);
-
-                if(ImGui::GetIO().WantCaptureMouse) {
-                    if(windowEvent.type == SDL_MOUSEBUTTONDOWN || windowEvent.type == SDL_MOUSEBUTTONUP || windowEvent.type == SDL_MOUSEMOTION || windowEvent.type == SDL_MOUSEWHEEL) {
-                        continue;
-                    }
+            if(ImGui::GetIO().WantCaptureKeyboard) {
+                if(windowEvent.type == SDL_KEYDOWN || windowEvent.type == SDL_KEYUP) {
+                    continue;
                 }
+            }
 
-                if(ImGui::GetIO().WantCaptureKeyboard) {
-                    if(windowEvent.type == SDL_KEYDOWN || windowEvent.type == SDL_KEYUP) {
-                        continue;
-                    }
-                }
+            if(windowEvent.type == SDL_MOUSEWHEEL) {
+                // zoom in/out
+                #pragma region
+                int deltaScale = windowEvent.wheel.y;
+                int oldScale = scale;
+                scale += deltaScale;
+                if(scale < 1) scale = 1;
 
-                if(windowEvent.type == SDL_MOUSEWHEEL) {
-                    // zoom in/out
+                ofsX = (ofsX - WIDTH / 2) / oldScale * scale + WIDTH / 2;
+                ofsY = (ofsY - HEIGHT / 2) / oldScale * scale + HEIGHT / 2;
+                #pragma endregion
+            } else if(windowEvent.type == SDL_MOUSEMOTION) {
+                if(Controls::DEBUG_DRAW->get()) {
+                    // draw material
                     #pragma region
-                    int deltaScale = windowEvent.wheel.y;
-                    int oldScale = scale;
-                    scale += deltaScale;
-                    if(scale < 1) scale = 1;
+                    int x = (int)((windowEvent.motion.x - ofsX - camX) / scale);
+                    int y = (int)((windowEvent.motion.y - ofsY - camY) / scale);
 
-                    ofsX = (ofsX - WIDTH / 2) / oldScale * scale + WIDTH / 2;
-                    ofsY = (ofsY - HEIGHT / 2) / oldScale * scale + HEIGHT / 2;
-                    #pragma endregion
-                } else if(windowEvent.type == SDL_MOUSEMOTION) {
-                    if(Controls::DEBUG_DRAW->get()) {
-                        // draw material
-                        #pragma region
-                        int x = (int)((windowEvent.motion.x - ofsX - camX) / scale);
-                        int y = (int)((windowEvent.motion.y - ofsY - camY) / scale);
-
-                        if(lastDrawMX == 0 && lastDrawMY == 0) {
-                            lastDrawMX = x;
-                            lastDrawMY = y;
-                        }
-
-                        world->forLine(lastDrawMX, lastDrawMY, x, y, [&](int index) {
-                            int lineX = index % world->width;
-                            int lineY = index / world->width;
-
-                            for(int xx = -DebugDrawUI::brushSize / 2; xx < (int)(ceil(DebugDrawUI::brushSize / 2.0)); xx++) {
-                                for(int yy = -DebugDrawUI::brushSize / 2; yy < (int)(ceil(DebugDrawUI::brushSize / 2.0)); yy++) {
-                                    if(lineX + xx < 0 || lineY + yy < 0 || lineX + xx >= world->width || lineY + yy >= world->height) continue;
-                                    MaterialInstance tp = Tiles::create(DebugDrawUI::selectedMaterial, lineX + xx, lineY + yy);
-                                    world->tiles[(lineX + xx) + (lineY + yy) * world->width] = tp;
-                                    world->dirty[(lineX + xx) + (lineY + yy) * world->width] = true;
-                                }
-                            }
-
-                            return false;
-                        });
-
+                    if(lastDrawMX == 0 && lastDrawMY == 0) {
                         lastDrawMX = x;
                         lastDrawMY = y;
-                        #pragma endregion
-                    } else {
-                        lastDrawMX = 0;
-                        lastDrawMY = 0;
                     }
 
-                    if(Controls::mmouse) {
-                        // erase material
-                        #pragma region
-                        // erase from world
-                        int x = (int)((windowEvent.motion.x - ofsX - camX) / scale);
-                        int y = (int)((windowEvent.motion.y - ofsY - camY) / scale);
+                    world->forLine(lastDrawMX, lastDrawMY, x, y, [&](int index) {
+                        int lineX = index % world->width;
+                        int lineY = index / world->width;
 
-                        if(lastEraseMX == 0 && lastEraseMY == 0) {
-                            lastEraseMX = x;
-                            lastEraseMY = y;
+                        for(int xx = -DebugDrawUI::brushSize / 2; xx < (int)(ceil(DebugDrawUI::brushSize / 2.0)); xx++) {
+                            for(int yy = -DebugDrawUI::brushSize / 2; yy < (int)(ceil(DebugDrawUI::brushSize / 2.0)); yy++) {
+                                if(lineX + xx < 0 || lineY + yy < 0 || lineX + xx >= world->width || lineY + yy >= world->height) continue;
+                                MaterialInstance tp = Tiles::create(DebugDrawUI::selectedMaterial, lineX + xx, lineY + yy);
+                                world->tiles[(lineX + xx) + (lineY + yy) * world->width] = tp;
+                                world->dirty[(lineX + xx) + (lineY + yy) * world->width] = true;
+                            }
                         }
 
-                        world->forLine(lastEraseMX, lastEraseMY, x, y, [&](int index) {
-                            int lineX = index % world->width;
-                            int lineY = index / world->width;
+                        return false;
+                    });
 
-                            for(int xx = -DebugDrawUI::brushSize / 2; xx < (int)(ceil(DebugDrawUI::brushSize / 2.0)); xx++) {
-                                for(int yy = -DebugDrawUI::brushSize / 2; yy < (int)(ceil(DebugDrawUI::brushSize / 2.0)); yy++) {
+                    lastDrawMX = x;
+                    lastDrawMY = y;
+                    #pragma endregion
+                } else {
+                    lastDrawMX = 0;
+                    lastDrawMY = 0;
+                }
 
-                                    if(abs(xx) + abs(yy) == DebugDrawUI::brushSize) continue;
-                                    if(world->getTile(lineX + xx, lineY + yy).mat->physicsType != PhysicsType::AIR) {
-                                        world->setTile(lineX + xx, lineY + yy, Tiles::NOTHING);
-                                        world->lastMeshZone.x--;
-                                    }
-                                    if(world->getTileLayer2(lineX + xx, lineY + yy).mat->physicsType != PhysicsType::AIR) {
-                                        world->setTileLayer2(lineX + xx, lineY + yy, Tiles::NOTHING);
-                                    }
-                                }
-                            }
-                            return false;
-                        });
+                if(Controls::mmouse) {
+                    // erase material
+                    #pragma region
+                    // erase from world
+                    int x = (int)((windowEvent.motion.x - ofsX - camX) / scale);
+                    int y = (int)((windowEvent.motion.y - ofsY - camY) / scale);
 
+                    if(lastEraseMX == 0 && lastEraseMY == 0) {
                         lastEraseMX = x;
                         lastEraseMY = y;
-
-                        // erase from rigidbodies
-                        // this copies the vector
-                        vector<RigidBody*> rbs = world->rigidBodies;
-
-                        for(size_t i = 0; i < rbs.size(); i++) {
-                            RigidBody* cur = rbs[i];
-                            if(cur->body->IsEnabled()) {
-                                float s = sin(-cur->body->GetAngle());
-                                float c = cos(-cur->body->GetAngle());
-                                bool upd = false;
-                                for(float xx = -3; xx <= 3; xx += 0.5) {
-                                    for(float yy = -3; yy <= 3; yy += 0.5) {
-                                        if(abs(xx) + abs(yy) == 6) continue;
-                                        // rotate point
-
-                                        float tx = x + xx - cur->body->GetPosition().x;
-                                        float ty = y + yy - cur->body->GetPosition().y;
-
-                                        int ntx = (int)(tx * c - ty * s);
-                                        int nty = (int)(tx * s + ty * c);
-
-                                        if(ntx >= 0 && nty >= 0 && ntx < cur->surface->w && nty < cur->surface->h) {
-                                            Uint32 pixel = PIXEL(cur->surface, ntx, nty);
-                                            if(((pixel >> 24) & 0xff) != 0x00) {
-                                                PIXEL(cur->surface, ntx, nty) = 0x00000000;
-                                                upd = true;
-                                            }
-
-                                        }
-                                    }
-                                }
-
-                                if(upd) {
-                                    GPU_FreeImage(cur->texture);
-                                    cur->texture = GPU_CopyImageFromSurface(cur->surface);
-                                    GPU_SetImageFilter(cur->texture, GPU_FILTER_NEAREST);
-                                    //world->updateRigidBodyHitbox(cur);
-                                    cur->needsUpdate = true;
-                                }
-                            }
-                        }
-
-                        #pragma endregion
-                    } else {
-                        lastEraseMX = 0;
-                        lastEraseMY = 0;
                     }
-                } else if(windowEvent.type == SDL_KEYDOWN) {
-                    EASY_BLOCK("Controls::keyEvent");
-                    Controls::keyEvent(windowEvent.key);
-                    EASY_END_BLOCK;
-                } else if(windowEvent.type == SDL_KEYUP) {
-                    EASY_BLOCK("Controls::keyEvent");
-                    Controls::keyEvent(windowEvent.key);
-                    EASY_END_BLOCK;
-                }
 
-                if(windowEvent.type == SDL_MOUSEBUTTONDOWN) {
-                    if(windowEvent.button.button == SDL_BUTTON_LEFT) {
-                        Controls::lmouse = true;
+                    world->forLine(lastEraseMX, lastEraseMY, x, y, [&](int index) {
+                        int lineX = index % world->width;
+                        int lineY = index / world->width;
 
-                        if(world->player && world->player->heldItem != NULL) {
-                            if(world->player->heldItem->getFlag(ItemFlags::VACUUM)) {
-                                world->player->holdVacuum = true;
-                            } else if(world->player->heldItem->getFlag(ItemFlags::HAMMER)) {
-                                //#define HAMMER_DEBUG_PHYSICS
-                                #ifdef HAMMER_DEBUG_PHYSICS
-                                int x = (int)((windowEvent.button.x - ofsX - camX) / scale);
-                                int y = (int)((windowEvent.button.y - ofsY - camY) / scale);
+                        for(int xx = -DebugDrawUI::brushSize / 2; xx < (int)(ceil(DebugDrawUI::brushSize / 2.0)); xx++) {
+                            for(int yy = -DebugDrawUI::brushSize / 2; yy < (int)(ceil(DebugDrawUI::brushSize / 2.0)); yy++) {
 
-                                world->physicsCheck(x, y);
-                                #else
-                                mx = windowEvent.button.x;
-                                my = windowEvent.button.y;
-                                int startInd = getAimSolidSurface(64);
-
-                                if(startInd != -1) {
-                                    //world->player->hammerX = x;
-                                    //world->player->hammerY = y;
-                                    world->player->hammerX = startInd % world->width;
-                                    world->player->hammerY = startInd / world->width;
-                                    world->player->holdHammer = true;
-                                    //logDebug("hammer down: {0:d} {0:d} {0:d} {0:d} {0:d}", x, y, startInd, startInd % world->width, startInd / world->width);
-                                    //world->setTile(world->player->hammerX, world->player->hammerY, MaterialInstance(&Materials::GENERIC_SOLID, 0x00ff00ff));
+                                if(abs(xx) + abs(yy) == DebugDrawUI::brushSize) continue;
+                                if(world->getTile(lineX + xx, lineY + yy).mat->physicsType != PhysicsType::AIR) {
+                                    world->setTile(lineX + xx, lineY + yy, Tiles::NOTHING);
+                                    world->lastMeshZone.x--;
                                 }
-                                #endif
-                                #undef HAMMER_DEBUG_PHYSICS
-                            } else if(world->player->heldItem->getFlag(ItemFlags::CHISEL)) {
-                                // if hovering rigidbody, open in chisel
-                                #pragma region
-                                int x = (int)((mx - ofsX - camX) / scale);
-                                int y = (int)((my - ofsY - camY) / scale);
-
-                                vector<RigidBody*> rbs = world->rigidBodies; // copy
-                                for(size_t i = 0; i < rbs.size(); i++) {
-                                    RigidBody* cur = rbs[i];
-
-                                    bool connect = false;
-                                    if(cur->body->IsEnabled()) {
-                                        float s = sin(-cur->body->GetAngle());
-                                        float c = cos(-cur->body->GetAngle());
-                                        bool upd = false;
-                                        for(float xx = -3; xx <= 3; xx += 0.5) {
-                                            for(float yy = -3; yy <= 3; yy += 0.5) {
-                                                if(abs(xx) + abs(yy) == 6) continue;
-                                                // rotate point
-
-                                                float tx = x + xx - cur->body->GetPosition().x;
-                                                float ty = y + yy - cur->body->GetPosition().y;
-
-                                                int ntx = (int)(tx * c - ty * s);
-                                                int nty = (int)(tx * s + ty * c);
-
-                                                if(ntx >= 0 && nty >= 0 && ntx < cur->surface->w && nty < cur->surface->h) {
-                                                    Uint32 pixel = PIXEL(cur->surface, ntx, nty);
-                                                    if(((pixel >> 24) & 0xff) != 0x00) {
-                                                        connect = true;
-                                                    }
-
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    if(connect) {
-
-                                        // previously: open chisel ui
-
-                                        break;
-                                    }
-
+                                if(world->getTileLayer2(lineX + xx, lineY + yy).mat->physicsType != PhysicsType::AIR) {
+                                    world->setTileLayer2(lineX + xx, lineY + yy, Tiles::NOTHING);
                                 }
-                                #pragma endregion
-                            } else if(world->player->heldItem->getFlag(ItemFlags::TOOL)) {
-                                // break with pickaxe
-                                #pragma region
-                                float breakSize = world->player->heldItem->breakSize;
-
-                                int x = (int)(world->player->x + world->player->hw / 2.0f + world->loadZone.x + 10 * (float)cos((world->player->holdAngle + 180) * 3.1415f / 180.0f) - breakSize / 2);
-                                int y = (int)(world->player->y + world->player->hh / 2.0f + world->loadZone.y + 10 * (float)sin((world->player->holdAngle + 180) * 3.1415f / 180.0f) - breakSize / 2);
-
-                                SDL_Surface* tex = SDL_CreateRGBSurfaceWithFormat(0, (int)breakSize, (int)breakSize, 32, SDL_PIXELFORMAT_ARGB8888);
-
-                                int n = 0;
-                                for(int xx = 0; xx < breakSize; xx++) {
-                                    for(int yy = 0; yy < breakSize; yy++) {
-                                        float cx = (float)((xx / breakSize) - 0.5);
-                                        float cy = (float)((yy / breakSize) - 0.5);
-
-                                        if(cx * cx + cy * cy > 0.25f) continue;
-
-                                        if(world->tiles[(x + xx) + (y + yy) * world->width].mat->physicsType == PhysicsType::SOLID) {
-                                            PIXEL(tex, xx, yy) = world->tiles[(x + xx) + (y + yy) * world->width].color;
-                                            world->tiles[(x + xx) + (y + yy) * world->width] = Tiles::NOTHING;
-                                            world->dirty[(x + xx) + (y + yy) * world->width] = true;
-
-                                            n++;
-                                        }
-                                    }
-                                }
-
-                                if(n > 0) {
-                                    audioEngine.PlayEvent("event:/Player/Impact");
-                                    b2PolygonShape s;
-                                    s.SetAsBox(1, 1);
-                                    RigidBody* rb = world->makeRigidBody(b2_dynamicBody, (float)x, (float)y, 0, s, 1, (float)0.3, tex);
-
-                                    b2Filter bf = {};
-                                    bf.categoryBits = 0x0001;
-                                    bf.maskBits = 0xffff;
-                                    rb->body->GetFixtureList()[0].SetFilterData(bf);
-
-                                    rb->body->SetLinearVelocity({(float)((rand() % 100) / 100.0 - 0.5), (float)((rand() % 100) / 100.0 - 0.5)});
-
-                                    world->rigidBodies.push_back(rb);
-                                    world->updateRigidBodyHitbox(rb);
-
-                                    world->lastMeshLoadZone.x--;
-                                    world->updateWorldMesh();
-                                }
-                                #pragma endregion
                             }
                         }
+                        return false;
+                    });
 
-                    } else if(windowEvent.button.button == SDL_BUTTON_RIGHT) {
-                        Controls::rmouse = true;
-                        if(world->player) world->player->startThrow = Time::millis();
-                    } else if(windowEvent.button.button == SDL_BUTTON_MIDDLE) {
-                        Controls::mmouse = true;
+                    lastEraseMX = x;
+                    lastEraseMY = y;
+
+                    // erase from rigidbodies
+                    // this copies the vector
+                    vector<RigidBody*> rbs = world->rigidBodies;
+
+                    for(size_t i = 0; i < rbs.size(); i++) {
+                        RigidBody* cur = rbs[i];
+                        if(cur->body->IsEnabled()) {
+                            float s = sin(-cur->body->GetAngle());
+                            float c = cos(-cur->body->GetAngle());
+                            bool upd = false;
+                            for(float xx = -3; xx <= 3; xx += 0.5) {
+                                for(float yy = -3; yy <= 3; yy += 0.5) {
+                                    if(abs(xx) + abs(yy) == 6) continue;
+                                    // rotate point
+
+                                    float tx = x + xx - cur->body->GetPosition().x;
+                                    float ty = y + yy - cur->body->GetPosition().y;
+
+                                    int ntx = (int)(tx * c - ty * s);
+                                    int nty = (int)(tx * s + ty * c);
+
+                                    if(ntx >= 0 && nty >= 0 && ntx < cur->surface->w && nty < cur->surface->h) {
+                                        Uint32 pixel = PIXEL(cur->surface, ntx, nty);
+                                        if(((pixel >> 24) & 0xff) != 0x00) {
+                                            PIXEL(cur->surface, ntx, nty) = 0x00000000;
+                                            upd = true;
+                                        }
+
+                                    }
+                                }
+                            }
+
+                            if(upd) {
+                                GPU_FreeImage(cur->texture);
+                                cur->texture = GPU_CopyImageFromSurface(cur->surface);
+                                GPU_SetImageFilter(cur->texture, GPU_FILTER_NEAREST);
+                                //world->updateRigidBodyHitbox(cur);
+                                cur->needsUpdate = true;
+                            }
+                        }
                     }
-                } else if(windowEvent.type == SDL_MOUSEBUTTONUP) {
-                    if(windowEvent.button.button == SDL_BUTTON_LEFT) {
-                        Controls::lmouse = false;
 
-                        if(world->player) {
-                            if(world->player->heldItem) {
-                                if(world->player->heldItem->getFlag(ItemFlags::VACUUM)) {
-                                    if(world->player->holdVacuum) {
-                                        world->player->holdVacuum = false;
-                                    }
-                                } else if(world->player->heldItem->getFlag(ItemFlags::HAMMER)) {
-                                    if(world->player->holdHammer) {
-                                        int x = (int)((windowEvent.button.x - ofsX - camX) / scale);
-                                        int y = (int)((windowEvent.button.y - ofsY - camY) / scale);
-
-                                        int dx = world->player->hammerX - x;
-                                        int dy = world->player->hammerY - y;
-                                        float len = sqrtf(dx * dx + dy * dy);
-                                        float udx = dx / len;
-                                        float udy = dy / len;
-
-                                        int ex = world->player->hammerX + dx;
-                                        int ey = world->player->hammerY + dy;
-                                        logDebug("hammer up: {0:d} {0:d} {0:d} {0:d}", ex, ey, dx, dy);
-                                        int endInd = -1;
-
-                                        int nSegments = 1 + len / 10;
-                                        std::vector<std::tuple<int, int>> points = {};
-                                        for(int i = 0; i < nSegments; i++) {
-                                            int sx = world->player->hammerX + (int)((float)(dx / nSegments) * (i + 1));
-                                            int sy = world->player->hammerY + (int)((float)(dy / nSegments) * (i + 1));
-                                            sx += rand() % 3 - 1;
-                                            sy += rand() % 3 - 1;
-                                            points.push_back(std::tuple<int, int>(sx, sy));
-                                        }
-
-                                        int nTilesChanged = 0;
-                                        for(size_t i = 0; i < points.size(); i++) {
-                                            int segSx = i == 0 ? world->player->hammerX : std::get<0>(points[i - 1]);
-                                            int segSy = i == 0 ? world->player->hammerY : std::get<1>(points[i - 1]);
-                                            int segEx = std::get<0>(points[i]);
-                                            int segEy = std::get<1>(points[i]);
-
-                                            bool hitSolidYet = false;
-                                            bool broke = false;
-                                            world->forLineCornered(segSx, segSy, segEx, segEy, [&](int index) {
-                                                if(world->tiles[index].mat->physicsType != PhysicsType::SOLID) {
-                                                    if(hitSolidYet && (abs((index % world->width) - segSx) + (abs((index / world->width) - segSy)) > 1)) {
-                                                        broke = true;
-                                                        return true;
-                                                    }
-                                                    return false;
-                                                }
-                                                hitSolidYet = true;
-                                                world->tiles[index] = MaterialInstance(&Materials::GENERIC_SAND, Drawing::darkenColor(world->tiles[index].color, 0.5f));
-                                                world->dirty[index] = true;
-                                                endInd = index;
-                                                nTilesChanged++;
-                                                return false;
-                                            });
-
-                                            //world->setTile(segSx, segSy, MaterialInstance(&Materials::GENERIC_SOLID, 0x00ff00ff));
-                                            if(broke) break;
-                                        }
-
-                                        //world->setTile(ex, ey, MaterialInstance(&Materials::GENERIC_SOLID, 0xff0000ff));
-
-                                        int hx = (world->player->hammerX + (endInd % world->width)) / 2;
-                                        int hy = (world->player->hammerY + (endInd / world->width)) / 2;
-
-                                        if(world->getTile((int)(hx + udy * 2), (int)(hy - udx * 2)).mat->physicsType == PhysicsType::SOLID) {
-                                            world->physicsCheck((int)(hx + udy * 2), (int)(hy - udx * 2));
-                                        }
-
-                                        if(world->getTile((int)(hx - udy * 2), (int)(hy + udx * 2)).mat->physicsType == PhysicsType::SOLID) {
-                                            world->physicsCheck((int)(hx - udy * 2), (int)(hy + udx * 2));
-                                        }
-
-                                        if(nTilesChanged > 0) {
-                                            audioEngine.PlayEvent("event:/Player/Impact");
-                                        }
-
-                                        //world->setTile((int)(hx), (int)(hy), MaterialInstance(&Materials::GENERIC_SOLID, 0xffffffff));
-                                        //world->setTile((int)(hx + udy * 6), (int)(hy - udx * 6), MaterialInstance(&Materials::GENERIC_SOLID, 0xffff00ff));
-                                        //world->setTile((int)(hx - udy * 6), (int)(hy + udx * 6), MaterialInstance(&Materials::GENERIC_SOLID, 0x00ffffff));
-
-                                    }
-                                    world->player->holdHammer = false;
-                                }
-                            }
-                        }
-                    } else if(windowEvent.button.button == SDL_BUTTON_RIGHT) {
-                        Controls::rmouse = false;
-                        // pick up / throw item
-                        #pragma region
-                        int x = (int)((mx - ofsX - camX) / scale);
-                        int y = (int)((my - ofsY - camY) / scale);
-
-                        bool swapped = false;
-                        vector<RigidBody*> rbs = world->rigidBodies; // copy;
-                        for(size_t i = 0; i < rbs.size(); i++) {
-                            RigidBody* cur = rbs[i];
-
-                            bool connect = false;
-                            if(cur->body->IsEnabled()) {
-                                float s = sin(-cur->body->GetAngle());
-                                float c = cos(-cur->body->GetAngle());
-                                bool upd = false;
-                                for(float xx = -3; xx <= 3; xx += 0.5) {
-                                    for(float yy = -3; yy <= 3; yy += 0.5) {
-                                        if(abs(xx) + abs(yy) == 6) continue;
-                                        // rotate point
-
-                                        float tx = x + xx - cur->body->GetPosition().x;
-                                        float ty = y + yy - cur->body->GetPosition().y;
-
-                                        int ntx = (int)(tx * c - ty * s);
-                                        int nty = (int)(tx * s + ty * c);
-
-                                        if(ntx >= 0 && nty >= 0 && ntx < cur->surface->w && nty < cur->surface->h) {
-                                            if(((PIXEL(cur->surface, ntx, nty) >> 24) & 0xff) != 0x00) {
-                                                connect = true;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            if(connect) {
-                                if(world->player) {
-                                    world->player->setItemInHand(Item::makeItem(ItemFlags::RIGIDBODY, cur), world);
-
-                                    world->b2world->DestroyBody(cur->body);
-                                    world->rigidBodies.erase(std::remove(world->rigidBodies.begin(), world->rigidBodies.end(), cur), world->rigidBodies.end());
-
-                                    swapped = true;
-                                }
-                                break;
-                            }
-
-                        }
-
-                        if(!swapped) {
-                            if(world->player) world->player->setItemInHand(NULL, world);
-                        }
-                        #pragma endregion
-                    } else if(windowEvent.button.button == SDL_BUTTON_MIDDLE) {
-                        Controls::mmouse = false;
-                    }
+                    #pragma endregion
+                } else {
+                    lastEraseMX = 0;
+                    lastEraseMY = 0;
                 }
-
-                if(windowEvent.type == SDL_MOUSEMOTION) {
-                    mx = windowEvent.motion.x;
-                    my = windowEvent.motion.y;
-                }
-
+            } else if(windowEvent.type == SDL_KEYDOWN) {
+                EASY_BLOCK("Controls::keyEvent");
+                Controls::keyEvent(windowEvent.key);
+                EASY_END_BLOCK;
+            } else if(windowEvent.type == SDL_KEYUP) {
+                EASY_BLOCK("Controls::keyEvent");
+                Controls::keyEvent(windowEvent.key);
+                EASY_END_BLOCK;
             }
-            EASY_END_BLOCK;
-            #pragma endregion
+
+            if(windowEvent.type == SDL_MOUSEBUTTONDOWN) {
+                if(windowEvent.button.button == SDL_BUTTON_LEFT) {
+                    Controls::lmouse = true;
+
+                    if(world->player && world->player->heldItem != NULL) {
+                        if(world->player->heldItem->getFlag(ItemFlags::VACUUM)) {
+                            world->player->holdVacuum = true;
+                        } else if(world->player->heldItem->getFlag(ItemFlags::HAMMER)) {
+                            //#define HAMMER_DEBUG_PHYSICS
+                            #ifdef HAMMER_DEBUG_PHYSICS
+                            int x = (int)((windowEvent.button.x - ofsX - camX) / scale);
+                            int y = (int)((windowEvent.button.y - ofsY - camY) / scale);
+
+                            world->physicsCheck(x, y);
+                            #else
+                            mx = windowEvent.button.x;
+                            my = windowEvent.button.y;
+                            int startInd = getAimSolidSurface(64);
+
+                            if(startInd != -1) {
+                                //world->player->hammerX = x;
+                                //world->player->hammerY = y;
+                                world->player->hammerX = startInd % world->width;
+                                world->player->hammerY = startInd / world->width;
+                                world->player->holdHammer = true;
+                                //logDebug("hammer down: {0:d} {0:d} {0:d} {0:d} {0:d}", x, y, startInd, startInd % world->width, startInd / world->width);
+                                //world->setTile(world->player->hammerX, world->player->hammerY, MaterialInstance(&Materials::GENERIC_SOLID, 0x00ff00ff));
+                            }
+                            #endif
+                            #undef HAMMER_DEBUG_PHYSICS
+                        } else if(world->player->heldItem->getFlag(ItemFlags::CHISEL)) {
+                            // if hovering rigidbody, open in chisel
+                            #pragma region
+                            int x = (int)((mx - ofsX - camX) / scale);
+                            int y = (int)((my - ofsY - camY) / scale);
+
+                            vector<RigidBody*> rbs = world->rigidBodies; // copy
+                            for(size_t i = 0; i < rbs.size(); i++) {
+                                RigidBody* cur = rbs[i];
+
+                                bool connect = false;
+                                if(cur->body->IsEnabled()) {
+                                    float s = sin(-cur->body->GetAngle());
+                                    float c = cos(-cur->body->GetAngle());
+                                    bool upd = false;
+                                    for(float xx = -3; xx <= 3; xx += 0.5) {
+                                        for(float yy = -3; yy <= 3; yy += 0.5) {
+                                            if(abs(xx) + abs(yy) == 6) continue;
+                                            // rotate point
+
+                                            float tx = x + xx - cur->body->GetPosition().x;
+                                            float ty = y + yy - cur->body->GetPosition().y;
+
+                                            int ntx = (int)(tx * c - ty * s);
+                                            int nty = (int)(tx * s + ty * c);
+
+                                            if(ntx >= 0 && nty >= 0 && ntx < cur->surface->w && nty < cur->surface->h) {
+                                                Uint32 pixel = PIXEL(cur->surface, ntx, nty);
+                                                if(((pixel >> 24) & 0xff) != 0x00) {
+                                                    connect = true;
+                                                }
+
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if(connect) {
+
+                                    // previously: open chisel ui
+
+                                    break;
+                                }
+
+                            }
+                            #pragma endregion
+                        } else if(world->player->heldItem->getFlag(ItemFlags::TOOL)) {
+                            // break with pickaxe
+                            #pragma region
+                            float breakSize = world->player->heldItem->breakSize;
+
+                            int x = (int)(world->player->x + world->player->hw / 2.0f + world->loadZone.x + 10 * (float)cos((world->player->holdAngle + 180) * 3.1415f / 180.0f) - breakSize / 2);
+                            int y = (int)(world->player->y + world->player->hh / 2.0f + world->loadZone.y + 10 * (float)sin((world->player->holdAngle + 180) * 3.1415f / 180.0f) - breakSize / 2);
+
+                            SDL_Surface* tex = SDL_CreateRGBSurfaceWithFormat(0, (int)breakSize, (int)breakSize, 32, SDL_PIXELFORMAT_ARGB8888);
+
+                            int n = 0;
+                            for(int xx = 0; xx < breakSize; xx++) {
+                                for(int yy = 0; yy < breakSize; yy++) {
+                                    float cx = (float)((xx / breakSize) - 0.5);
+                                    float cy = (float)((yy / breakSize) - 0.5);
+
+                                    if(cx * cx + cy * cy > 0.25f) continue;
+
+                                    if(world->tiles[(x + xx) + (y + yy) * world->width].mat->physicsType == PhysicsType::SOLID) {
+                                        PIXEL(tex, xx, yy) = world->tiles[(x + xx) + (y + yy) * world->width].color;
+                                        world->tiles[(x + xx) + (y + yy) * world->width] = Tiles::NOTHING;
+                                        world->dirty[(x + xx) + (y + yy) * world->width] = true;
+
+                                        n++;
+                                    }
+                                }
+                            }
+
+                            if(n > 0) {
+                                audioEngine.PlayEvent("event:/Player/Impact");
+                                b2PolygonShape s;
+                                s.SetAsBox(1, 1);
+                                RigidBody* rb = world->makeRigidBody(b2_dynamicBody, (float)x, (float)y, 0, s, 1, (float)0.3, tex);
+
+                                b2Filter bf = {};
+                                bf.categoryBits = 0x0001;
+                                bf.maskBits = 0xffff;
+                                rb->body->GetFixtureList()[0].SetFilterData(bf);
+
+                                rb->body->SetLinearVelocity({(float)((rand() % 100) / 100.0 - 0.5), (float)((rand() % 100) / 100.0 - 0.5)});
+
+                                world->rigidBodies.push_back(rb);
+                                world->updateRigidBodyHitbox(rb);
+
+                                world->lastMeshLoadZone.x--;
+                                world->updateWorldMesh();
+                            }
+                            #pragma endregion
+                        }
+                    }
+
+                } else if(windowEvent.button.button == SDL_BUTTON_RIGHT) {
+                    Controls::rmouse = true;
+                    if(world->player) world->player->startThrow = Time::millis();
+                } else if(windowEvent.button.button == SDL_BUTTON_MIDDLE) {
+                    Controls::mmouse = true;
+                }
+            } else if(windowEvent.type == SDL_MOUSEBUTTONUP) {
+                if(windowEvent.button.button == SDL_BUTTON_LEFT) {
+                    Controls::lmouse = false;
+
+                    if(world->player) {
+                        if(world->player->heldItem) {
+                            if(world->player->heldItem->getFlag(ItemFlags::VACUUM)) {
+                                if(world->player->holdVacuum) {
+                                    world->player->holdVacuum = false;
+                                }
+                            } else if(world->player->heldItem->getFlag(ItemFlags::HAMMER)) {
+                                if(world->player->holdHammer) {
+                                    int x = (int)((windowEvent.button.x - ofsX - camX) / scale);
+                                    int y = (int)((windowEvent.button.y - ofsY - camY) / scale);
+
+                                    int dx = world->player->hammerX - x;
+                                    int dy = world->player->hammerY - y;
+                                    float len = sqrtf(dx * dx + dy * dy);
+                                    float udx = dx / len;
+                                    float udy = dy / len;
+
+                                    int ex = world->player->hammerX + dx;
+                                    int ey = world->player->hammerY + dy;
+                                    logDebug("hammer up: {0:d} {0:d} {0:d} {0:d}", ex, ey, dx, dy);
+                                    int endInd = -1;
+
+                                    int nSegments = 1 + len / 10;
+                                    std::vector<std::tuple<int, int>> points = {};
+                                    for(int i = 0; i < nSegments; i++) {
+                                        int sx = world->player->hammerX + (int)((float)(dx / nSegments) * (i + 1));
+                                        int sy = world->player->hammerY + (int)((float)(dy / nSegments) * (i + 1));
+                                        sx += rand() % 3 - 1;
+                                        sy += rand() % 3 - 1;
+                                        points.push_back(std::tuple<int, int>(sx, sy));
+                                    }
+
+                                    int nTilesChanged = 0;
+                                    for(size_t i = 0; i < points.size(); i++) {
+                                        int segSx = i == 0 ? world->player->hammerX : std::get<0>(points[i - 1]);
+                                        int segSy = i == 0 ? world->player->hammerY : std::get<1>(points[i - 1]);
+                                        int segEx = std::get<0>(points[i]);
+                                        int segEy = std::get<1>(points[i]);
+
+                                        bool hitSolidYet = false;
+                                        bool broke = false;
+                                        world->forLineCornered(segSx, segSy, segEx, segEy, [&](int index) {
+                                            if(world->tiles[index].mat->physicsType != PhysicsType::SOLID) {
+                                                if(hitSolidYet && (abs((index % world->width) - segSx) + (abs((index / world->width) - segSy)) > 1)) {
+                                                    broke = true;
+                                                    return true;
+                                                }
+                                                return false;
+                                            }
+                                            hitSolidYet = true;
+                                            world->tiles[index] = MaterialInstance(&Materials::GENERIC_SAND, Drawing::darkenColor(world->tiles[index].color, 0.5f));
+                                            world->dirty[index] = true;
+                                            endInd = index;
+                                            nTilesChanged++;
+                                            return false;
+                                        });
+
+                                        //world->setTile(segSx, segSy, MaterialInstance(&Materials::GENERIC_SOLID, 0x00ff00ff));
+                                        if(broke) break;
+                                    }
+
+                                    //world->setTile(ex, ey, MaterialInstance(&Materials::GENERIC_SOLID, 0xff0000ff));
+
+                                    int hx = (world->player->hammerX + (endInd % world->width)) / 2;
+                                    int hy = (world->player->hammerY + (endInd / world->width)) / 2;
+
+                                    if(world->getTile((int)(hx + udy * 2), (int)(hy - udx * 2)).mat->physicsType == PhysicsType::SOLID) {
+                                        world->physicsCheck((int)(hx + udy * 2), (int)(hy - udx * 2));
+                                    }
+
+                                    if(world->getTile((int)(hx - udy * 2), (int)(hy + udx * 2)).mat->physicsType == PhysicsType::SOLID) {
+                                        world->physicsCheck((int)(hx - udy * 2), (int)(hy + udx * 2));
+                                    }
+
+                                    if(nTilesChanged > 0) {
+                                        audioEngine.PlayEvent("event:/Player/Impact");
+                                    }
+
+                                    //world->setTile((int)(hx), (int)(hy), MaterialInstance(&Materials::GENERIC_SOLID, 0xffffffff));
+                                    //world->setTile((int)(hx + udy * 6), (int)(hy - udx * 6), MaterialInstance(&Materials::GENERIC_SOLID, 0xffff00ff));
+                                    //world->setTile((int)(hx - udy * 6), (int)(hy + udx * 6), MaterialInstance(&Materials::GENERIC_SOLID, 0x00ffffff));
+
+                                }
+                                world->player->holdHammer = false;
+                            }
+                        }
+                    }
+                } else if(windowEvent.button.button == SDL_BUTTON_RIGHT) {
+                    Controls::rmouse = false;
+                    // pick up / throw item
+                    #pragma region
+                    int x = (int)((mx - ofsX - camX) / scale);
+                    int y = (int)((my - ofsY - camY) / scale);
+
+                    bool swapped = false;
+                    vector<RigidBody*> rbs = world->rigidBodies; // copy;
+                    for(size_t i = 0; i < rbs.size(); i++) {
+                        RigidBody* cur = rbs[i];
+
+                        bool connect = false;
+                        if(cur->body->IsEnabled()) {
+                            float s = sin(-cur->body->GetAngle());
+                            float c = cos(-cur->body->GetAngle());
+                            bool upd = false;
+                            for(float xx = -3; xx <= 3; xx += 0.5) {
+                                for(float yy = -3; yy <= 3; yy += 0.5) {
+                                    if(abs(xx) + abs(yy) == 6) continue;
+                                    // rotate point
+
+                                    float tx = x + xx - cur->body->GetPosition().x;
+                                    float ty = y + yy - cur->body->GetPosition().y;
+
+                                    int ntx = (int)(tx * c - ty * s);
+                                    int nty = (int)(tx * s + ty * c);
+
+                                    if(ntx >= 0 && nty >= 0 && ntx < cur->surface->w && nty < cur->surface->h) {
+                                        if(((PIXEL(cur->surface, ntx, nty) >> 24) & 0xff) != 0x00) {
+                                            connect = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if(connect) {
+                            if(world->player) {
+                                world->player->setItemInHand(Item::makeItem(ItemFlags::RIGIDBODY, cur), world);
+
+                                world->b2world->DestroyBody(cur->body);
+                                world->rigidBodies.erase(std::remove(world->rigidBodies.begin(), world->rigidBodies.end(), cur), world->rigidBodies.end());
+
+                                swapped = true;
+                            }
+                            break;
+                        }
+
+                    }
+
+                    if(!swapped) {
+                        if(world->player) world->player->setItemInHand(NULL, world);
+                    }
+                    #pragma endregion
+                } else if(windowEvent.button.button == SDL_BUTTON_MIDDLE) {
+                    Controls::mmouse = false;
+                }
+            }
+
+            if(windowEvent.type == SDL_MOUSEMOTION) {
+                mx = windowEvent.motion.x;
+                my = windowEvent.motion.y;
+            }
+
         }
+        EASY_END_BLOCK;
+        #pragma endregion
 
         EASY_BLOCK("tick");
 
-        if(networkMode == NetworkMode::SERVER) {
-            server->tick();
-        } else if(networkMode == NetworkMode::CLIENT) {
-            client->tick();
-        }
-
-        if(networkMode != NetworkMode::SERVER) {
-            //if(Settings::tick_world)
-            updateFrameEarly();
-        }
+        updateFrameEarly();
 
         while(now - lastTick > mspt) {
-            if(Settings::tick_world && networkMode != NetworkMode::CLIENT)
+            if(Settings::tick_world)
                 tick();
             target = realTarget;
             lastTick = now;
             tickTime++;
         }
 
-        if(networkMode != NetworkMode::SERVER) {
-            if(Settings::tick_world)
-                updateFrameLate();
-        }
+        if(Settings::tick_world)
+            updateFrameLate();
         EASY_END_BLOCK;
 
-        if(networkMode != NetworkMode::SERVER) {
-            // render
-            #pragma region
-            EASY_BLOCK("render");
-            target = realTarget;
-            EASY_BLOCK("GPU_Clear", GPU_PROFILER_COLOR);
-            GPU_Clear(target);
-            EASY_END_BLOCK;
+        // render
+        #pragma region
+        EASY_BLOCK("render");
+        target = realTarget;
+        EASY_BLOCK("GPU_Clear", GPU_PROFILER_COLOR);
+        GPU_Clear(target);
+        EASY_END_BLOCK;
 
-            renderEarly();
-            target = realTarget;
+        renderEarly();
+        target = realTarget;
 
-            renderLate();
-            target = realTarget;
+        renderLate();
+        target = realTarget;
 
-            // render ImGui
+        // render ImGui
 
-            EASY_BLOCK("render ImGui", UI_PROFILER_COLOR);
+        EASY_BLOCK("render ImGui", UI_PROFILER_COLOR);
 
-            GPU_ActivateShaderProgram(0, NULL);
-            GPU_FlushBlitBuffer();
+        GPU_ActivateShaderProgram(0, NULL);
+        GPU_FlushBlitBuffer();
 
-            ImGui_ImplOpenGL3_NewFrame();
-            ImGui_ImplSDL2_NewFrame(window);
-            ImGui::NewFrame();
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplSDL2_NewFrame(window);
+        ImGui::NewFrame();
 
-            DebugUI::Draw(this);
-            DebugDrawUI::Draw(this);
-            DebugCheatsUI::Draw(this);
-            MainMenuUI::Draw(this);
-            IngameUI::Draw(this);
-            //  ImGui::ShowDemoWindow();
+        DebugUI::Draw(this);
+        DebugDrawUI::Draw(this);
+        DebugCheatsUI::Draw(this);
+        MainMenuUI::Draw(this);
+        IngameUI::Draw(this);
+        //  ImGui::ShowDemoWindow();
 
-            if(DebugUI::visible) {
-                ImGui::Begin("Debug Info");
-                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        if(DebugUI::visible) {
+            ImGui::Begin("Debug Info");
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
-                GPU_Renderer* renderer = GPU_GetCurrentRenderer();
-                GPU_RendererID id = renderer->id;
+            GPU_Renderer* renderer = GPU_GetCurrentRenderer();
+            GPU_RendererID id = renderer->id;
 
-                ImGui::Text("Using renderer: %s (%d.%d)\n", id.name, id.major_version, id.minor_version);
-                ImGui::Text("  Shader versions supported: %d to %d\n\n", renderer->min_shader_version, renderer->max_shader_version);
+            ImGui::Text("Using renderer: %s (%d.%d)\n", id.name, id.major_version, id.minor_version);
+            ImGui::Text("  Shader versions supported: %d to %d\n\n", renderer->min_shader_version, renderer->max_shader_version);
 
-                ImGui::End();
-            }
+            ImGui::End();
+        }
 
-            if(Settings::draw_material_info && !ImGui::GetIO().WantCaptureMouse) {
-                EASY_BLOCK("draw material info", RENDER_PROFILER_COLOR);
-                int msx = (int)((mx - ofsX - camX) / scale);
-                int msy = (int)((my - ofsY - camY) / scale);
+        if(Settings::draw_material_info && !ImGui::GetIO().WantCaptureMouse) {
+            EASY_BLOCK("draw material info", RENDER_PROFILER_COLOR);
+            int msx = (int)((mx - ofsX - camX) / scale);
+            int msy = (int)((my - ofsY - camY) / scale);
 
-                MaterialInstance tile;
+            MaterialInstance tile;
 
-                if(msx >= 0 && msy >= 0 && msx < world->width && msy < world->height) {
-                    tile = world->tiles[msx + msy * world->width];
-                    //Drawing::drawText(target, tile.mat->name.c_str(), font16, mx + 14, my, 0xff, 0xff, 0xff, ALIGN_LEFT);
+            if(msx >= 0 && msy >= 0 && msx < world->width && msy < world->height) {
+                tile = world->tiles[msx + msy * world->width];
+                //Drawing::drawText(target, tile.mat->name.c_str(), font16, mx + 14, my, 0xff, 0xff, 0xff, ALIGN_LEFT);
 
-                    if(tile.mat->id == Materials::GENERIC_AIR.id) {
-                        vector<RigidBody*> rbs = world->rigidBodies;
+                if(tile.mat->id == Materials::GENERIC_AIR.id) {
+                    vector<RigidBody*> rbs = world->rigidBodies;
 
-                        for(size_t i = 0; i < rbs.size(); i++) {
-                            RigidBody* cur = rbs[i];
-                            if(cur->body->IsEnabled()) {
-                                float s = sin(-cur->body->GetAngle());
-                                float c = cos(-cur->body->GetAngle());
-                                bool upd = false;
+                    for(size_t i = 0; i < rbs.size(); i++) {
+                        RigidBody* cur = rbs[i];
+                        if(cur->body->IsEnabled()) {
+                            float s = sin(-cur->body->GetAngle());
+                            float c = cos(-cur->body->GetAngle());
+                            bool upd = false;
 
-                                float tx = msx - cur->body->GetPosition().x;
-                                float ty = msy - cur->body->GetPosition().y;
+                            float tx = msx - cur->body->GetPosition().x;
+                            float ty = msy - cur->body->GetPosition().y;
 
-                                int ntx = (int)(tx * c - ty * s);
-                                int nty = (int)(tx * s + ty * c);
+                            int ntx = (int)(tx * c - ty * s);
+                            int nty = (int)(tx * s + ty * c);
 
-                                if(ntx >= 0 && nty >= 0 && ntx < cur->surface->w && nty < cur->surface->h) {
-                                    tile = cur->tiles[ntx + nty * cur->matWidth];
-                                }
+                            if(ntx >= 0 && nty >= 0 && ntx < cur->surface->w && nty < cur->surface->h) {
+                                tile = cur->tiles[ntx + nty * cur->matWidth];
                             }
                         }
                     }
+                }
 
-                    if(tile.mat->id != Materials::GENERIC_AIR.id) {
+                if(tile.mat->id != Materials::GENERIC_AIR.id) {
 
-                        ImGui::PushStyleColor(ImGuiCol_PopupBg, ImVec4(0.11f, 0.11f, 0.11f, 0.4f));
-                        ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.00f, 1.00f, 1.00f, 0.2f));
-                        ImGui::BeginTooltip();
-                        ImGui::Text("%s", tile.mat->name.c_str());
+                    ImGui::PushStyleColor(ImGuiCol_PopupBg, ImVec4(0.11f, 0.11f, 0.11f, 0.4f));
+                    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.00f, 1.00f, 1.00f, 0.2f));
+                    ImGui::BeginTooltip();
+                    ImGui::Text("%s", tile.mat->name.c_str());
 
-                        if(Settings::draw_detailed_material_info) {
+                    if(Settings::draw_detailed_material_info) {
 
-                            if(tile.mat->physicsType == PhysicsType::SOUP) {
-                                ImGui::Text("fluidAmount = %f", tile.fluidAmount);
-                            }
+                        if(tile.mat->physicsType == PhysicsType::SOUP) {
+                            ImGui::Text("fluidAmount = %f", tile.fluidAmount);
+                        }
 
-                            int ln = 0;
-                            if(tile.mat->interact) {
-                                for(size_t i = 0; i < Materials::MATERIALS.size(); i++) {
-                                    if(tile.mat->nInteractions[i] > 0) {
-                                        char buff2[40];
-                                        snprintf(buff2, sizeof(buff2), "    %s", Materials::MATERIALS[i]->name.c_str());
-                                        //Drawing::drawText(target, buff2, font16, mx + 14, my + 14 * ++ln, 0xff, 0xff, 0xff, ALIGN_LEFT);
-                                        ImGui::Text("%s", buff2);
+                        int ln = 0;
+                        if(tile.mat->interact) {
+                            for(size_t i = 0; i < Materials::MATERIALS.size(); i++) {
+                                if(tile.mat->nInteractions[i] > 0) {
+                                    char buff2[40];
+                                    snprintf(buff2, sizeof(buff2), "    %s", Materials::MATERIALS[i]->name.c_str());
+                                    //Drawing::drawText(target, buff2, font16, mx + 14, my + 14 * ++ln, 0xff, 0xff, 0xff, ALIGN_LEFT);
+                                    ImGui::Text("%s", buff2);
 
-                                        for(int j = 0; j < tile.mat->nInteractions[i]; j++) {
-                                            MaterialInteraction inter = tile.mat->interactions[i][j];
-                                            char buff1[40];
-                                            if(inter.type == INTERACT_TRANSFORM_MATERIAL) {
-                                                snprintf(buff1, sizeof(buff1), "        %s %s r=%d x=%d y=%d", "TRANSFORM", Materials::MATERIALS[inter.data1]->name.c_str(), inter.data2, inter.ofsX, inter.ofsY);
-                                            } else if(inter.type == INTERACT_SPAWN_MATERIAL) {
-                                                snprintf(buff1, sizeof(buff1), "        %s %s r=%d x=%d y=%d", "SPAWN", Materials::MATERIALS[inter.data1]->name.c_str(), inter.data2, inter.ofsX, inter.ofsY);
-                                            }
-                                            //Drawing::drawText(target, buff1, font16, mx + 14, my + 14 * ++ln, 0xff, 0xff, 0xff, ALIGN_LEFT);
-                                            ImGui::Text("%s", buff1);
+                                    for(int j = 0; j < tile.mat->nInteractions[i]; j++) {
+                                        MaterialInteraction inter = tile.mat->interactions[i][j];
+                                        char buff1[40];
+                                        if(inter.type == INTERACT_TRANSFORM_MATERIAL) {
+                                            snprintf(buff1, sizeof(buff1), "        %s %s r=%d x=%d y=%d", "TRANSFORM", Materials::MATERIALS[inter.data1]->name.c_str(), inter.data2, inter.ofsX, inter.ofsY);
+                                        } else if(inter.type == INTERACT_SPAWN_MATERIAL) {
+                                            snprintf(buff1, sizeof(buff1), "        %s %s r=%d x=%d y=%d", "SPAWN", Materials::MATERIALS[inter.data1]->name.c_str(), inter.data2, inter.ofsX, inter.ofsY);
                                         }
+                                        //Drawing::drawText(target, buff1, font16, mx + 14, my + 14 * ++ln, 0xff, 0xff, 0xff, ALIGN_LEFT);
+                                        ImGui::Text("%s", buff1);
                                     }
                                 }
                             }
                         }
-
-                        ImGui::EndTooltip();
-                        ImGui::PopStyleColor();
-                        ImGui::PopStyleColor();
                     }
-                }
 
-                EASY_END_BLOCK; // draw material info
+                    ImGui::EndTooltip();
+                    ImGui::PopStyleColor();
+                    ImGui::PopStyleColor();
+                }
             }
 
-            EASY_BLOCK("ImGui::Render()", UI_PROFILER_COLOR);
-            ImGui::Render();
-            EASY_END_BLOCK;
-            SDL_GL_MakeCurrent(window, realTarget->context->context);
-            EASY_BLOCK("ImGui_ImplOpenGL3_RenderDrawData", UI_PROFILER_COLOR);
-            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-            EASY_END_BLOCK;
+            EASY_END_BLOCK; // draw material info
+        }
 
-            EASY_END_BLOCK;
+        EASY_BLOCK("ImGui::Render()", UI_PROFILER_COLOR);
+        ImGui::Render();
+        EASY_END_BLOCK;
+        SDL_GL_MakeCurrent(window, realTarget->context->context);
+        EASY_BLOCK("ImGui_ImplOpenGL3_RenderDrawData", UI_PROFILER_COLOR);
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        EASY_END_BLOCK;
 
-            // render fade in/out
+        EASY_END_BLOCK;
 
-            EASY_BLOCK("fades");
-            if(fadeInWaitFrames > 0) {
-                fadeInWaitFrames--;
-                fadeInStart = now;
-                GPU_RectangleFilled(target, 0, 0, WIDTH, HEIGHT, {0, 0, 0, 255});
-            } else if(fadeInStart > 0 && fadeInLength > 0) {
-                EASY_BLOCK("fadeIn");
-                float thru = 1 - (float)(now - fadeInStart) / fadeInLength;
+        // render fade in/out
 
-                if(thru >= 0 && thru <= 1) {
-                    GPU_RectangleFilled(target, 0, 0, WIDTH, HEIGHT, {0, 0, 0, (uint8)(thru * 255)});
-                } else {
-                    fadeInStart = 0;
-                    fadeInLength = 0;
-                }
-                EASY_END_BLOCK;
+        EASY_BLOCK("fades");
+        if(fadeInWaitFrames > 0) {
+            fadeInWaitFrames--;
+            fadeInStart = now;
+            GPU_RectangleFilled(target, 0, 0, WIDTH, HEIGHT, {0, 0, 0, 255});
+        } else if(fadeInStart > 0 && fadeInLength > 0) {
+            EASY_BLOCK("fadeIn");
+            float thru = 1 - (float)(now - fadeInStart) / fadeInLength;
+
+            if(thru >= 0 && thru <= 1) {
+                GPU_RectangleFilled(target, 0, 0, WIDTH, HEIGHT, {0, 0, 0, (uint8)(thru * 255)});
+            } else {
+                fadeInStart = 0;
+                fadeInLength = 0;
             }
-
-
-            if(fadeOutWaitFrames > 0) {
-                fadeOutWaitFrames--;
-                fadeOutStart = now;
-            } else if(fadeOutStart > 0 && fadeOutLength > 0) {
-                EASY_BLOCK("fadeIn");
-                float thru = (float)(now - fadeOutStart) / fadeOutLength;
-
-                if(thru >= 0 && thru <= 1) {
-                    GPU_RectangleFilled(target, 0, 0, WIDTH, HEIGHT, {0, 0, 0, (uint8)(thru * 255)});
-                } else {
-                    GPU_RectangleFilled(target, 0, 0, WIDTH, HEIGHT, {0, 0, 0, 255});
-                    fadeOutStart = 0;
-                    fadeOutLength = 0;
-                    fadeOutCallback();
-                }
-                EASY_END_BLOCK;
-            }
-            EASY_END_BLOCK;
-
-            EASY_BLOCK("GPU_Flip", GPU_PROFILER_COLOR);
-            GPU_Flip(target);
             EASY_END_BLOCK;
         }
+
+
+        if(fadeOutWaitFrames > 0) {
+            fadeOutWaitFrames--;
+            fadeOutStart = now;
+        } else if(fadeOutStart > 0 && fadeOutLength > 0) {
+            EASY_BLOCK("fadeIn");
+            float thru = (float)(now - fadeOutStart) / fadeOutLength;
+
+            if(thru >= 0 && thru <= 1) {
+                GPU_RectangleFilled(target, 0, 0, WIDTH, HEIGHT, {0, 0, 0, (uint8)(thru * 255)});
+            } else {
+                GPU_RectangleFilled(target, 0, 0, WIDTH, HEIGHT, {0, 0, 0, 255});
+                fadeOutStart = 0;
+                fadeOutLength = 0;
+                fadeOutCallback();
+            }
+            EASY_END_BLOCK;
+        }
+        EASY_END_BLOCK;
+
+        EASY_BLOCK("GPU_Flip", GPU_PROFILER_COLOR);
+        GPU_Flip(target);
+        EASY_END_BLOCK;
 
         if(Time::millis() - now < 2) {
             #ifdef _WIN32
@@ -1768,9 +1633,6 @@ int Game::run(int argc, char *argv[]) {
         if(now - lastFPS >= 1000) {
             lastFPS = now;
             logInfo("{0:d} FPS", frames);
-            if(networkMode == NetworkMode::SERVER) {
-                logDebug("{0:d} peers connected.", server->server->connectedPeers);
-            }
             fps = frames;
             dt_fps.w = -1;
             frames = 0;
@@ -1834,18 +1696,12 @@ exit:
 
     running = false;
 
-    if(networkMode != NetworkMode::SERVER) {
-        TTF_Quit();
+    TTF_Quit();
 
-        SDL_DestroyWindow(window);
-        SDL_Quit();
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 
-        audioEngine.Shutdown();
-
-        #if BUILD_WITH_STEAM
-        SteamAPI_Shutdown();
-        #endif
-    }
+    audioEngine.Shutdown();
     #pragma endregion
 
     if(profiler::isEnabled()) {
@@ -4299,7 +4155,7 @@ void Game::quitToMainMenu() {
     EASY_BLOCK("Load world");
     world = new World();
     world->noSaveLoad = true;
-    world->init(wpStr, (int)ceil(Game::MAX_WIDTH / 3 / (double)CHUNK_W) * CHUNK_W + CHUNK_W * 3, (int)ceil(Game::MAX_HEIGHT / 3 / (double)CHUNK_H) * CHUNK_H + CHUNK_H * 3, target, &audioEngine, networkMode, generator);
+    world->init(wpStr, (int)ceil(Game::MAX_WIDTH / 3 / (double)CHUNK_W) * CHUNK_W + CHUNK_W * 3, (int)ceil(Game::MAX_HEIGHT / 3 / (double)CHUNK_H) * CHUNK_H + CHUNK_H * 3, target, &audioEngine, generator);
 
     EASY_BLOCK("Queue chunk loading");
     logInfo("Queueing chunk loading...");
@@ -4371,12 +4227,6 @@ void Game::quitToMainMenu() {
 
 
     MainMenuUI::visible = true;
-
-    #if BUILD_WITH_DISCORD
-    DiscordIntegration::setStart(0);
-    DiscordIntegration::setActivityState("On Main Menu");
-    DiscordIntegration::flushActivity();
-    #endif
 }
 
 int Game::getAimSolidSurface(int dist) {
@@ -4407,23 +4257,3 @@ int Game::getAimSolidSurface(int dist) {
 
     return startInd;
 }
-
-#if BUILD_WITH_STEAM
-extern "C" void __cdecl SteamAPIDebugTextHook(int nSeverity, const char *pchDebugText) {
-    ::OutputDebugString(pchDebugText);
-    if(nSeverity >= 1) {
-        logWarn("[STEAMAPI] {}", pchDebugText);
-        // place to set a breakpoint for catching API errors
-        int x = 3;
-        x = x;
-    } else {
-        logInfo("[STEAMAPI] {}", pchDebugText);
-    }
-}
-#endif
-
-#if BUILD_WITH_STEAM
-void Game::SteamHookMessages() {
-    SteamUtils()->SetWarningMessageHook(&SteamAPIDebugTextHook);
-}
-#endif

@@ -1,7 +1,5 @@
 #include "UIs.hpp"
 
-#include "DiscordIntegration.hpp"
-
 #define timegm _mkgmtime
 
 #define BUILD_WITH_EASY_PROFILER

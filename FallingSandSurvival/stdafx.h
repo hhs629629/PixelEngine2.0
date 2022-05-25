@@ -6,17 +6,6 @@
 
 #define VERSION "0.1.0"
 
-#define BUILD_WITH_STEAM 1
-#define BUILD_WITH_DISCORD 1
-
-#if BUILD_WITH_STEAM
-#define STEAM_APPID 1284340
-#endif
-
-#if BUILD_WITH_DISCORD
-#define DISCORD_CLIENTID 699396433320607844
-#endif
-
 #include <future>
 #include <string>
 #include <iostream>
@@ -56,24 +45,6 @@ namespace std {
 #include "box2d/b2_distance_joint.h"
 
 #include "lib/AudioAdventure/include/AudioEngine.h"
-
-#if BUILD_WITH_STEAM
-#ifdef _WIN64
-#pragma comment(lib, "lib/steam/redistributable_bin/win64/steam_api64.lib")
-#else
-#pragma comment(lib, "lib/steam/redistributable_bin/steam_api.lib")
-#endif
-#include "steam_api.h"
-#endif
-
-#if BUILD_WITH_DISCORD
-#ifdef _WIN64
-#pragma comment(lib, "lib/discord_game_sdk/lib/x86_64/discord_game_sdk.dll.lib")
-#else
-#pragma comment(lib, "lib/discord_game_sdk/lib/x86/discord_game_sdk.dll.lib")
-#endif
-#include "discord.h"
-#endif
 
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"

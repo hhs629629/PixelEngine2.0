@@ -43,11 +43,11 @@ bool is_ready(std::future<R> const& f){
     return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
 }
 
-void World::init(std::string worldPath, uint16_t w, uint16_t h, GPU_Target* target, CAudioEngine* audioEngine, int netMode) {
-    init(worldPath, w, h, target, audioEngine, netMode, new MaterialTestGenerator());
+void World::init(std::string worldPath, uint16_t w, uint16_t h, GPU_Target* target, CAudioEngine* audioEngine) {
+    init(worldPath, w, h, target, audioEngine, new MaterialTestGenerator());
 }
 
-void World::init(std::string worldPath, uint16_t w, uint16_t h, GPU_Target* target, CAudioEngine* audioEngine, int netMode, WorldGenerator* generator) {
+void World::init(std::string worldPath, uint16_t w, uint16_t h, GPU_Target* target, CAudioEngine* audioEngine, WorldGenerator* generator) {
     EASY_FUNCTION(WORLD_PROFILER_COLOR);
     this->worldName = worldPath;
     EASY_BLOCK("makedir");
@@ -76,12 +76,10 @@ void World::init(std::string worldPath, uint16_t w, uint16_t h, GPU_Target* targ
     if(updateRigidBodyHitboxPool == nullptr) updateRigidBodyHitboxPool = new ctpl::thread_pool(8);
     EASY_END_BLOCK;
 
-    if(netMode != NetworkMode::SERVER) {
-        EASY_BLOCK("audio load Explode event");
-        this->audioEngine = audioEngine;
-        audioEngine->LoadEvent("event:/World/Explode");
-        EASY_END_BLOCK;
-    }
+    EASY_BLOCK("audio load Explode event");
+    this->audioEngine = audioEngine;
+    audioEngine->LoadEvent("event:/World/Explode");
+    EASY_END_BLOCK;
 
     EASY_BLOCK("create newTemp array");
     newTemps = new int32_t[width * height];
