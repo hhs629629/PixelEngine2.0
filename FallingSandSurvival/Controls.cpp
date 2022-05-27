@@ -16,7 +16,7 @@ Control* Controls::DEBUG_EXPLODE           = add(new KeyControl(SDLK_e, RISING))
 Control* Controls::DEBUG_CARVE             = add(new KeyControl(SDLK_c, RISING));
 Control* Controls::DEBUG_RIGID             = add(new KeyControl(SDLK_r, RISING));
 
-Control* Controls::DEBUG_DRAW = add(new KeyControl(SDLK_q, TYPE));
+Control* Controls::DEBUG_DRAW = add(new KeyControl(SDLK_q, MOMENTARY));
 Control* Controls::DEBUG_BRUSHSIZE_INC = add(new KeyControl(']', TYPE));
 Control* Controls::DEBUG_BRUSHSIZE_DEC = add(new KeyControl('[', TYPE));
 
