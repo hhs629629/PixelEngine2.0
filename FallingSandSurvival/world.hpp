@@ -7,7 +7,6 @@
 
 #include "Macros.hpp"
 
-#include "Networking.hpp"
 #include <vector>
 #include <deque>
 #include "Particle.hpp"
@@ -105,8 +104,8 @@ public:
     std::vector<Particle *> particles;
     uint16_t width = 0;
     uint16_t height = 0;
-    void init(std::string worldPath, uint16_t w, uint16_t h, GPU_Target* renderer, CAudioEngine* audioEngine, int netMode, WorldGenerator* generator);
-    void init(std::string worldPath, uint16_t w, uint16_t h, GPU_Target* renderer, CAudioEngine* audioEngine, int netMode);
+    void init(std::string worldPath, uint16_t w, uint16_t h, GPU_Target* renderer, CAudioEngine* audioEngine,WorldGenerator* generator);
+    void init(std::string worldPath, uint16_t w, uint16_t h, GPU_Target* renderer, CAudioEngine* audioEngine);
     MaterialInstance getTile(int x, int y);
     void setTile(int x, int y, MaterialInstance type);
     MaterialInstance getTileLayer2(int x, int y);

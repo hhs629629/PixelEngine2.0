@@ -56,17 +56,11 @@
     <Filter Include="Source Files\world\structures">
       <UniqueIdentifier>{ad0982c7-fd5a-4631-9a72-402fb6079681}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\net">
-      <UniqueIdentifier>{bdd14dcd-2f91-4e09-86a1-b435f86cd145}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\libraries\imgui">
       <UniqueIdentifier>{fe639ea7-4dda-4e11-bd5f-f9f5821a219e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\vfx\gui">
       <UniqueIdentifier>{a5293a6a-99a5-4881-99c0-026613ebb5b6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\integration">
-      <UniqueIdentifier>{8b084989-8b81-418b-92ce-6e6304ec84f6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -229,9 +223,6 @@
     <ClCompile Include="Structures.cpp">
       <Filter>Source Files\world\structures</Filter>
     </ClCompile>
-    <ClCompile Include="Networking.cpp">
-      <Filter>Source Files\net</Filter>
-    </ClCompile>
     <ClCompile Include="lib\imgui\backends\imgui_impl_sdl.cpp">
       <Filter>Source Files\libraries\imgui</Filter>
     </ClCompile>
@@ -261,9 +252,6 @@
     </ClCompile>
     <ClCompile Include="OptionsUI.cpp">
       <Filter>Source Files\vfx\gui</Filter>
-    </ClCompile>
-    <ClCompile Include="DiscordIntegration.cpp">
-      <Filter>Source Files\integration</Filter>
     </ClCompile>
     <ClCompile Include="IngameUI.cpp">
       <Filter>Source Files\vfx\gui</Filter>
@@ -463,9 +451,6 @@
     <ClInclude Include="RigidBody.hpp">
       <Filter>Source Files\objects</Filter>
     </ClInclude>
-    <ClInclude Include="Networking.hpp">
-      <Filter>Source Files\net</Filter>
-    </ClInclude>
     <ClInclude Include="lib\imgui\backends\imgui_impl_sdl.h">
       <Filter>Source Files\libraries\imgui</Filter>
     </ClInclude>
@@ -487,13 +472,7 @@
     <ClInclude Include="CLArgs.hpp">
       <Filter>Source Files\util</Filter>
     </ClInclude>
-    <ClInclude Include="DiscordIntegration.hpp">
-      <Filter>Source Files\integration</Filter>
-    </ClInclude>
-    <ClInclude Include="DiscordUtils.hpp">
-      <Filter>Source Files\integration</Filter>
-    </ClInclude>
-    <ClInclude Include="b2DebugDraw_impl.h">
+    <ClInclude Include="b2DebugDraw_impl.hpp">
       <Filter>Source Files\vfx</Filter>
     </ClInclude>
   </ItemGroup>

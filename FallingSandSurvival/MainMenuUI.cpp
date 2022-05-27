@@ -1,7 +1,5 @@
 #include "UIs.hpp"
 
-#include "DiscordIntegration.hpp"
-
 #ifdef _WIN32
 #define timegm _mkgmtime
 #endif
@@ -234,7 +232,7 @@ void MainMenuUI::DrawSingleplayer(Game* game) {
                 //std::thread loadWorldThread([&] () {
                 EASY_BLOCK("Load world");
                 World* w = new World();
-                w->init(game->gameDir.getWorldPath(worldName), (int)ceil(Game::MAX_WIDTH / 3 / (double)CHUNK_W) * CHUNK_W + CHUNK_W * 3, (int)ceil(Game::MAX_HEIGHT / 3 / (double)CHUNK_H) * CHUNK_H + CHUNK_H * 3, game->target, &game->audioEngine, game->networkMode);
+                w->init(game->gameDir.getWorldPath(worldName), (int)ceil(Game::MAX_WIDTH / 3 / (double)CHUNK_W) * CHUNK_W + CHUNK_W * 3, (int)ceil(Game::MAX_HEIGHT / 3 / (double)CHUNK_H) * CHUNK_H + CHUNK_H * 3, game->target, &game->audioEngine);
                 w->metadata.lastOpenedTime = Time::millis() / 1000;
                 w->metadata.lastOpenedVersion = std::string(VERSION);
                 w->metadata.save(w->worldName);
@@ -255,12 +253,6 @@ void MainMenuUI::DrawSingleplayer(Game* game) {
                 game->fadeInStart = game->now;
                 game->fadeInLength = 250;
                 game->fadeInWaitFrames = 4;
-
-                #if BUILD_WITH_DISCORD
-                DiscordIntegration::setStart(Time::millis());
-                DiscordIntegration::setActivityState("Playing Singleplayer");
-                DiscordIntegration::flushActivity();
-                #endif
             };
         }
         ImGui::PopStyleVar();
@@ -342,12 +334,6 @@ void MainMenuUI::DrawMultiplayer(Game* game) {
 
     if(ImGui::Button("Connect")) {
         logInfo("connectButton select");
-        if(game->client->connect("172.23.16.150", 1337)) {
-            game->networkMode = NetworkMode::CLIENT;
-            visible = false;
-            game->state = LOADING;
-            game->stateAfterLoad = INGAME;
-        }
     }
 
     if(!connectButtonEnabled) {

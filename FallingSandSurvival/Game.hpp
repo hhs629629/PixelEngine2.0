@@ -13,8 +13,6 @@
 #include <algorithm> 
 #include <unordered_map>
 
-#include "Networking.hpp"
-
 #include "lib/sparsehash/sparse_hash_map.h"
 #ifndef INC_World
 #include "world.hpp"
@@ -38,14 +36,6 @@
 #include "Shaders.hpp"
 
 #include "b2DebugDraw_impl.hpp"
-
-#if BUILD_WITH_STEAM
-#include "steam_api.h"
-#endif
-
-#if BUILD_WITH_DISCORD
-#include "discord.h"
-#endif
 
 #include "ProfilerConfig.hpp"
 
@@ -90,14 +80,8 @@ public:
 
     GameState state = LOADING;
     GameState stateAfterLoad = MAIN_MENU;
-    int networkMode = -1;
-    Client* client = nullptr;
-    Server* server = nullptr;
 
     bool steamAPI = false;
-    #if BUILD_WITH_STEAM
-    void SteamHookMessages();
-    #endif
 
     CAudioEngine audioEngine;
 

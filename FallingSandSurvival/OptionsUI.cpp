@@ -1,7 +1,5 @@
 #include "UIs.hpp"
 
-#include "DiscordIntegration.hpp"
-
 #define BUILD_WITH_EASY_PROFILER
 #include <easy/profiler.h>
 #include "ProfilerConfig.hpp"
@@ -100,38 +98,6 @@ void OptionsUI::DrawGeneral(Game* game) {
     ImGui::Checkbox("Material Tooltips", &Settings::draw_material_info);
 
     ImGui::Unindent(4);
-
-    #if BUILD_WITH_DISCORD
-    ImGui::Separator();
-
-    ImGui::TextColored(ImVec4(1.0, 1.0, 0.8, 1.0), "%s", "Discord");
-    ImGui::Indent(4);
-
-    if(DiscordIntegration::discordAPI) {
-        ImGui::TextColored(ImVec4(0.7, 1.0, 0.7, 1.0), "%s", "Discord Integration is running");
-        if(ImGui::Button("Stop Discord Integration")) {
-            DiscordIntegration::shutdown();
-        }
-
-        if(ImGui::Checkbox("Show Details", &DiscordIntegration::showDetails)) {
-            DiscordIntegration::flushActivity();
-        }
-
-        if(ImGui::Checkbox("Show Play Time", &DiscordIntegration::showPlaytime)) {
-            DiscordIntegration::flushActivity();
-        }
-
-    } else {
-        ImGui::TextColored(ImVec4(1.0, 0.7, 0.7, 1.0), "%s", "Discord Integration is not running");
-        if(ImGui::Button("Start Discord Integration")) {
-            if(DiscordIntegration::init()) {
-                DiscordIntegration::flushActivity();
-            }
-        }
-    }
-
-    ImGui::Unindent(4);
-    #endif
 }
 
 void OptionsUI::DrawVideo(Game* game) {

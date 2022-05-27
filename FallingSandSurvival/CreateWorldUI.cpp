@@ -4,7 +4,6 @@
 #include "MaterialTestGenerator.cpp"
 #define timegm _mkgmtime
 
-#include "DiscordIntegration.hpp"
 
 #define BUILD_WITH_EASY_PROFILER
 #include <easy/profiler.h>
@@ -189,7 +188,7 @@ void CreateWorldUI::Draw(Game* game) {
 
         EASY_BLOCK("Load world");
         game->world = new World();
-        game->world->init(wpStr, (int)ceil(Game::MAX_WIDTH / 3 / (double)CHUNK_W) * CHUNK_W + CHUNK_W * 3, (int)ceil(Game::MAX_HEIGHT / 3 / (double)CHUNK_H) * CHUNK_H + CHUNK_H * 3, game->target, &game->audioEngine, game->networkMode, generator);
+        game->world->init(wpStr, (int)ceil(Game::MAX_WIDTH / 3 / (double)CHUNK_W) * CHUNK_W + CHUNK_W * 3, (int)ceil(Game::MAX_HEIGHT / 3 / (double)CHUNK_H) * CHUNK_H + CHUNK_H * 3, game->target, &game->audioEngine, generator);
         game->world->metadata.worldName = std::string(worldNameBuf);
         game->world->metadata.lastOpenedTime = Time::millis() / 1000;
         game->world->metadata.lastOpenedVersion = std::string(VERSION);
@@ -204,12 +203,6 @@ void CreateWorldUI::Draw(Game* game) {
         }
         EASY_END_BLOCK;
         EASY_END_BLOCK;
-
-        #if BUILD_WITH_DISCORD
-        DiscordIntegration::setStart(Time::millis());
-        DiscordIntegration::setActivityState("Playing Singleplayer");
-        DiscordIntegration::flushActivity();
-        #endif
     }
     ImGui::PopStyleVar();
     ImGui::SetCursorPos(ImVec2(selPos.x + 150 / 2 - ImGui::CalcTextSize("Create").x / 2, selPos.y));

@@ -42,8 +42,6 @@ void Chunk::loadMeta() {
     }
 }
 
-//MaterialInstanceData* Chunk::readBuf = (MaterialInstanceData*)malloc(CHUNK_W * CHUNK_H * 2 * sizeof(MaterialInstanceData));
-
 void Chunk::read() {
     EASY_FUNCTION();
 
@@ -54,8 +52,8 @@ void Chunk::read() {
     if(tiles == NULL) throw std::runtime_error("Failed to allocate memory for Chunk tiles array.");
     MaterialInstance* layer2 = (MaterialInstance*)malloc(CHUNK_W * CHUNK_H * sizeof(MaterialInstance));
     if(layer2 == NULL) throw std::runtime_error("Failed to allocate memory for Chunk layer2 array.");
-    //MaterialInstance* tiles = new MaterialInstance[CHUNK_W * CHUNK_H];
-    //MaterialInstance* layer2 = new MaterialInstance[CHUNK_W * CHUNK_H];
+
+
     Uint32* background = new Uint32[CHUNK_W * CHUNK_H];
     EASY_END_BLOCK;
 
@@ -70,26 +68,6 @@ void Chunk::read() {
 
         hasMeta = true;
         state = 1;
-
-        /*unsigned int content;
-        for (int i = 0; i < CHUNK_W * CHUNK_H; i++) {
-            myfile.read((char*)&content, sizeof(unsigned int));
-            int id = content;
-            myfile.read((char*)&content, sizeof(unsigned int));
-            Uint32 color = content;
-            tiles[i] = MaterialInstance(Materials::MATERIALS[id], color);
-        }
-        for (int i = 0; i < CHUNK_W * CHUNK_H; i++) {
-            myfile.read((char*)&content, sizeof(unsigned int));
-            int id = content;
-            myfile.read((char*)&content, sizeof(unsigned int));
-            Uint32 color = content;
-            layer2[i] = MaterialInstance(Materials::MATERIALS[id], color);
-        }*/
-        /*for (int i = 0; i < CHUNK_W * CHUNK_H; i++) {
-            myfile.read((char*)&content, sizeof(unsigned int));
-            background[i] = content;
-        }*/
 
         int src_size;
         myfile.read((char*)&src_size, sizeof(int));
@@ -142,17 +120,11 @@ void Chunk::read() {
             tiles[i].temperature = readBuf[i].temperature;
             tiles[i].mat = Materials::MATERIALS_ARRAY[readBuf[i].index];
             tiles[i].id = MaterialInstance::_curID++;
-            //tiles[i].color = readBuf[i].color;
-            //tiles[i].temperature = readBuf[i].temperature;
-            //tiles[i] = MaterialInstance(Materials::MATERIALS_ARRAY[buf[i].index], buf[i].color, buf[i].temperature);
 
             layer2[i].color = readBuf[i + CHUNK_W * CHUNK_H].color;
             layer2[i].temperature = readBuf[i + CHUNK_W * CHUNK_H].temperature;
             layer2[i].mat = Materials::MATERIALS_ARRAY[readBuf[CHUNK_W * CHUNK_H + i].index];
             layer2[i].id = MaterialInstance::_curID++;
-            //layer2[i].color = readBuf[CHUNK_W * CHUNK_H + i].color;
-            //layer2[i].temperature = readBuf[CHUNK_W * CHUNK_H + i].temperature;
-            //layer2[i] = MaterialInstance(Materials::MATERIALS_ARRAY[buf[CHUNK_W * CHUNK_H + i].index], buf[CHUNK_W * CHUNK_H + i].color, buf[CHUNK_W * CHUNK_H + i].temperature);
         }
         EASY_END_BLOCK;
 
@@ -195,19 +167,6 @@ void Chunk::write(MaterialInstance* tiles, MaterialInstance* layer2, Uint32* bac
     if(this->tiles == NULL || this->layer2 == NULL || this->background == NULL) return;
     hasTileCache = true;
 
-    // TODO: make these loops faster
-    /*for (int i = 0; i < CHUNK_W * CHUNK_H; i++) {
-        myfile.write((char*)&tiles[i].mat.id, sizeof(unsigned int));
-        myfile.write((char*)&tiles[i].color, sizeof(unsigned int));
-    }
-    for (int i = 0; i < CHUNK_W * CHUNK_H; i++) {
-        myfile.write((char*)&layer2[i].mat.id, sizeof(unsigned int));
-        myfile.write((char*)&layer2[i].color, sizeof(unsigned int));
-    }*/
-    /*for (int i = 0; i < CHUNK_W * CHUNK_H; i++) {
-        myfile.write((char*)&background[i], sizeof(unsigned int));
-    }*/
-
 
     MaterialInstanceData* buf = new MaterialInstanceData[CHUNK_W * CHUNK_H * 2];
     for(int i = 0; i < CHUNK_W * CHUNK_H; i++) {
@@ -229,10 +188,6 @@ void Chunk::write(MaterialInstance* tiles, MaterialInstance* layer2, Uint32* bac
         logCritical("Failed to compress chunk tile data @ {},{} (err {})", this->x, this->y, compressed_data_size);
     }
 
-    /*if(compressed_data_size > 0){
-        logDebug("Compression ratio: {}", (float)compressed_data_size / src_size * 100);
-    }*/
-
     char* n_compressed_data = (char*)realloc(compressed_data, (size_t)compressed_data_size);
     if(n_compressed_data == NULL) throw std::runtime_error("Failed to realloc memory for Chunk::write compressed_data.");
     compressed_data = n_compressed_data;
@@ -252,10 +207,6 @@ void Chunk::write(MaterialInstance* tiles, MaterialInstance* layer2, Uint32* bac
     if(compressed_data_size2 <= 0) {
         logCritical("Failed to compress chunk tile data @ {},{} (err {})", this->x, this->y, compressed_data_size2);
     }
-
-    /*if(compressed_data_size2 > 0){
-        logDebug("Compression ratio: {}", (float)compressed_data_size2 / src_size2 * 100);
-    }*/
 
     char* n_compressed_data2 = (char*)realloc(compressed_data2, (size_t)compressed_data_size2);
     if(n_compressed_data2 == NULL) throw std::runtime_error("Failed to realloc memory for Chunk::write compressed_data2.");
