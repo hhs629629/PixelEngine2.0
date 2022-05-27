@@ -472,7 +472,7 @@
     <ClInclude Include="CLArgs.hpp">
       <Filter>Source Files\util</Filter>
     </ClInclude>
-    <ClInclude Include="b2DebugDraw_impl.h">
+    <ClInclude Include="b2DebugDraw_impl.hpp">
       <Filter>Source Files\vfx</Filter>
     </ClInclude>
   </ItemGroup>

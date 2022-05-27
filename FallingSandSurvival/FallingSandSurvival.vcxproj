@@ -317,7 +317,7 @@ exit 0</Command>
     <ClCompile Include="DefaultGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="b2DebugDraw_impl.h" />
+    <ClInclude Include="b2DebugDraw_impl.hpp" />
     <ClInclude Include="Background.hpp" />
     <ClInclude Include="Biome.hpp" />
     <ClInclude Include="Chunk.hpp" />
