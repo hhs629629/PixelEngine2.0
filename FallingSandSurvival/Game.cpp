@@ -4091,7 +4091,7 @@ void Game::renderTemperatureMap(World* world) {
         for(int y = 0; y < world->height; y++) {
             auto t = world->tiles[x + y * world->width];
             int32_t temp = t.temperature;
-            Uint32 color = (Uint8)((temp + 1024) / 8.0f);
+            Uint32 color = ((temp - MIN_TEMPERATURE) * 255 / (MAX_TEMPERATURE - MIN_TEMPERATURE));
 
             const unsigned int offset = (world->width * 4 * y) + x * 4;
             pixelsTemp_ar[offset + 0] = color;        // b
