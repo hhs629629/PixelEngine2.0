@@ -189,6 +189,10 @@ void Materials::init() {
     MATERIALS[GOLD_ORE.id]->nReactions = 1;
     MATERIALS[GOLD_ORE.id]->reactions.push_back({REACT_TEMPERATURE_ABOVE, 512, GOLD_MOLTEN.id});
 
+    MATERIALS[GOLD_SOLID.id]->react = true;
+    MATERIALS[GOLD_SOLID.id]->nReactions = 1;
+    MATERIALS[GOLD_SOLID.id]->reactions.push_back({ REACT_TEMPERATURE_ABOVE, 512, GOLD_MOLTEN.id });
+
     MATERIALS[GOLD_MOLTEN.id]->react = true;
     MATERIALS[GOLD_MOLTEN.id]->nReactions = 1;
     MATERIALS[GOLD_MOLTEN.id]->reactions.push_back({REACT_TEMPERATURE_BELOW, 128, GOLD_SOLID.id});
