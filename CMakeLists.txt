@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15.0 FATAL_ERROR)
 
 set(CMAKE_SYSTEM_VERSION 10.0.16299.0 CACHE STRING "" FORCE)
 
-project(FallingSandSurvival C CXX)
+project(PixelEngine C CXX)
 
 if (CMAKE_HOST_WIN32)
     message("Windows")
@@ -76,5 +76,5 @@ include(CMake/GlobalSettingsInclude.cmake OPTIONAL)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Sub-projects
-add_subdirectory(FallingSandSurvival)
+add_subdirectory(PixelEngine)
 
