@@ -9,6 +9,9 @@
 
 #define INC_MaterialInstance
 
+#define MAX_TEMPERATURE 2048
+#define MIN_TEMPERATURE -1024
+
 class MaterialInstance {
 public:
     static int _curID;

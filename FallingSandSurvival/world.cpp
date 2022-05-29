@@ -1149,6 +1149,32 @@ void World::tick() {
                                 }
                             }
 
+                            if (tile.mat->react && tile.mat->nReactions > 0) {
+                                bool react = false;
+                                for (int i = 0; i < tile.mat->nReactions; i++) {
+                                    MaterialInteraction in = tile.mat->reactions[i];
+                                    if (in.type == REACT_TEMPERATURE_BELOW) {
+                                        if (tile.temperature < in.data1) {
+                                            tiles[index] = Tiles::create(Materials::MATERIALS[in.data2], x, y);
+                                            tiles[index].temperature = tile.temperature;
+                                            dirty[index] = true;
+                                            tickVisited[index] = true;
+                                            react = true;
+                                        }
+                                    }
+                                    else if (in.type == REACT_TEMPERATURE_ABOVE) {
+                                        if (tile.temperature > in.data1) {
+                                            tiles[index] = Tiles::create(Materials::MATERIALS[in.data2], x, y);
+                                            tiles[index].temperature = tile.temperature;
+                                            dirty[index] = true;
+                                            tickVisited[index] = true;
+                                            react = true;
+                                        }
+                                    }
+                                }
+                                if (react) continue;
+                            }
+
                             if(type == PhysicsType::SAND) {
                                 //active[index] = true;
                                 MaterialInstance belowTile = tiles[x + (y + 1) * width];
@@ -1182,30 +1208,7 @@ void World::tick() {
                                     continue;
                                 }
 
-                                if(tile.mat->react && tile.mat->nReactions > 0) {
-                                    bool react = false;
-                                    for(int i = 0; i < tile.mat->nReactions; i++) {
-                                        MaterialInteraction in = tile.mat->reactions[i];
-                                        if(in.type == REACT_TEMPERATURE_BELOW) {
-                                            if(tile.temperature < in.data1) {
-                                                tiles[index] = Tiles::create(Materials::MATERIALS[in.data2], x, y);
-                                                tiles[index].temperature = tile.temperature;
-                                                dirty[index] = true;
-                                                tickVisited[index] = true;
-                                                react = true;
-                                            }
-                                        } else if(in.type == REACT_TEMPERATURE_ABOVE) {
-                                            if(tile.temperature > in.data1) {
-                                                tiles[index] = Tiles::create(Materials::MATERIALS[in.data2], x, y);
-                                                tiles[index].temperature = tile.temperature;
-                                                dirty[index] = true;
-                                                tickVisited[index] = true;
-                                                react = true;
-                                            }
-                                        }
-                                    }
-                                    if(react) continue;
-                                }
+                                
 
                                 bool canMoveBelow = (below == PhysicsType::AIR || (below != PhysicsType::SOLID && belowTile.mat->density < tile.mat->density));
                                 if(!canMoveBelow) continue;

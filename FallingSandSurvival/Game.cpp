@@ -1528,6 +1528,10 @@ int Game::run(int argc, char *argv[]) {
 
                     if(Settings::draw_detailed_material_info) {
 
+                        ImGui::Text("temperature = %d", tile.temperature);
+
+
+
                         if(tile.mat->physicsType == PhysicsType::SOUP) {
                             ImGui::Text("fluidAmount = %f", tile.fluidAmount);
                         }
@@ -4087,7 +4091,7 @@ void Game::renderTemperatureMap(World* world) {
         for(int y = 0; y < world->height; y++) {
             auto t = world->tiles[x + y * world->width];
             int32_t temp = t.temperature;
-            Uint32 color = (Uint8)((temp + 1024) / 2048.0f * 255);
+            Uint32 color = ((temp - MIN_TEMPERATURE) * 255 / (MAX_TEMPERATURE - MIN_TEMPERATURE));
 
             const unsigned int offset = (world->width * 4 * y) + x * 4;
             pixelsTemp_ar[offset + 0] = color;        // b
