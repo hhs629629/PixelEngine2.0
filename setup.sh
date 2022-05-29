@@ -1,16 +1,16 @@
 #!/bin/bash
-echo "FallingSandSurvival project setup"
+echo "PixelEngine project setup"
 echo ""
 echo "You should have already done the required steps before running this file."
 echo "Please do these first unless you know what you're doing."
-echo "Instructions: https://github.com/PieKing1215/FallingSandSurvival/wiki/Building"
+echo "Instructions: https://github.com/PieKing1215/PixelEngine/wiki/Building"
 echo ""
 read -p "Press [Enter] to start (or Ctrl+C to exit)..."
 echo ""
 
 echo "Looking for Conan..."
 command -v conan >/dev/null 2>&1 || { 
-    echo "Conan is an open source C++ package manager, and is needed to set up libraries for FallingSandSurvival."
+    echo "Conan is an open source C++ package manager, and is needed to set up libraries for PixelEngine."
     echo "Run the Conan installer which you can download at: https://conan.io/downloads.html"
     echo "More instructions: https://docs.conan.io/en/latest/installation.html"
     read -p "Press [Enter] once Conan is installed to continue..."
@@ -126,7 +126,7 @@ read -p "Press [Enter] to continue to the next step..."
 echo ""
 
 
-# if [ -d "./FallingSandSurvival/lib/FMOD/inc" ] && [ -d "./FallingSandSurvival/lib/FMOD_studio/inc" ] && [ -f "./FallingSandSurvival/lib/bin/x64/fmod.dll" ]
+# if [ -d "./PixelEngine/lib/FMOD/inc" ] && [ -d "./PixelEngine/lib/FMOD_studio/inc" ] && [ -f "./PixelEngine/lib/bin/x64/fmod.dll" ]
 # then
     # echo "FMOD already set up."
 # else
@@ -143,35 +143,35 @@ echo ""
     # if [ -d "./api" ]
     # then
         # echo "./api/ found, copying files to the right places..."
-        # echo "./api/core/inc -> ./FallingSandSurvival/lib/FMOD/inc"
-        # cp -r ./api/core/inc ./FallingSandSurvival/lib/FMOD/inc
-        # echo "./api/core/lib -> ./FallingSandSurvival/lib/FMOD/lib"
-        # cp -r ./api/core/lib ./FallingSandSurvival/lib/FMOD/lib
+        # echo "./api/core/inc -> ./PixelEngine/lib/FMOD/inc"
+        # cp -r ./api/core/inc ./PixelEngine/lib/FMOD/inc
+        # echo "./api/core/lib -> ./PixelEngine/lib/FMOD/lib"
+        # cp -r ./api/core/lib ./PixelEngine/lib/FMOD/lib
         
-        # echo "./FallingSandSurvival/lib/FMOD/lib/x86/fmod.dll -> ./FallingSandSurvival/lib/bin/x86/fmod.dll"
-        # cp ./FallingSandSurvival/lib/FMOD/lib/x86/fmod.dll ./FallingSandSurvival/lib/bin/x86/fmod.dll
-        # echo "./FallingSandSurvival/lib/FMOD/lib/x86/fmodL.dll -> ./FallingSandSurvival/lib/bin/x86/fmodL.dll"
-        # cp ./FallingSandSurvival/lib/FMOD/lib/x86/fmodL.dll ./FallingSandSurvival/lib/bin/x86/fmodL.dll
+        # echo "./PixelEngine/lib/FMOD/lib/x86/fmod.dll -> ./PixelEngine/lib/bin/x86/fmod.dll"
+        # cp ./PixelEngine/lib/FMOD/lib/x86/fmod.dll ./PixelEngine/lib/bin/x86/fmod.dll
+        # echo "./PixelEngine/lib/FMOD/lib/x86/fmodL.dll -> ./PixelEngine/lib/bin/x86/fmodL.dll"
+        # cp ./PixelEngine/lib/FMOD/lib/x86/fmodL.dll ./PixelEngine/lib/bin/x86/fmodL.dll
         
-        # echo "./FallingSandSurvival/lib/FMOD/lib/x64/fmod.dll -> ./FallingSandSurvival/lib/bin/x64/fmod.dll"
-        # cp ./FallingSandSurvival/lib/FMOD/lib/x64/fmod.dll ./FallingSandSurvival/lib/bin/x64/fmod.dll
-        # echo "./FallingSandSurvival/lib/FMOD/lib/x64/fmodL.dll -> ./FallingSandSurvival/lib/bin/x64/fmodL.dll"
-        # cp ./FallingSandSurvival/lib/FMOD/lib/x64/fmodL.dll ./FallingSandSurvival/lib/bin/x64/fmodL.dll
+        # echo "./PixelEngine/lib/FMOD/lib/x64/fmod.dll -> ./PixelEngine/lib/bin/x64/fmod.dll"
+        # cp ./PixelEngine/lib/FMOD/lib/x64/fmod.dll ./PixelEngine/lib/bin/x64/fmod.dll
+        # echo "./PixelEngine/lib/FMOD/lib/x64/fmodL.dll -> ./PixelEngine/lib/bin/x64/fmodL.dll"
+        # cp ./PixelEngine/lib/FMOD/lib/x64/fmodL.dll ./PixelEngine/lib/bin/x64/fmodL.dll
         
-        # echo "./api/studio/inc -> ./FallingSandSurvival/lib/FMOD_studio/inc"
-        # cp -r ./api/studio/inc ./FallingSandSurvival/lib/FMOD_studio/inc
-        # echo "./api/studio/lib -> ./FallingSandSurvival/lib/FMOD_studio/lib"
-        # cp -r ./api/studio/lib ./FallingSandSurvival/lib/FMOD_studio/lib
+        # echo "./api/studio/inc -> ./PixelEngine/lib/FMOD_studio/inc"
+        # cp -r ./api/studio/inc ./PixelEngine/lib/FMOD_studio/inc
+        # echo "./api/studio/lib -> ./PixelEngine/lib/FMOD_studio/lib"
+        # cp -r ./api/studio/lib ./PixelEngine/lib/FMOD_studio/lib
         
-        # echo "./FallingSandSurvival/lib/FMOD_studio/lib/x86/fmodstudio.dll -> ./FallingSandSurvival/lib/bin/x86/fmodstudio.dll"
-        # cp ./FallingSandSurvival/lib/FMOD_studio/lib/x86/fmodstudio.dll ./FallingSandSurvival/lib/bin/x86/fmodstudio.dll
-        # echo "./FallingSandSurvival/lib/FMOD_studio/lib/x86/fmodstudioL.dll -> ./FallingSandSurvival/lib/bin/x86/fmodstudioL.dll"
-        # cp ./FallingSandSurvival/lib/FMOD_studio/lib/x86/fmodstudioL.dll ./FallingSandSurvival/lib/bin/x86/fmodstudioL.dll
+        # echo "./PixelEngine/lib/FMOD_studio/lib/x86/fmodstudio.dll -> ./PixelEngine/lib/bin/x86/fmodstudio.dll"
+        # cp ./PixelEngine/lib/FMOD_studio/lib/x86/fmodstudio.dll ./PixelEngine/lib/bin/x86/fmodstudio.dll
+        # echo "./PixelEngine/lib/FMOD_studio/lib/x86/fmodstudioL.dll -> ./PixelEngine/lib/bin/x86/fmodstudioL.dll"
+        # cp ./PixelEngine/lib/FMOD_studio/lib/x86/fmodstudioL.dll ./PixelEngine/lib/bin/x86/fmodstudioL.dll
         
-        # echo "./FallingSandSurvival/lib/FMOD_studio/lib/x64/fmodstudio.dll -> ./FallingSandSurvival/lib/bin/x64/fmodstudio.dll"
-        # cp ./FallingSandSurvival/lib/FMOD_studio/lib/x64/fmodstudio.dll ./FallingSandSurvival/lib/bin/x64/fmodstudio.dll
-        # echo "./FallingSandSurvival/lib/FMOD_studio/lib/x64/fmodstudioL.dll -> ./FallingSandSurvival/lib/bin/x64/fmodstudioL.dll"
-        # cp ./FallingSandSurvival/lib/FMOD_studio/lib/x64/fmodstudioL.dll ./FallingSandSurvival/lib/bin/x64/fmodstudioL.dll
+        # echo "./PixelEngine/lib/FMOD_studio/lib/x64/fmodstudio.dll -> ./PixelEngine/lib/bin/x64/fmodstudio.dll"
+        # cp ./PixelEngine/lib/FMOD_studio/lib/x64/fmodstudio.dll ./PixelEngine/lib/bin/x64/fmodstudio.dll
+        # echo "./PixelEngine/lib/FMOD_studio/lib/x64/fmodstudioL.dll -> ./PixelEngine/lib/bin/x64/fmodstudioL.dll"
+        # cp ./PixelEngine/lib/FMOD_studio/lib/x64/fmodstudioL.dll ./PixelEngine/lib/bin/x64/fmodstudioL.dll
         
         # echo "Done."
         
@@ -184,112 +184,7 @@ echo ""
     # fi
 # fi
 
-echo ""
-if [ -d "./FallingSandSurvival/lib/discord_game_sdk/cpp" ] && [ -f "./FallingSandSurvival/lib/bin/x64/discord_game_sdk.dll" ]
-then
-    echo "Discord Game SDK already set up."
-else
-    while true; do
-        read -p "Do you want to set up the Discord Game SDK (optional) [yes/no]? " yn
-        case $yn in
-            [Yy]* ) 
-                echo "Downloading Discord Game SDK..."
-                curl https://dl-game-sdk.discordapp.net/2.5.6/discord_game_sdk.zip -o discord_game_sdk.zip
-                echo "Unzipping to ./discord_game_sdk ..."
-                unzip discord_game_sdk.zip -d ./discord_game_sdk
-                
-                echo "Copying files to the right places..."
-                echo "./discord_game_sdk/cpp -> ./FallingSandSurvival/lib/discord_game_sdk/cpp"
-                cp -r ./discord_game_sdk/cpp ./FallingSandSurvival/lib/discord_game_sdk/cpp
-                echo "./discord_game_sdk/lib -> ./FallingSandSurvival/lib/discord_game_sdk/lib"
-                cp -r ./discord_game_sdk/lib ./FallingSandSurvival/lib/discord_game_sdk/lib
-                
-                echo "./FallingSandSurvival/lib/discord_game_sdk/lib/x86/discord_game_sdk.dll -> ./FallingSandSurvival/lib/bin/x86/discord_game_sdk.dll"
-                cp ./FallingSandSurvival/lib/discord_game_sdk/lib/x86/discord_game_sdk.dll ./FallingSandSurvival/lib/bin/x86/discord_game_sdk.dll
-                
-                echo "./FallingSandSurvival/lib/discord_game_sdk/lib/x86_64/discord_game_sdk.dll -> ./FallingSandSurvival/lib/bin/x64/discord_game_sdk.dll"
-                cp ./FallingSandSurvival/lib/discord_game_sdk/lib/x86_64/discord_game_sdk.dll ./FallingSandSurvival/lib/bin/x64/discord_game_sdk.dll
-                
-                echo "Done."
-                
-                echo "Setting BUILD_WITH_DISCORD to 1..."
-                sed -i 's/BUILD_WITH_DISCORD 0/BUILD_WITH_DISCORD 1/g' ./FallingSandSurvival/stdafx.h
-                echo "Done."
-                
-                echo "Cleaning up..."
-                rm -rf ./discord_game_sdk
-                rm ./discord_game_sdk.zip
-                echo "Done."
-                
-                break;;
-            [Nn]* ) 
-                echo "Setting BUILD_WITH_DISCORD to 0..."
-                sed -i 's/BUILD_WITH_DISCORD 1/BUILD_WITH_DISCORD 0/g' ./FallingSandSurvival/stdafx.h
-                echo "Done."
-            break;;
-            * ) echo "Please enter yes or no.";;
-        esac
-    done
-fi
 
-echo ""
-if [ -d "./FallingSandSurvival/lib/steam/include" ] && [ -f "./FallingSandSurvival/lib/bin/x64/steam_api64.dll" ]
-then
-    echo "Steam API already set up."
-else
-    while true; do
-        read -p "Do you want to set up Steam API (optional) [yes/no]? " yn
-        case $yn in
-            [Yy]* ) 
-                echo "Setting up Steam API:"
-                echo "Download https://partner.steamgames.com/downloads/steamworks_sdk.zip (you will need to sign in with your Steam account)"
-                echo "Place steamworks_sdk_###.zip next to this script (it will be deleted after)."
-                echo ""
-                read -p "Press [Enter] once steamworks_sdk_###.zip is placed next to this script..."
-                
-                if ls ./steamworks_sdk*.zip 1> /dev/null 2>&1
-                then
-                    echo "Unzipping to ./steamworks ..."
-                    unzip ./steamworks_sdk*.zip -d ./steamworks_sdk
-                    
-                    echo "Copying files to the right places..."
-                    
-                    echo "./steamworks_sdk/sdk/redistributable_bin -> ./FallingSandSurvival/lib/steam/redistributable_bin"
-                    cp -r ./steamworks_sdk/sdk/redistributable_bin ./FallingSandSurvival/lib/steam/redistributable_bin
-                    
-                    echo "./FallingSandSurvival/lib/steam/redistributable_bin/steam_api.dll -> ./FallingSandSurvival/lib/bin/x86/steam_api.dll"
-                    cp ./FallingSandSurvival/lib/steam/redistributable_bin/steam_api.dll ./FallingSandSurvival/lib/bin/x86/steam_api.dll
-                    
-                    echo "./FallingSandSurvival/lib/steam/redistributable_bin/win64/steam_api64.dll -> ./FallingSandSurvival/lib/bin/x64/steam_api64.dll"
-                    cp ./FallingSandSurvival/lib/steam/redistributable_bin/win64/steam_api64.dll ./FallingSandSurvival/lib/bin/x64/steam_api64.dll
-                    
-                    echo "./steamworks_sdk/sdk/public/steam -> ./FallingSandSurvival/lib/steam/include"
-                    cp -r ./steamworks_sdk/sdk/public/steam ./FallingSandSurvival/lib/steam/include
-                    echo "Done."
-                    
-                    echo "Setting BUILD_WITH_STEAM to 1..."
-                    sed -i 's/BUILD_WITH_STEAM 0/BUILD_WITH_STEAM 1/g' ./FallingSandSurvival/stdafx.h
-                    echo "Done."
-                    
-                    echo "Cleaning up..."
-                    rm -rf ./steamworks_sdk
-                    rm ./steamworks_sdk*.zip
-                    echo "Done."
-                    
-                else
-                    echo "./steamworks_sdk*.zip not found, exiting..."
-                    exit 1; 
-                fi
-                break;;
-            [Nn]* ) 
-                echo "Setting BUILD_WITH_STEAM to 0..."
-                sed -i 's/BUILD_WITH_STEAM 1/BUILD_WITH_STEAM 0/g' ./FallingSandSurvival/stdafx.h
-                echo "Done."
-            break;;
-            * ) echo "Please enter yes or no.";;
-        esac
-    done
-fi
 
 echo ""
 echo "== Setup complete! =="

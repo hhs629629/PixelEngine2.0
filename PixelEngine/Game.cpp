@@ -198,7 +198,7 @@ int Game::init(int argc, char *argv[]) {
     EASY_BLOCK("create window");
     logInfo("Creating game window...");
     EASY_BLOCK("SDL_CreateWindow", SDL_PROFILER_COLOR);
-    window = SDL_CreateWindow("Falling Sand Survival", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_OPENGL);
+    window = SDL_CreateWindow("Pixel Engine 2.0", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_OPENGL);
     EASY_END_BLOCK;
 
     if(window == nullptr) {

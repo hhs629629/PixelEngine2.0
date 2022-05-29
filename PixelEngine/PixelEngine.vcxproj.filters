@@ -496,7 +496,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="FallingSandSurvival.rc" />
+    <ResourceCompile Include="PixelEngine.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="icon1.ico" />
