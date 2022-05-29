@@ -44,6 +44,7 @@ void MainMenuUI::RefreshWorlds(Game* game) {
 void MainMenuUI::Setup() {
 	EASY_FUNCTION(UI_PROFILER_COLOR);
 
+    // 설명: 메인메뉴 위에 로고
 	SDL_Surface* logoSfc = Textures::loadTexture("assets/ui/temp_logo.png");
 	title = GPU_CopyImageFromSurface(logoSfc);
 	GPU_SetImageFilter(title, GPU_FILTER_NEAREST);

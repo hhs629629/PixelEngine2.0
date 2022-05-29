@@ -124,8 +124,10 @@ void CAudioEngine::LoadEvent(const std::string& strEventName) {
 	auto tFoundit = sgpImplementation->mEvents.find(strEventName);
 	if (tFoundit != sgpImplementation->mEvents.end())
 		return;
+
 	FMOD::Studio::EventDescription* pEventDescription = NULL;
 	CAudioEngine::ErrorCheck(sgpImplementation->mpStudioSystem->getEvent(strEventName.c_str(), &pEventDescription));
+
 	if (pEventDescription) {
 		FMOD::Studio::EventInstance* pEventInstance = NULL;
 		CAudioEngine::ErrorCheck(pEventDescription->createInstance(&pEventInstance));
@@ -209,12 +211,12 @@ FMOD_VECTOR CAudioEngine::VectorToFmod(const Vector3& vPosition) {
 	return fVec;
 }
 
+// 설명: FMOD 오디오 에러 확인.
 int CAudioEngine::ErrorCheck(FMOD_RESULT result) {
 	if (result != FMOD_OK) {
 		logError("FMOD Error: {0:d}", result);
 		return 1;
 	}
-	// cout << "FMOD all good" << endl;
 	return 0;
 }
 
