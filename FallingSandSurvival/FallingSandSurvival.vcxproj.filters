@@ -259,6 +259,9 @@
     <ClCompile Include="b2DebugDraw_impl.cpp">
       <Filter>Source Files\vfx</Filter>
     </ClCompile>
+    <ClCompile Include="UIs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lib\polypartition-master\src\polypartition.h">

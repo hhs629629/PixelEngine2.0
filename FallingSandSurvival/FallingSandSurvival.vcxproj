@@ -69,6 +69,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\x64\Debug\.conan\conanbuildinfo.props" />
     <Import Project="..\x64\Debug\.conan\conanbuildinfo.props" />
+    <Import Project="..\x64\Debug\.conan\conanbuildinfo.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -312,6 +313,7 @@ exit 0</Command>
     <ClCompile Include="MaterialInstance.cpp" />
     <ClCompile Include="Tiles.cpp" />
     <ClCompile Include="Material.cpp" />
+    <ClCompile Include="UIs.cpp" />
     <ClCompile Include="UTime.cpp" />
     <ClCompile Include="world.cpp" />
     <ClCompile Include="DefaultGenerator.cpp" />

@@ -81,8 +81,6 @@ public:
     GameState state = LOADING;
     GameState stateAfterLoad = MAIN_MENU;
 
-    bool steamAPI = false;
-
     CAudioEngine audioEngine;
 
     int WIDTH = 1200;

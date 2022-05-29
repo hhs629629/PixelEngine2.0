@@ -16,8 +16,8 @@ public:
 	static bool visible;
 	static std::vector<GPU_Image*> images;
 
-	static void Setup();
 
+	static void Setup();
 	static void Draw(Game* game);
 };
 

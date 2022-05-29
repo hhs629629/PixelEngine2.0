@@ -85,6 +85,7 @@ int Game::init(int argc, char *argv[]) {
 
     logInfo("Starting game...");
 
+    // debug 모드면 활성화
     bool openDebugUIs = clArgs->getBool("debug");
     DebugUI::visible = openDebugUIs;
     DebugCheatsUI::visible = openDebugUIs;
@@ -101,7 +102,6 @@ int Game::init(int argc, char *argv[]) {
         Settings::draw_temperature_map = false;
 
         //TODO: load video settings from settings file
-
     }
 
     this->gameDir = GameDir(clArgs->getString("game-dir"));
@@ -387,12 +387,7 @@ int Game::init(int argc, char *argv[]) {
     });
     #pragma endregion
 
-    // init steam and discord
-    #pragma region
-    initThread = initThreadPool->push([&](int id) {
-        EASY_THREAD("Async init");
-    });
-    
+
     // init the background
     #pragma region
     EASY_BLOCK("load backgrounds");
@@ -462,9 +457,7 @@ int Game::init(int argc, char *argv[]) {
     // load shaders
     loadShaders();
 
-    EASY_BLOCK("wait for steam/discord init", THREAD_WAIT_PROFILER_COLOR);
-    initThread.get(); // steam & discord
-    EASY_END_BLOCK;
+
 
     EASY_EVENT("Done Loading", profiler::colors::Magenta);
     EASY_END_BLOCK;
@@ -1472,18 +1465,19 @@ int Game::run(int argc, char *argv[]) {
         IngameUI::Draw(this);
         //  ImGui::ShowDemoWindow();
 
-        if(DebugUI::visible) {
-            ImGui::Begin("Debug Info");
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        // 수정: in-game "Debug Info" gui창 비활성화
+        //if(DebugUI::visible) {
+        //    ImGui::Begin("Debug Info");
+        //    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
-            GPU_Renderer* renderer = GPU_GetCurrentRenderer();
-            GPU_RendererID id = renderer->id;
+        //    GPU_Renderer* renderer = GPU_GetCurrentRenderer();
+        //    GPU_RendererID id = renderer->id;
 
-            ImGui::Text("Using renderer: %s (%d.%d)\n", id.name, id.major_version, id.minor_version);
-            ImGui::Text("  Shader versions supported: %d to %d\n\n", renderer->min_shader_version, renderer->max_shader_version);
+        //    ImGui::Text("Using renderer: %s (%d.%d)\n", id.name, id.major_version, id.minor_version);
+        //    ImGui::Text("  Shader versions supported: %d to %d\n\n", renderer->min_shader_version, renderer->max_shader_version);
 
-            ImGui::End();
-        }
+        //    ImGui::End();
+        //}
 
         if(Settings::draw_material_info && !ImGui::GetIO().WantCaptureMouse) {
             EASY_BLOCK("draw material info", RENDER_PROFILER_COLOR);
@@ -1636,7 +1630,7 @@ int Game::run(int argc, char *argv[]) {
         frames++;
         if(now - lastFPS >= 1000) {
             lastFPS = now;
-            logInfo("{0:d} FPS", frames);
+            //logInfo("{0:d} FPS", frames);
             fps = frames;
             dt_fps.w = -1;
             frames = 0;

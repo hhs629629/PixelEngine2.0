@@ -24,12 +24,6 @@ set(Source_Files
 )
 source_group("Source Files" FILES ${Source_Files})
 
-set(Source_Files__integration
-    "DiscordIntegration.cpp"
-    "DiscordIntegration.hpp"
-    "DiscordUtils.hpp"
-)
-source_group("Source Files\\integration" FILES ${Source_Files__integration})
 
 set(Source_Files__libraries__audioAdventure
     "lib/AudioAdventure/include/AudioEngine.h"
@@ -42,40 +36,6 @@ set(Source_Files__libraries__ctpl-threadpool
 )
 source_group("Source Files\\libraries\\ctpl-threadpool" FILES ${Source_Files__libraries__ctpl-threadpool})
 
-set(Source_Files__libraries__discord-game-sdk
-    "lib/discord_game_sdk/cpp/achievement_manager.cpp"
-    "lib/discord_game_sdk/cpp/achievement_manager.h"
-    "lib/discord_game_sdk/cpp/activity_manager.cpp"
-    "lib/discord_game_sdk/cpp/activity_manager.h"
-    "lib/discord_game_sdk/cpp/application_manager.cpp"
-    "lib/discord_game_sdk/cpp/application_manager.h"
-    "lib/discord_game_sdk/cpp/core.cpp"
-    "lib/discord_game_sdk/cpp/core.h"
-    "lib/discord_game_sdk/cpp/discord.h"
-    "lib/discord_game_sdk/cpp/event.h"
-    "lib/discord_game_sdk/cpp/ffi.h"
-    "lib/discord_game_sdk/cpp/image_manager.cpp"
-    "lib/discord_game_sdk/cpp/image_manager.h"
-    "lib/discord_game_sdk/cpp/lobby_manager.cpp"
-    "lib/discord_game_sdk/cpp/lobby_manager.h"
-    "lib/discord_game_sdk/cpp/network_manager.cpp"
-    "lib/discord_game_sdk/cpp/network_manager.h"
-    "lib/discord_game_sdk/cpp/overlay_manager.cpp"
-    "lib/discord_game_sdk/cpp/overlay_manager.h"
-    "lib/discord_game_sdk/cpp/relationship_manager.cpp"
-    "lib/discord_game_sdk/cpp/relationship_manager.h"
-    "lib/discord_game_sdk/cpp/storage_manager.cpp"
-    "lib/discord_game_sdk/cpp/storage_manager.h"
-    "lib/discord_game_sdk/cpp/store_manager.cpp"
-    "lib/discord_game_sdk/cpp/store_manager.h"
-    "lib/discord_game_sdk/cpp/types.cpp"
-    "lib/discord_game_sdk/cpp/types.h"
-    "lib/discord_game_sdk/cpp/user_manager.cpp"
-    "lib/discord_game_sdk/cpp/user_manager.h"
-    "lib/discord_game_sdk/cpp/voice_manager.cpp"
-    "lib/discord_game_sdk/cpp/voice_manager.h"
-)
-source_group("Source Files\\libraries\\discord-game-sdk" FILES ${Source_Files__libraries__discord-game-sdk})
 
 set(Source_Files__libraries__douglas-peucker
     "lib/douglas-peucker/polygon-simplify.cc"
@@ -244,7 +204,6 @@ set(ALL_FILES
     ${Source_Files__integration}
     ${Source_Files__libraries__audioAdventure}
     ${Source_Files__libraries__ctpl-threadpool}
-    #${Source_Files__libraries__discord-game-sdk}
     ${Source_Files__libraries__douglas-peucker}
     ${Source_Files__libraries__fastNoise}
     ${Source_Files__libraries__fastNoiseSIMD}
@@ -371,8 +330,6 @@ if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
         "${CMAKE_CURRENT_SOURCE_DIR}/.;"
         "${CMAKE_CURRENT_SOURCE_DIR}/lib/FMOD/inc;"
         "${CMAKE_CURRENT_SOURCE_DIR}/lib/FMOD_studio/inc;"
-        "${CMAKE_CURRENT_SOURCE_DIR}/lib/steam/include;"
-        "${CMAKE_CURRENT_SOURCE_DIR}/lib/discord_game_sdk/cpp;"
         "${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/backends;"
         "${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/libs/gl3w"
     )
@@ -381,8 +338,6 @@ elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
         "${CMAKE_CURRENT_SOURCE_DIR}/.;"
         "${CMAKE_CURRENT_SOURCE_DIR}/lib/FMOD/inc;"
         "${CMAKE_CURRENT_SOURCE_DIR}/lib/FMOD_studio/inc;"
-        "${CMAKE_CURRENT_SOURCE_DIR}/lib/steam/include;"
-        "${CMAKE_CURRENT_SOURCE_DIR}/lib/discord_game_sdk/cpp;"
         "${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/backends;"
         "${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/libs/gl3w"
     )
@@ -610,15 +565,11 @@ if(WINDOWS)
         target_link_directories(${PROJECT_NAME} PRIVATE
             "${CMAKE_CURRENT_SOURCE_DIR}/lib/FMOD/lib/x64;"
             "${CMAKE_CURRENT_SOURCE_DIR}/lib/FMOD_studio/lib/x64;"
-            "${CMAKE_CURRENT_SOURCE_DIR}/lib/steam/redistributable_bin/win64;"
-            "${CMAKE_CURRENT_SOURCE_DIR}/lib/discord_game_sdk/lib/x86_64"
         )
     elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
         target_link_directories(${PROJECT_NAME} PRIVATE
             "${CMAKE_CURRENT_SOURCE_DIR}/lib/FMOD/lib/x86;"
             "${CMAKE_CURRENT_SOURCE_DIR}/lib/FMOD_studio/lib/x86;"
-            "${CMAKE_CURRENT_SOURCE_DIR}/lib/steam/redistributable_bin;"
-            "${CMAKE_CURRENT_SOURCE_DIR}/lib/discord_game_sdk/lib/x86"
         )
     endif()
 endif()

@@ -9,8 +9,6 @@
 
 #define GPU_PROFILER_COLOR 0xffA3583E // GPU_ operations
 #define SDL_PROFILER_COLOR 0xffA0843E // SDL_ operations
-#define DISCORD_PROFILER_COLOR 0xff7289DA // discord game sdk
-#define STEAM_PROFILER_COLOR 0xff2C2E35 // steam api
 
 #define THREAD_WAIT_PROFILER_COLOR 0xff828282 // wait for threads
 
