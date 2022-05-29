@@ -56,8 +56,6 @@ namespace std {
 #include "lib/FastNoise/FastNoise.h"
 #include "lib/sparsehash/dense_hash_map.h"
 
-
-#include "enet/enet.h"
 #undef min
 #undef max
 #undef SendMessage

@@ -9,8 +9,11 @@
 
 #define INC_MaterialInstance
 
-#define MAX_TEMPERATURE 2048
-#define MIN_TEMPERATURE -1024
+// 수정: 최대/최소 온도 수정
+//#define MAX_TEMPERATURE 2048
+//#define MIN_TEMPERATURE -1024
+#define MAX_TEMPERATURE 9999
+#define MIN_TEMPERATURE -273
 
 class MaterialInstance {
 public:
