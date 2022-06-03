@@ -27,7 +27,7 @@
 typedef struct {
     Uint16 index;
     Uint32 color;
-    int32_t temperature;
+    double temperature;
 } MaterialInstanceData;
 
 class Chunk {

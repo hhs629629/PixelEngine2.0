@@ -1154,18 +1154,18 @@ void World::tick() {
                                 for (int i = 0; i < tile.mat->nReactions; i++) {
                                     MaterialInteraction in = tile.mat->reactions[i];
                                     if (in.type == REACT_TEMPERATURE_BELOW) {
-                                        if (tile.temperature < in.data1) {
+                                        if (tile.get_temperature() < in.data1) {
                                             tiles[index] = Tiles::create(Materials::MATERIALS[in.data2], x, y);
-                                            tiles[index].temperature = tile.temperature;
+                                            tiles[index].set_temperature(tile.get_temperature());
                                             dirty[index] = true;
                                             tickVisited[index] = true;
                                             react = true;
                                         }
                                     }
                                     else if (in.type == REACT_TEMPERATURE_ABOVE) {
-                                        if (tile.temperature > in.data1) {
+                                        if (tile.get_temperature() > in.data1) {
                                             tiles[index] = Tiles::create(Materials::MATERIALS[in.data2], x, y);
-                                            tiles[index].temperature = tile.temperature;
+                                            tiles[index].set_temperature(tile.get_temperature());
                                             dirty[index] = true;
                                             tickVisited[index] = true;
                                             react = true;
@@ -1295,7 +1295,7 @@ void World::tick() {
                                     for(int i = 0; i < n; i++) {
                                         float amt = tile.fluidAmount / n;
 
-                                        MaterialInstance nt = MaterialInstance(tile.mat, tile.color, tile.temperature);
+                                        MaterialInstance nt = MaterialInstance(tile.mat, tile.color, tile.get_temperature());
                                         nt.fluidAmount = amt;
                                         nt.fluidAmountDiff = 0;
                                         nt.moved = false;
@@ -1333,7 +1333,7 @@ void World::tick() {
                                         remainingValue -= flow;
                                         tile.fluidAmountDiff -= flow;
                                         if(bottom.mat->physicsType == PhysicsType::AIR) {
-                                            tiles[(x)+(y + 1) * width] = MaterialInstance(tile.mat, tile.color, tile.temperature);
+                                            tiles[(x)+(y + 1) * width] = MaterialInstance(tile.mat, tile.color, tile.get_temperature());
                                             tiles[(x)+(y + 1) * width].fluidAmount = 0.0f;
                                         }
                                         tiles[(x)+(y + 1) * width].fluidAmountDiff += flow;
@@ -1375,7 +1375,7 @@ void World::tick() {
                                         remainingValue -= flow;
                                         tile.fluidAmountDiff -= flow;
                                         if(left.mat->physicsType == PhysicsType::AIR) {
-                                            tiles[(x-1)+(y) * width] = MaterialInstance(tile.mat, tile.color, tile.temperature);
+                                            tiles[(x-1)+(y) * width] = MaterialInstance(tile.mat, tile.color, tile.get_temperature());
                                             tiles[(x - 1) + (y)*width].fluidAmount = 0.0f;
                                         }
                                         tiles[(x - 1) + (y)*width].fluidAmountDiff += flow;
@@ -1405,7 +1405,7 @@ void World::tick() {
                                         remainingValue -= flow;
                                         tile.fluidAmountDiff -= flow;
                                         if(right.mat->physicsType == PhysicsType::AIR) {
-                                            tiles[(x + 1) + (y)*width] = MaterialInstance(tile.mat, tile.color, tile.temperature);
+                                            tiles[(x + 1) + (y)*width] = MaterialInstance(tile.mat, tile.color, tile.get_temperature());
                                             tiles[(x + 1) + (y)*width].fluidAmount = 0.0f;
                                         }
                                         tiles[(x + 1) + (y)*width].fluidAmountDiff += flow;
@@ -1437,7 +1437,7 @@ void World::tick() {
                                         remainingValue -= flow;
                                         tile.fluidAmountDiff -= flow;
                                         if(top.mat->physicsType == PhysicsType::AIR) {
-                                            tiles[(x) + (y-1)*width] = MaterialInstance(tile.mat, tile.color, tile.temperature);
+                                            tiles[(x) + (y-1)*width] = MaterialInstance(tile.mat, tile.color, tile.get_temperature());
                                             tiles[(x)+(y - 1) * width].fluidAmount = 0.0f;
                                         }
                                         tiles[(x)+(y - 1) * width].fluidAmountDiff += flow;
@@ -1769,94 +1769,29 @@ void World::tick() {
 }
 
 void World::tickTemperature() {
-    // TODO: multithread
+    constexpr auto time_span = 0.001;
+
     EASY_FUNCTION(WORLD_PROFILER_COLOR);
 
     EASY_BLOCK("iterate");
-    for(int y = (tickZone.y + tickZone.h) - 1; y >= tickZone.y; y--) {
-        for(int x = tickZone.x; x < (tickZone.x + tickZone.w); x++) {
-            float n = 0.01;
-            float v = 0;
+    for (int y = (tickZone.y + tickZone.h) - 1; y >= tickZone.y; y--) {
+        for (int x = tickZone.x; x < (tickZone.x + tickZone.w); x++) {
+            auto& current = tiles[x + y * width];
 
-            float factor = 0;
-            #define FN(xa, ya) \
-if(tiles[(x + xa) + (y + ya) * width].temperature != 0){\
-factor = abs(tiles[(x + xa) + (y + ya) * width].temperature) / 64 * tiles[(x + xa) + (y + ya) * width].mat->conductionOther; \
-v += tiles[(x + xa) + (y + ya) * width].temperature * factor; \
-n += factor;\
-}
+            if (current.mat->conductivity != 0) {
+                current.conduct_heat_to(tiles[(x - 1) + (y - 1) * width], time_span);
+                current.conduct_heat_to(tiles[(x - 1) + (y + 0) * width], time_span);
+                current.conduct_heat_to(tiles[(x - 1) + (y + 1) * width], time_span);
+                current.conduct_heat_to(tiles[(x + 0) + (y - 1) * width], time_span);
+                current.conduct_heat_to(tiles[(x + 0) + (y + 1) * width], time_span);
+                current.conduct_heat_to(tiles[(x + 1) + (y - 1) * width], time_span);
+                current.conduct_heat_to(tiles[(x + 1) + (y + 0) * width], time_span);
+                current.conduct_heat_to(tiles[(x + 1) + (y + 1) * width], time_span);
+            }
 
-            if(tiles[(x + -1) + (y + -1) * width].temperature) {
-                factor = abs(tiles[(x + -1) + (y + -1) * width].temperature) / 64.0f * tiles[(x + -1) + (y + -1) * width].mat->conductionOther;
-                v += tiles[(x + -1) + (y + -1) * width].temperature * factor;
-                n += factor;
-            }
-            if(tiles[(x + -1) + (y + 0) * width].temperature) {
-                factor = abs(tiles[(x + -1) + (y + 0) * width].temperature) / 64.0f * tiles[(x + -1) + (y + 0) * width].mat->conductionOther;
-                v += tiles[(x + -1) + (y + 0) * width].temperature * factor;
-                n += factor;
-            }
-            if(tiles[(x + -1) + (y + 1) * width].temperature) {
-                factor = abs(tiles[(x + -1) + (y + 1) * width].temperature) / 64.0f * tiles[(x + -1) + (y + 1) * width].mat->conductionOther;
-                v += tiles[(x + -1) + (y + 1) * width].temperature * factor;
-                n += factor;
-            }
-            if(tiles[(x + 0) + (y + -1) * width].temperature) {
-                factor = abs(tiles[(x + 0) + (y + -1) * width].temperature) / 64.0f * tiles[(x + 0) + (y + -1) * width].mat->conductionOther;
-                v += tiles[(x + 0) + (y + -1) * width].temperature * factor;
-                n += factor;
-            }
-            if(tiles[(x + 0) + (y + 0) * width].temperature) {
-                factor = abs(tiles[(x + 0) + (y + 0) * width].temperature) / 64.0f * tiles[(x + 0) + (y + 0) * width].mat->conductionOther;
-                v += tiles[(x + 0) + (y + 0) * width].temperature * factor;
-                n += factor;
-            }
-            if(tiles[(x + 0) + (y + 1) * width].temperature) {
-                factor = abs(tiles[(x + 0) + (y + 1) * width].temperature) / 64.0f * tiles[(x + 0) + (y + 1) * width].mat->conductionOther;
-                v += tiles[(x + 0) + (y + 1) * width].temperature * factor;
-                n += factor;
-            }
-            if(tiles[(x + 1) + (y + -1) * width].temperature) {
-                factor = abs(tiles[(x + 1) + (y + -1) * width].temperature) / 64.0f * tiles[(x + 1) + (y + -1) * width].mat->conductionOther;
-                v += tiles[(x + 1) + (y + -1) * width].temperature * factor;
-                n += factor;
-            }
-            if(tiles[(x + 1) + (y + 0) * width].temperature) {
-                factor = abs(tiles[(x + 1) + (y + 0) * width].temperature) / 64.0f * tiles[(x + 1) + (y + 0) * width].mat->conductionOther;
-                v += tiles[(x + 1) + (y + 0) * width].temperature * factor;
-                n += factor;
-            }
-            if(tiles[(x + 1) + (y + 1) * width].temperature) {
-                factor = abs(tiles[(x + 1) + (y + 1) * width].temperature) / 64.0f * tiles[(x + 1) + (y + 1) * width].mat->conductionOther;
-                v += tiles[(x + 1) + (y + 1) * width].temperature * factor;
-                n += factor;
-            }
-            //FN(-1, -1);
-            //FN(-1, 0);
-            //FN(-1, 1);
-            //FN(0, -1);
-            //FN(0, 0);
-            //FN(0, 1);
-            //FN(1, -1);
-            //FN(1, 0);
-            //FN(1, 1);
-            #undef FN
-
-            if(v != 0) {
-                newTemps[x + y * width] = tiles[x + y * width].mat->addTemp + (v / n * tiles[x + y * width].mat->conductionSelf) + (tiles[x + y * width].temperature * (1 - tiles[x + y * width].mat->conductionSelf));
-            } else {
-                newTemps[x + y * width] = tiles[x + y * width].mat->addTemp + tiles[x + y * width].temperature;
-            }
         }
     }
     EASY_END_BLOCK; // iterate
-    EASY_BLOCK("copy");
-    for(int y = (tickZone.y + tickZone.h) - 1; y >= tickZone.y; y--) {
-        for(int x = tickZone.x; x < (tickZone.x + tickZone.w); x++) {
-            tiles[x + y * width].temperature = newTemps[x + y * width];
-        }
-    }
-    EASY_END_BLOCK; // copy
 }
 
 void World::renderParticles(unsigned char** texture) {
