@@ -117,13 +117,13 @@ void Chunk::read() {
         for(int i = 0; i < CHUNK_W * CHUNK_H; i++) {
             // twice as fast to set fields instead of making new ones
             tiles[i].color = readBuf[i].color;
-            tiles[i].temperature = readBuf[i].temperature;
             tiles[i].mat = Materials::MATERIALS_ARRAY[readBuf[i].index];
+            tiles[i].set_temperature(readBuf[i].temperature);
             tiles[i].id = MaterialInstance::_curID++;
 
             layer2[i].color = readBuf[i + CHUNK_W * CHUNK_H].color;
-            layer2[i].temperature = readBuf[i + CHUNK_W * CHUNK_H].temperature;
             layer2[i].mat = Materials::MATERIALS_ARRAY[readBuf[CHUNK_W * CHUNK_H + i].index];
+            layer2[i].set_temperature(readBuf[i + CHUNK_W * CHUNK_H].temperature);
             layer2[i].id = MaterialInstance::_curID++;
         }
         EASY_END_BLOCK;
@@ -170,8 +170,8 @@ void Chunk::write(MaterialInstance* tiles, MaterialInstance* layer2, Uint32* bac
 
     MaterialInstanceData* buf = new MaterialInstanceData[CHUNK_W * CHUNK_H * 2];
     for(int i = 0; i < CHUNK_W * CHUNK_H; i++) {
-        buf[i] = {(Uint16)tiles[i].mat->id, tiles[i].color, tiles[i].temperature};
-        buf[CHUNK_W * CHUNK_H + i] = {(Uint16)layer2[i].mat->id, layer2[i].color, layer2[i].temperature};
+        buf[i] = {(Uint16)tiles[i].mat->id, tiles[i].color, tiles[i].get_temperature()};
+        buf[CHUNK_W * CHUNK_H + i] = {(Uint16)layer2[i].mat->id, layer2[i].color, layer2[i].get_temperature()};
     }
 
     const char* const src = (char*)buf;

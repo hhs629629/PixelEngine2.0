@@ -1522,7 +1522,7 @@ int Game::run(int argc, char *argv[]) {
 
                     if(Settings::draw_detailed_material_info) {
 
-                        ImGui::Text("temperature = %d", tile.temperature);
+                        ImGui::Text("temperature = %f", tile.get_temperature());
 
 
 
@@ -4084,7 +4084,7 @@ void Game::renderTemperatureMap(World* world) {
     for(int x = 0; x < world->width; x++) {
         for(int y = 0; y < world->height; y++) {
             auto t = world->tiles[x + y * world->width];
-            int32_t temp = t.temperature;
+            int32_t temp = t.get_temperature();
             Uint32 color = ((temp - MIN_TEMPERATURE) * 255 / (MAX_TEMPERATURE - MIN_TEMPERATURE));
 
             const unsigned int offset = (world->width * 4 * y) + x * 4;
