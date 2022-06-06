@@ -237,48 +237,6 @@ exit 0</Command>
     <ClCompile Include="IngameUI.cpp" />
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="lib\AudioAdventure\source\AudioEngine.cpp" />
-    <ClCompile Include="lib\discord_game_sdk\cpp\achievement_manager.cpp">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\activity_manager.cpp">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\application_manager.cpp">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\core.cpp">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\image_manager.cpp">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\lobby_manager.cpp">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\network_manager.cpp">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\overlay_manager.cpp">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\relationship_manager.cpp">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\storage_manager.cpp">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\store_manager.cpp">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\types.cpp">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\user_manager.cpp">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\voice_manager.cpp">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="lib\douglas-peucker\polygon-simplify.cc" />
     <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD.cpp" />
     <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_avx2.cpp" />
@@ -342,57 +300,6 @@ exit 0</Command>
     <ClInclude Include="lib\cpp-marching-squares-master\MarchingSquares.h" />
     <ClInclude Include="lib\cpp-marching-squares-master\Utility.h" />
     <ClInclude Include="lib\CTPL-ctpl_v.0.0.2\ctpl_stl.h" />
-    <ClInclude Include="lib\discord_game_sdk\cpp\achievement_manager.h">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\activity_manager.h">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\application_manager.h">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\core.h">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\discord.h">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\event.h">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\ffi.h">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\image_manager.h">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\lobby_manager.h">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\network_manager.h">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\overlay_manager.h">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\relationship_manager.h">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\storage_manager.h">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\store_manager.h">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\types.h">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\user_manager.h">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\voice_manager.h">
-      <ExcludedFromBuild Condition="!Exists('$(ProjectDir)lib\discord_game_sdk\cpp')">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="lib\douglas-peucker\polygon-simplify.hh" />
     <ClInclude Include="lib\FastNoiseSIMD\FastNoiseSIMD.h" />
     <ClInclude Include="lib\FastNoiseSIMD\FastNoiseSIMD_internal.h" />

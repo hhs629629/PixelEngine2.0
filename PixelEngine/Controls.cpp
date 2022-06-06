@@ -33,14 +33,15 @@ bool Controls::lmouse = false;
 bool Controls::mmouse = false;
 bool Controls::rmouse = false;
 
+// 수정: 모든 key log 비활성화
 void Controls::keyEvent(SDL_KeyboardEvent event) {
     //if (keyControls[event.keysym.sym]) {}
 
-    logDebug("SDL_KEYEV {0:c} {0:d} {0:d}", event.keysym.sym, event.repeat, event.keysym.sym);
+    //logDebug("SDL_KEYEV {0:c} {0:d} {0:d}", event.keysym.sym, event.repeat, event.keysym.sym);
 
     for(auto& v : keyControls) {
         if(v->key == event.keysym.sym) {
-            logDebug("match KEY {0:d}", event.keysym.sym);
+            //logDebug("match KEY {0:d}", event.keysym.sym);
 
             bool newState = false;
             switch(event.type) {

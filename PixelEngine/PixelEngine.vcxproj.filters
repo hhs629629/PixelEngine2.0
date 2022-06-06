@@ -23,9 +23,6 @@
     <Filter Include="Source Files\libraries\ctpl-threadpool">
       <UniqueIdentifier>{bc2203e4-6c36-4969-9d23-1abe536c2405}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\libraries\discord-game-sdk">
-      <UniqueIdentifier>{e2bb739f-7d49-4242-a11c-4dc85df75ab9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\libraries\douglas-peucker">
       <UniqueIdentifier>{c3e7b760-1807-4df5-8606-99666baeab07}</UniqueIdentifier>
     </Filter>
@@ -111,48 +108,6 @@
     </ClCompile>
     <ClCompile Include="lib\douglas-peucker\polygon-simplify.cc">
       <Filter>Source Files\libraries\douglas-peucker</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\achievement_manager.cpp">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\activity_manager.cpp">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\application_manager.cpp">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\core.cpp">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\image_manager.cpp">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\lobby_manager.cpp">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\network_manager.cpp">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\overlay_manager.cpp">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\relationship_manager.cpp">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\storage_manager.cpp">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\store_manager.cpp">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\types.cpp">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\user_manager.cpp">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\discord_game_sdk\cpp\voice_manager.cpp">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
     </ClCompile>
     <ClCompile Include="Background.cpp">
       <Filter>Source Files\world</Filter>
@@ -311,57 +266,6 @@
     </ClInclude>
     <ClInclude Include="lib\sparsehash\internal\sparsehashtable.h">
       <Filter>Source Files\libraries\sparsehash</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\achievement_manager.h">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\activity_manager.h">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\application_manager.h">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\core.h">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\discord.h">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\event.h">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\ffi.h">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\image_manager.h">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\lobby_manager.h">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\network_manager.h">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\overlay_manager.h">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\relationship_manager.h">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\storage_manager.h">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\store_manager.h">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\types.h">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\user_manager.h">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\discord_game_sdk\cpp\voice_manager.h">
-      <Filter>Source Files\libraries\discord-game-sdk</Filter>
     </ClInclude>
     <ClInclude Include="Populator.hpp">
       <Filter>Source Files\world\generation</Filter>
