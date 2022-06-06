@@ -48,26 +48,6 @@ Material Materials::FLAT_COBBLE_DIRT   = Material(nMaterials++, "Flat Hard Groun
 std::vector<Material*> Materials::MATERIALS;
 Material** Materials::MATERIALS_ARRAY;
 void Materials::init() {
-
-    Materials::GENERIC_AIR.conductionSelf = 0.8;
-    Materials::GENERIC_AIR.conductionOther = 0.8;
-
-    Materials::LAVA.conductionSelf = 0.5;
-    Materials::LAVA.conductionOther = 0.7;
-    Materials::LAVA.addTemp = 2;
-
-    Materials::COBBLE_STONE.conductionSelf = 0.01;
-    Materials::COBBLE_STONE.conductionOther = 0.4;
-
-    Materials::COBBLE_DIRT.conductionSelf = 1.0;
-    Materials::COBBLE_DIRT.conductionOther = 1.0;
-
-    Materials::GOLD_ORE.conductionSelf = 1.0;
-    Materials::GOLD_ORE.conductionOther = 1.0;
-
-    Materials::GOLD_MOLTEN.conductionSelf = 1.0;
-    Materials::GOLD_MOLTEN.conductionOther = 1.0;
-
     #define REGISTER(material) MATERIALS.insert(MATERIALS.begin() + material.id, &material);
     REGISTER(GENERIC_AIR);
     REGISTER(GENERIC_SOLID);
@@ -120,7 +100,7 @@ void Materials::init() {
         } else if(type == PhysicsType::GAS) {
             dens = 3 + (rand() % 1000) / 1000.0;
         }
-        randMats[i] = Material(nMaterials++, buff, type, 10, type == PhysicsType::SAND ? 255 : (rand() % 192 + 63), dens, rand() % 4 + 1, 0, 0, rgb);
+        randMats[i] = Material(nMaterials++, buffAsStdStr, type, 10, type == PhysicsType::SAND ? 255 : (rand() % 192 + 63), dens, rand() % 4 + 1, 0, 0, rgb, 0);
         REGISTER(randMats[i]);
     }
 

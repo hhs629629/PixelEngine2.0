@@ -38,8 +38,8 @@ public:
     Uint32 emitColor = 0;
     Uint32 color = 0;
     Uint32 addTemp = 0;
-    float conductionSelf = 1.0;
-    float conductionOther = 1.0;
+    double conductivity = 0;
+    double heat_capacity = 0;
 
     bool interact = false;
     int* nInteractions = nullptr;
@@ -50,10 +50,9 @@ public:
 
     int slipperyness = 1;
 
-    Material(int id, std::string name, int physicsType, int slipperyness, Uint8 alpha, float density, int iterations, int emit, Uint32 emitColor, Uint32 color);
-    Material(int id, std::string name, int physicsType, int slipperyness, Uint8 alpha, float density, int iterations, int emit, Uint32 emitColor) : Material(id, name, physicsType, slipperyness, alpha, density, iterations, emit, emitColor, 0xffffffff) {};
+    Material(int id, std::string name, int physicsType, int slipperyness, Uint8 alpha, float density, int iterations, int emit, Uint32 emitColor, Uint32 color, double heat_capacity);
+    Material(int id, std::string name, int physicsType, int slipperyness, Uint8 alpha, float density, int iterations, int emit, Uint32 emitColor) : Material(id, name, physicsType, slipperyness, alpha, density, iterations, emit, emitColor, 0xffffffff, 0.0) {};
     Material(int id, std::string name, int physicsType, int slipperyness, Uint8 alpha, float density, int iterations) : Material(id, name, physicsType, slipperyness, alpha, density, iterations, 0, 0) {};
     Material(int id, std::string name, int physicsType, int slipperyness, float density, int iterations) : Material(id, name, physicsType, slipperyness, 0xff, density, iterations) {};
     Material() : Material(0, "Air", PhysicsType::AIR, 4, 0, 0) {};
-
 };
