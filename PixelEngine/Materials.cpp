@@ -22,7 +22,7 @@ Material Materials::LAVA               = Material(nMaterials++, "Lava", PhysicsT
 Material Materials::GOLD_MOLTEN        = Material(nMaterials++, "Molten Gold", PhysicsType::SOUP, 0, 255, 20, 2, 8, 0x6FFF9B40, 0xFFFFFFFF, 0.03, 314);
 Material Materials::GOLD_SOLID         = Material(nMaterials++, "Solid Gold", PhysicsType::SOLID, 0, 255, 20, 2, 8, 0, 0xFFFFFFFF, 0.03, 314);
 
-Material Materials::OBSIDIAN           = Material(nMaterials++, "Obsidian", PhysicsType::SOLID, 0, 255, 1, 0, 0, 0, 0xFFFFFFFF, 0.2, 2);
+Material Materials::OBSIDIAN           = Material(nMaterials++, "Obsidian", PhysicsType::SOLID, 0, 255, 1, 1, 0, 0, 0xFFFFFFFF, 0.2, 2);
 Material Materials::STEAM              = Material(nMaterials++, "Steam", PhysicsType::GAS, 0, 255, -1, 1, 0, 0);
 
 
@@ -179,6 +179,10 @@ void Materials::init() {
     MATERIALS[GOLD_MOLTEN.id]->react = true;
     MATERIALS[GOLD_MOLTEN.id]->nReactions = 1;
     MATERIALS[GOLD_MOLTEN.id]->reactions.push_back({REACT_TEMPERATURE_BELOW, 1064, GOLD_SOLID.id});
+
+    MATERIALS[OBSIDIAN.id]->react = true;
+    MATERIALS[OBSIDIAN.id]->nReactions = 1;
+    MATERIALS[OBSIDIAN.id]->reactions.push_back({ REACT_TEMPERATURE_ABOVE, 1000, LAVA.id });
 
     MATERIALS_ARRAY = MATERIALS.data();
 
