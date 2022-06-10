@@ -1177,6 +1177,7 @@ void World::tick() {
                                         if (tile.get_temperature() > in.data1) {
                                             tiles[index] = Tiles::create(Materials::MATERIALS[in.data2], x, y);
                                             tiles[index].set_temperature(tile.get_temperature());
+                                            tiles[index].fluidAmount = tile.fluidAmount;
                                             dirty[index] = true;
                                             tickVisited[index] = true;
                                             react = true;
@@ -1724,7 +1725,9 @@ void World::tick() {
                                 } else {
                                     if(tile.mat->id == Materials::STEAM.id) {
                                         if(rand() % 10 == 0) {
+                                            const auto fluidAmount = tile.fluidAmount;
                                             tiles[index] = Tiles::createWater();
+                                            tiles[index].fluidAmount = fluidAmount;
                                             dirty[index] = true;
                                         }
                                     }
