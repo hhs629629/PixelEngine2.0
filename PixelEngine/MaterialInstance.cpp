@@ -33,9 +33,24 @@ void MaterialInstance::conduct_heat_to(MaterialInstance& other, double time_span
     if (k2 != 0) {
         const auto k = k1 * k2 / (k1 + k2);
     
-        const auto q = time_span * k * (this->get_temperature() - other.get_temperature());
+        auto q = time_span * k * (this->get_temperature() - other.get_temperature());
     
         this->energy -= q;
         other.energy += q;
+
+        auto after = this->get_temperature() - other.get_temperature();
+
+        if (q * after < 0) {
+            const auto c1 = this->mat->heat_capacity;
+            const auto c2 = other.mat->heat_capacity;
+
+            const auto c = c1 + c2;
+
+            const auto energy = this->energy + other.energy;
+
+            this->energy = energy / c * c1;
+
+            other.energy = energy - this->energy;
+        }
     }
 }
