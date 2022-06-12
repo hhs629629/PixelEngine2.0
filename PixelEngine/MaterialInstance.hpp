@@ -9,7 +9,7 @@
 
 #define INC_MaterialInstance
 
-#define MAX_TEMPERATURE 9999
+#define MAX_TEMPERATURE 2000
 #define MIN_TEMPERATURE -273
 
 class MaterialInstance {

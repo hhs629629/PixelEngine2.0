@@ -46,7 +46,7 @@ MaterialInstance Tiles::createStone(int x, int y) {
     pixel += ((ty)* tex->pitch) + ((tx) * sizeof(Uint32));
     Uint32 rgb = *((Uint32*)pixel);
 
-    return MaterialInstance(&Materials::STONE, rgb);
+    return MaterialInstance(&Materials::STONE, rgb, 20);
 }
 
 MaterialInstance Tiles::createGrass() {
@@ -121,13 +121,13 @@ MaterialInstance Tiles::createSoftDirt(int x, int y) {
 MaterialInstance Tiles::createWater() {
     Uint32 rgb = 0x00B69F;
 
-    return MaterialInstance(&Materials::WATER, rgb, -1023);
+    return MaterialInstance(&Materials::WATER, rgb, 10);
 }
 
 MaterialInstance Tiles::createLava() {
     Uint32 rgb = 0xFF7C00;
 
-    return MaterialInstance(&Materials::LAVA, rgb, 1024);
+    return MaterialInstance(&Materials::LAVA, rgb, 1500);
 }
 
 MaterialInstance Tiles::createCloud(int x, int y) {
@@ -160,7 +160,7 @@ MaterialInstance Tiles::createIron(int x, int y) {
 
     Uint32 rgb = PIXEL(tex, tx, ty);
 
-    return MaterialInstance(&Materials::IRON_ORE, rgb);
+    return MaterialInstance(&Materials::IRON_ORE, rgb, 1000);
 }
 
 MaterialInstance Tiles::createObsidian(int x, int y) {
@@ -171,7 +171,7 @@ MaterialInstance Tiles::createObsidian(int x, int y) {
 
     Uint32 rgb = PIXEL(tex, tx, ty);
 
-    return MaterialInstance(&Materials::OBSIDIAN, rgb);
+    return MaterialInstance(&Materials::OBSIDIAN, rgb, 20);
 }
 
 MaterialInstance Tiles::createSteam() {
@@ -184,7 +184,7 @@ MaterialInstance Tiles::createFire() {
     rgb = (rgb << 8) + 100 + rand() % 50;
     rgb = (rgb << 8) + 50;
 
-    return MaterialInstance(&Materials::FIRE, rgb);
+    return MaterialInstance(&Materials::FIRE, rgb, 200);
 }
 
 MaterialInstance Tiles::create(Material* mat, int x, int y) {
@@ -224,18 +224,18 @@ MaterialInstance Tiles::create(Material* mat, int x, int y) {
         int tx = (tex->w + (x % tex->w)) % tex->w;
         int ty = (tex->h + (y % tex->h)) % tex->h;
 
-        Uint32 rgb = PIXEL(tex, tx, ty);
+        Uint32 rgb = PIXEL(tex, tx, ty, 20);
 
-        return MaterialInstance(&Materials::GOLD_MOLTEN, rgb);
+        return MaterialInstance(&Materials::GOLD_MOLTEN, rgb, 1200);
     } else if(mat->id == Materials::GOLD_SOLID.id) {
         SDL_Surface* tex = Textures::goldSolid;
 
         int tx = (tex->w + (x % tex->w)) % tex->w;
         int ty = (tex->h + (y % tex->h)) % tex->h;
 
-        Uint32 rgb = PIXEL(tex, tx, ty);
+        Uint32 rgb = PIXEL(tex, tx, ty, 20);
 
-        return MaterialInstance(&Materials::GOLD_SOLID, rgb);
+        return MaterialInstance(&Materials::GOLD_SOLID, rgb, 20);
     } else if(mat->id == Materials::IRON_ORE.id) {
         return createIron(x, y);
     } else if(mat->id == Materials::OBSIDIAN.id) {

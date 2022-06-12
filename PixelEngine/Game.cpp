@@ -1523,6 +1523,7 @@ int Game::run(int argc, char *argv[]) {
                     if(Settings::draw_detailed_material_info) {
 
                         ImGui::Text("temperature = %f", tile.get_temperature());
+                        ImGui::Text("conductivity = %f", tile.mat->conductivity);
 
 
 

@@ -1155,17 +1155,29 @@ void World::tick() {
                                     MaterialInteraction in = tile.mat->reactions[i];
                                     if (in.type == REACT_TEMPERATURE_BELOW) {
                                         if (tile.get_temperature() < in.data1) {
-                                            tiles[index] = Tiles::create(Materials::MATERIALS[in.data2], x, y);
-                                            tiles[index].set_temperature(tile.get_temperature());
-                                            dirty[index] = true;
-                                            tickVisited[index] = true;
-                                            react = true;
+                                            if (tile.mat->physicsType != PhysicsType::SOUP || tile.fluidAmount > 0.3) {
+                                                tiles[index] = Tiles::create(Materials::MATERIALS[in.data2], x, y);
+                                                tiles[index].set_temperature(tile.get_temperature());
+                                                tiles[index].fluidAmount = tile.fluidAmount;
+                                                dirty[index] = true;
+                                                tickVisited[index] = true;
+                                                react = true;
+                                            }
+                                            else {
+                                                tiles[index] = Tiles::create(&Materials::GENERIC_AIR, x, y);
+                                                tiles[index].set_temperature(0);
+                                                tiles[index].fluidAmount = tile.fluidAmount;
+                                                dirty[index] = true;
+                                                tickVisited[index] = true;
+                                                react = true;
+                                            }
                                         }
                                     }
                                     else if (in.type == REACT_TEMPERATURE_ABOVE) {
                                         if (tile.get_temperature() > in.data1) {
                                             tiles[index] = Tiles::create(Materials::MATERIALS[in.data2], x, y);
                                             tiles[index].set_temperature(tile.get_temperature());
+                                            tiles[index].fluidAmount = tile.fluidAmount;
                                             dirty[index] = true;
                                             tickVisited[index] = true;
                                             react = true;
@@ -1637,6 +1649,7 @@ void World::tick() {
 
                                 tile.fluidAmount += tile.fluidAmountDiff;
                                 tile.fluidAmountDiff = 0.0f;
+
                                 if(tile.fluidAmount < FLUID_MinValue) {
                                     tiles[index] = Tiles::NOTHING;
                                     dirty[index] = true;
@@ -1712,7 +1725,9 @@ void World::tick() {
                                 } else {
                                     if(tile.mat->id == Materials::STEAM.id) {
                                         if(rand() % 10 == 0) {
+                                            const auto fluidAmount = tile.fluidAmount;
                                             tiles[index] = Tiles::createWater();
+                                            tiles[index].fluidAmount = fluidAmount;
                                             dirty[index] = true;
                                         }
                                     }
@@ -1769,7 +1784,7 @@ void World::tick() {
 }
 
 void World::tickTemperature() {
-    constexpr auto time_span = 0.001;
+    constexpr auto time_span = 0.01;
 
     EASY_FUNCTION(WORLD_PROFILER_COLOR);
 
