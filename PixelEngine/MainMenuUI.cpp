@@ -119,18 +119,6 @@ void MainMenuUI::DrawMainMenu(Game* game) {
     ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
 
-    ImGui::SetCursorPos(ImVec2(200 - mainMenuButtonsWidth / 2, 25 + mainMenuButtonsYOffset * 2));
-    selPos = ImGui::GetCursorPos();
-    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
-    if(ImGui::Button("##multiplayer", ImVec2(mainMenuButtonsWidth, 36))) {
-        state = 2;
-    }
-    ImGui::PopStyleVar();
-    ImGui::SetCursorPos(ImVec2(selPos.x + mainMenuButtonsWidth / 2 - ImGui::CalcTextSize("Multiplayer").x / 2, selPos.y));
-    ImGui::Text("Multiplayer");
-    ImGui::PopFont();
-
     ImGui::PopItemFlag();
     ImGui::PopStyleVar();
 
