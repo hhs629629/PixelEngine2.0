@@ -1,4 +1,0 @@
-# ignore libraries when calculating languages
-PixelEngine/lib/**/* linguist-vendored
-PixelEngine/assets/**/* linguist-vendored
-PixelEngine/*.h linguist-language=cpp
