@@ -13,6 +13,9 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Materials">
+      <UniqueIdentifier>{f4d878fe-5ce4-4093-981f-12cf1c3b98e9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -50,5 +53,10 @@
     <ClInclude Include="Game.hpp">
       <Filter>main</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\Materials.json">
+      <Filter>Materials</Filter>
+    </None>
   </ItemGroup>
 </Project>

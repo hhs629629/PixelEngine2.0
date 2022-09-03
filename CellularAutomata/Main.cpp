@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 	if (!success) game->gFailFlag++;
 	game->ErrorHandler();
 
-	SDL_Event e;
+	SDL_Event eventQueue;
 	SDL_Point cursor = {0, 0};
 	SDL_Point lastCursor = cursor;
 	Uint32 lastTick = 0;
@@ -44,16 +44,16 @@ int main(int argc, char **argv)
 		drawRadChanged = false;
 
 		// 유저 input
-		while(SDL_PollEvent(&e))
+		while(SDL_PollEvent(&eventQueue))
 		{
-			switch(e.type)
+			switch(eventQueue.type)
 			{
 			case SDL_QUIT:
 				quit = true;
 				break;
 
 			case SDL_KEYDOWN:
-				switch(e.key.keysym.sym)
+				switch(eventQueue.key.keysym.sym)
 				{
 				case SDLK_ESCAPE:
 					quit = true;
@@ -66,8 +66,8 @@ int main(int argc, char **argv)
 				break;
 
 			case SDL_MOUSEMOTION:
-				cursor.x = e.button.x;
-				cursor.y = e.button.y;
+				cursor.x = eventQueue.button.x;
+				cursor.y = eventQueue.button.y;
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 				break;
 
 			case SDL_MOUSEWHEEL:
-				drawRadius = std::clamp<Sint16>(drawRadius + e.wheel.y, MIN_DRAW_RADIUS, MAX_DRAW_RADIUS);
+				drawRadius = std::clamp<Sint16>(drawRadius + eventQueue.wheel.y, MIN_DRAW_RADIUS, MAX_DRAW_RADIUS);
 				drawRadChanged = true;
 				break;
 			}
@@ -151,10 +151,7 @@ int main(int argc, char **argv)
 
 		lastCursor = cursor;
 
-		//Calculate performance and limit program speed
 		Uint32 renderTime = SDL_GetTicks() - lastTick;
-		//std::cout << renderTime << "ms" << std::endl;
-
 		SDL_Delay(TICKS_PER_FRAME - std::min(renderTime, TICKS_PER_FRAME));
 		lastRenderTime = renderTime;
 		lastTick = SDL_GetTicks();

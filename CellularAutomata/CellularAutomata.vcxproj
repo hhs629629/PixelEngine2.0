@@ -93,6 +93,9 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Texture.hpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="res\Materials.json" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
