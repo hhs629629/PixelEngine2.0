@@ -4,6 +4,8 @@
 Game::Game()
 {
 	gFailFlag = 0;
+	*gTexture = { nullptr, };
+	
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) gFailFlag++;
 
 	gWindow = SDL_CreateWindow("Pixel Engine ver 0.0.0.1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);

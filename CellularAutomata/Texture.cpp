@@ -71,6 +71,10 @@ Texture::Texture(SDL_Renderer *_ren, bool &_success, SDL_Rect _rect, TTF_Font *_
 	SDL_QueryTexture(tex, nullptr, nullptr, &rect.w, &rect.h);
 }
 
+Texture::Texture()
+{
+}
+
 Texture::~Texture()
 {
 	if(tex) { SDL_DestroyTexture(tex); }
