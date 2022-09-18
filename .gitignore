@@ -1,5 +1,5 @@
-Bin/
-temp/
+Binary/
+Temp/
 .vs/
 *.ipch
 *.user
