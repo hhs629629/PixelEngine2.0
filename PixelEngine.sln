@@ -5,6 +5,8 @@ VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PixelEngine", "PixelEngine\PixelEngine.vcxproj", "{BC9397A8-280C-46A4-84FA-7D2739BF8722}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcxproj", "{507E02A5-01DC-43BE-B5BB-056869610446}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -15,6 +17,10 @@ Global
 		{BC9397A8-280C-46A4-84FA-7D2739BF8722}.Debug|x64.Build.0 = Debug|x64
 		{BC9397A8-280C-46A4-84FA-7D2739BF8722}.Release|x64.ActiveCfg = Release|x64
 		{BC9397A8-280C-46A4-84FA-7D2739BF8722}.Release|x64.Build.0 = Release|x64
+		{507E02A5-01DC-43BE-B5BB-056869610446}.Debug|x64.ActiveCfg = Release|x64
+		{507E02A5-01DC-43BE-B5BB-056869610446}.Debug|x64.Build.0 = Release|x64
+		{507E02A5-01DC-43BE-B5BB-056869610446}.Release|x64.ActiveCfg = Release|x64
+		{507E02A5-01DC-43BE-B5BB-056869610446}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

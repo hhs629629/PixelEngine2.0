@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\libs\imgui-1.88\imgui.cpp" />
+    <ClCompile Include="..\libs\imgui-1.88\imgui_demo.cpp" />
+    <ClCompile Include="..\libs\imgui-1.88\imgui_draw.cpp" />
+    <ClCompile Include="..\libs\imgui-1.88\imgui_tables.cpp" />
+    <ClCompile Include="..\libs\imgui-1.88\imgui_widgets.cpp" />
+    <ClCompile Include="..\libs\imgui-1.88\backends\imgui_impl_sdl.cpp" />
+    <ClCompile Include="..\libs\imgui-1.88\backends\imgui_impl_sdlrenderer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\libs\imgui-1.88\imstb_truetype.h" />
+    <ClInclude Include="..\libs\imgui-1.88\imconfig.h" />
+    <ClInclude Include="..\libs\imgui-1.88\imgui.h" />
+    <ClInclude Include="..\libs\imgui-1.88\imgui_internal.h" />
+    <ClInclude Include="..\libs\imgui-1.88\imstb_rectpack.h" />
+    <ClInclude Include="..\libs\imgui-1.88\imstb_textedit.h" />
+    <ClInclude Include="..\libs\imgui-1.88\backends\imgui_impl_sdl.h" />
+    <ClInclude Include="..\libs\imgui-1.88\backends\imgui_impl_sdlrenderer.h" />
+  </ItemGroup>
+</Project>
