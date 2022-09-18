@@ -2,22 +2,60 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="..\libs\imgui-1.88\imgui.cpp" />
-    <ClCompile Include="..\libs\imgui-1.88\imgui_demo.cpp" />
-    <ClCompile Include="..\libs\imgui-1.88\imgui_draw.cpp" />
-    <ClCompile Include="..\libs\imgui-1.88\imgui_tables.cpp" />
-    <ClCompile Include="..\libs\imgui-1.88\imgui_widgets.cpp" />
-    <ClCompile Include="..\libs\imgui-1.88\backends\imgui_impl_sdl.cpp" />
-    <ClCompile Include="..\libs\imgui-1.88\backends\imgui_impl_sdlrenderer.cpp" />
+    <ClCompile Include="..\libs\imgui-1.88\backends\imgui_impl_sdl.cpp">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\imgui-1.88\backends\imgui_impl_sdlrenderer.cpp">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\imgui-1.88\imgui.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\imgui-1.88\imgui_demo.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\imgui-1.88\imgui_draw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\imgui-1.88\imgui_tables.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\imgui-1.88\imgui_widgets.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\libs\imgui-1.88\imstb_truetype.h" />
-    <ClInclude Include="..\libs\imgui-1.88\imconfig.h" />
-    <ClInclude Include="..\libs\imgui-1.88\imgui.h" />
-    <ClInclude Include="..\libs\imgui-1.88\imgui_internal.h" />
-    <ClInclude Include="..\libs\imgui-1.88\imstb_rectpack.h" />
-    <ClInclude Include="..\libs\imgui-1.88\imstb_textedit.h" />
-    <ClInclude Include="..\libs\imgui-1.88\backends\imgui_impl_sdl.h" />
-    <ClInclude Include="..\libs\imgui-1.88\backends\imgui_impl_sdlrenderer.h" />
+    <ClInclude Include="..\libs\imgui-1.88\backends\imgui_impl_sdl.h">
+      <Filter>backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libs\imgui-1.88\backends\imgui_impl_sdlrenderer.h">
+      <Filter>backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libs\imgui-1.88\imconfig.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libs\imgui-1.88\imgui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libs\imgui-1.88\imgui_internal.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libs\imgui-1.88\imstb_rectpack.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libs\imgui-1.88\imstb_textedit.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libs\imgui-1.88\imstb_truetype.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="backends">
+      <UniqueIdentifier>{d5dbb55b-2ffc-43c0-bcc3-2ae28f702861}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{ebaa9ed0-7b32-4078-9d44-ce6907ea0a5b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>
