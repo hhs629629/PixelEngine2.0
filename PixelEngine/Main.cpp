@@ -68,8 +68,9 @@ int main(int argc, char **argv)
 		ImGui::NewFrame();
 
 		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-		if (show_demo_window)
-			ImGui::ShowDemoWindow(&show_demo_window);
+		//if (show_demo_window)
+		//	ImGui::ShowDemoWindow(&show_demo_window);
+
 		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 		{
 			static float f = 0.0f;
@@ -216,7 +217,6 @@ int main(int argc, char **argv)
 
 
 		ImGui::Render();
-		SDL_SetRenderDrawColor(game->gRenderer, (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
 		ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
 
 		SDL_RenderPresent(game->gRenderer);
