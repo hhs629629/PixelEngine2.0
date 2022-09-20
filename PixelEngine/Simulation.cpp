@@ -30,6 +30,7 @@ Simulation::Simulation(int _width, int _height, Uint32 _pixelFormat)
 
 	updatedCells = new boost::dynamic_bitset<Uint64>(size);
 
+	// Material.json parsing
 	boost::property_tree::ptree root;
 	boost::property_tree::read_json(MATERIAL_FILE_PATH, root);
 	for(auto it = root.begin(); it != root.end(); ++it)

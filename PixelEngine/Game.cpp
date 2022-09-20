@@ -40,7 +40,6 @@ Game::~Game()
 	ImGui::DestroyContext();
 }
 
-// 에러 발생시 failflag != 0
 void Game::ErrorHandler()
 {
 	if (gFailFlag != 0)

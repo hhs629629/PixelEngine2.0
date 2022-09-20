@@ -9,13 +9,11 @@ public:
 	void ErrorHandler();
 
 public:
-	Uint8 gFailFlag;
+	Uint8 gFailFlag; 
 	SDL_Window* gWindow;
 	SDL_Renderer* gRenderer;
 	TTF_Font* gFont;
 	Texture* gTexture;
-
-private:
 
 };
 

@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 	Uint32 lastRenderTime = 0;
 	Simulation::Material material = Simulation::Material::SAND;
 	Uint16 drawRadius = 15;
-	bool drawRadChanged;
+	bool drawRadiusChanged;
 	bool lmbPressed;
 	bool lmbHeld = false;
 	bool paused = false;
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 	{
 		// User input event processing
 		lmbPressed = false;
-		drawRadChanged = false;
+		drawRadiusChanged = false;
 		while(SDL_PollEvent(&eventQueue))
 		{
 			ImGui_ImplSDL2_ProcessEvent(&eventQueue);
@@ -68,9 +68,6 @@ int main(int argc, char **argv)
 					quit = true;
 					break;
 				
-				case SDLK_SPACE:
-					paused = !paused;
-					break;
 				}
 				break;
 
@@ -90,49 +87,20 @@ int main(int argc, char **argv)
 
 			case SDL_MOUSEWHEEL:
 				drawRadius = std::clamp<Sint16>(drawRadius + eventQueue.wheel.y, MIN_DRAW_RADIUS, MAX_DRAW_RADIUS);
-				drawRadChanged = true;
+				drawRadiusChanged = true;
 				break;
 			}
 		}
-
-		if(SDL_PointInRect(&cursor, &SIMULATION_RECT)) // 커서가 시뮬영역 안에 있을 경우
-		{
-
-			SDL_ShowCursor(SDL_ENABLE); 
-			if(lmbHeld) 
-			{ 
-				sim.setCellLine(cursor, lastCursor, drawRadius, material); 
-			}
+		SDL_ShowCursor(SDL_ENABLE); 
+		if(lmbHeld) 
+		{ 
+			sim.setCellLine(cursor, lastCursor, drawRadius, material); 
 		}
-		//else
-		//{
-		//	SDL_ShowCursor(SDL_ENABLE);
-		//	if(lmbPressed)
-		//	{
-		//		Uint8 clicked;
-		//		if(game->gTexture[static_cast<int>(TextureID::TOOLS_UI_TEXTURE)]->isButtonClicked(&cursor, clicked))
-		//		{
-		//			switch(static_cast<ToolButton>(clicked))
-		//			{
-		//			case ToolButton::PAUSE:
-		//				paused = !paused;
-		//				break;
 
-		//			case ToolButton::ERASE:
-		//				material = Simulation::Material::EMPTY;
-		//				break;
-
-		//			case ToolButton::RESET:
-		//				sim.reset();
-		//				break;
-		//			}
-		//		}
 		//		else if(game->gTexture[static_cast<int>(TextureID::MATERIALS_UI_TEXTURE)]->isButtonClicked(&cursor, clicked))
 		//		{
 		//			material = static_cast<Simulation::Material>(clicked + 1);
 		//		}
-		//	}
-		//}
 
 
 
@@ -141,12 +109,16 @@ int main(int argc, char **argv)
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
 
-		// Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+		// main ui
 		{
 			static float f = 0.0f;
 
-			ImGui::Begin("Materials");                      
-			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+			ImGui::Begin("Materials");      
+
+			ImGui::Text("Brush radius : ");
+			ImGui::SameLine();
+			ImGui::Text(std::to_string(drawRadius).c_str());
+
 			ImGui::Checkbox("Another Window", &show_another_window);
 
 			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
@@ -184,24 +156,24 @@ int main(int argc, char **argv)
 
 
 
-		// Rendering
-		SDL_SetRenderDrawColor(game->gRenderer, 0, 0, 0, 1); // background color
+		// ====Rendering====
+		// draw background
+		SDL_SetRenderDrawColor(game->gRenderer, 0, 0, 0, 1);
 		SDL_RenderClear(game->gRenderer);
 
-		if(SDL_GetTicks() % PERFORMANCE_POLL_RATE == 0 || drawRadChanged)
-		{
-			std::string text = "Brush radius : " + std::to_string(drawRadius);
-			game->gTexture->changeText(text);
-		}
+
 
 		game->gTexture->changeTexture(sim.getDrawBuffer(), SCREEN_WIDTH);
 		game->gTexture->renderTexture(); 
 
-		SDL_SetRenderDrawColor(game->gRenderer, 1, 1, 1, 1); // cursor color
+		// draw hollow circle cursor
+		SDL_SetRenderDrawColor(game->gRenderer, 255, 255, 255, 150);
 		Graphics::drawCircle(game->gRenderer, &cursor, &SIMULATION_RECT, drawRadius);
 
+		// draw ImGui window
 		ImGui::Render();
 		ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
+
 		SDL_RenderPresent(game->gRenderer);
 
 		lastCursor = cursor;

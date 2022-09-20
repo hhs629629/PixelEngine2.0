@@ -30,7 +30,7 @@ public:
 		NO_MATERIAL = 255
 	};
 
-	enum class Direction : Uint8
+	enum class Direction : Uint8 // pixel move direction
 	{
 		NORTH_WEST = 0,
 		NORTH,
@@ -49,7 +49,7 @@ public:
 	struct MaterialSpecs
 	{
 		std::string name;
-		HsvColor minColor, maxColor;
+		HsvColor minColor, maxColor; // random noise color range
 		Uint8 minSpeed, maxSpeed, density, deathChance;
 		Sint8 temperature;
 		bool solid, flaming, flammable, melting, meltable;
@@ -73,7 +73,7 @@ private:
 	Uint64 size;
 	SDL_PixelFormat *pixelFormat;
 	
-	std::mt19937 mt;
+	std::mt19937 mt; // random number generator
 	std::uniform_real_distribution<double> doubleDist;
 	std::uniform_int_distribution<int> xorSeedDist;
 
