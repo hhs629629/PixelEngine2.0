@@ -20,11 +20,14 @@ int main(int argc, char **argv)
 	SDL_Point lastCursor = cursor;
 	Uint32 lastTick = 0;
 	Uint32 lastRenderTime = 0;
-	Simulation::Material material = Simulation::Material::SAND;
-	Uint16 drawRadius = 15;
+	Simulation::Material materialStack = Simulation::Material::EMPTY; 
+	Simulation::Material material = Simulation::Material::SAND; // defualt material
+	Uint16 drawRadius = 15;										// default brush radius
 	bool drawRadiusChanged;
 	bool lmbPressed;
+	bool rmbPressed;
 	bool lmbHeld = false;
+	bool rmbHeld = false;
 	bool paused = false;
 	bool quit = false;
 
@@ -49,9 +52,7 @@ int main(int argc, char **argv)
 	// Main loop 
 	while(!quit)
 	{
-		// User input event processing
-		lmbPressed = false;
-		drawRadiusChanged = false;
+		// ====User input event processing====
 		while(SDL_PollEvent(&eventQueue))
 		{
 			ImGui_ImplSDL2_ProcessEvent(&eventQueue);
@@ -77,12 +78,23 @@ int main(int argc, char **argv)
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
-				lmbPressed = true;
-				lmbHeld = true;
+				switch (eventQueue.button.button)
+				{
+				case SDL_BUTTON_LEFT:
+					lmbPressed = true;
+					lmbHeld = true;
+					break;
+
+				case SDL_BUTTON_RIGHT:
+					rmbPressed = true;
+					rmbHeld = true;
+					break;
+				}
 				break;
 
 			case SDL_MOUSEBUTTONUP:
 				lmbHeld = false;
+				rmbHeld = false;
 				break;
 
 			case SDL_MOUSEWHEEL:
@@ -96,20 +108,21 @@ int main(int argc, char **argv)
 		{ 
 			sim.setCellLine(cursor, lastCursor, drawRadius, material); 
 		}
+		if (rmbHeld)
+		{
+			materialStack = material;
+			material = Simulation::Material::EMPTY;
+			sim.setCellLine(cursor, lastCursor, drawRadius, material);
+			material = materialStack; // 원상복귀
+		}
 
-		//		else if(game->gTexture[static_cast<int>(TextureID::MATERIALS_UI_TEXTURE)]->isButtonClicked(&cursor, clicked))
-		//		{
-		//			material = static_cast<Simulation::Material>(clicked + 1);
-		//		}
 
-
-
-		// Start the Dear ImGui frame
+		// ====Start the Dear ImGui frame====
 		ImGui_ImplSDLRenderer_NewFrame();
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
 
-		// main ui
+		// main gui
 		{
 			static float f = 0.0f;
 
@@ -129,12 +142,28 @@ int main(int argc, char **argv)
 			ImGui::SameLine();
 			if (ImGui::Button("Reset"))
 				sim.reset();
+
+			// select material button
+			if (ImGui::Button("Sand"))
+				material = Simulation::Material::SAND;
 			ImGui::SameLine();
-			if (ImGui::Button("Erase"))
-				material = Simulation::Material::EMPTY;
-
-			//if (ImGui::Button("water"))
-
+			if (ImGui::Button("Water"))
+				material = Simulation::Material::WATER;
+			ImGui::SameLine();
+			if (ImGui::Button("Fire"))
+				material = Simulation::Material::FIRE;
+			ImGui::SameLine();
+			if (ImGui::Button("Lava"))
+				material = Simulation::Material::LAVA;
+			ImGui::SameLine();
+			if (ImGui::Button("Rock"))
+				material = Simulation::Material::ROCK;
+			ImGui::SameLine();
+			if (ImGui::Button("Steam"))
+				material = Simulation::Material::STEAM;
+			ImGui::SameLine();
+			if (ImGui::Button("Wood"))
+				material = Simulation::Material::WOOD;
 
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::End();
@@ -151,7 +180,7 @@ int main(int argc, char **argv)
 
 
 
-		// Run simulation
+		// ====Run simulation====
 		if(!paused) sim.update();
 
 
@@ -161,8 +190,7 @@ int main(int argc, char **argv)
 		SDL_SetRenderDrawColor(game->gRenderer, 0, 0, 0, 1);
 		SDL_RenderClear(game->gRenderer);
 
-
-
+		// render cells
 		game->gTexture->changeTexture(sim.getDrawBuffer(), SCREEN_WIDTH);
 		game->gTexture->renderTexture(); 
 
@@ -176,7 +204,14 @@ int main(int argc, char **argv)
 
 		SDL_RenderPresent(game->gRenderer);
 
+
+		// ================
 		lastCursor = cursor;
+
+		lmbPressed = false;
+		rmbPressed = false;
+
+		drawRadiusChanged = false;
 
 		Uint32 renderTime = SDL_GetTicks() - lastTick;
 		SDL_Delay(TICKS_PER_FRAME - std::min(renderTime, TICKS_PER_FRAME));

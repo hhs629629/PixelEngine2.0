@@ -56,16 +56,3 @@ void Texture::changeTexture(Uint32 *_buffer, Uint32 _size)
 {
 	SDL_UpdateTexture(texture, nullptr, _buffer, _size * sizeof(Uint32));
 }
-
-void Texture::changeText(std::string _texturet)
-{
-	SDL_Surface *surf = TTF_RenderText_Solid(font, _texturet.c_str(), TEXT_COLOR);
-	SDL_Texture *tempTex = SDL_CreateTextureFromSurface(renderer, surf);
-	SDL_FreeSurface(surf);
-	if(tempTex)
-	{
-		if(texture) { SDL_DestroyTexture(texture); }
-		texture = tempTex;
-		SDL_QueryTexture(texture, nullptr, nullptr, &rect.w, &rect.h);
-	}
-}

@@ -19,15 +19,9 @@ public:
 		WATER,
 		FIRE,
 		LAVA,
-		OIL,
-		ICE,
-		GAS,
 		STEAM,
-		GRAVEL,
 		WOOD,
-		PLASMA,
 		TOTAL_MATERIALS,
-		NO_MATERIAL = 255
 	};
 
 	enum class Direction : Uint8 // pixel move direction

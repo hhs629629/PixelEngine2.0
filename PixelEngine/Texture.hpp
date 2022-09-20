@@ -12,7 +12,6 @@ public:
 
 	void renderTexture();
 	void changeTexture(Uint32 *_buffer, Uint32 _size);
-	void changeText(std::string _text);
 
 private:
 	SDL_Renderer *renderer;
