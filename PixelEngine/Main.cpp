@@ -132,7 +132,7 @@ int main(int argc, char **argv)
 			ImGui::SameLine();
 			ImGui::Text(std::to_string(drawRadius).c_str());
 
-			ImGui::Checkbox("Another Window", &show_another_window);
+			ImGui::Checkbox("Help", &show_another_window);
 
 			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
@@ -171,9 +171,10 @@ int main(int argc, char **argv)
 
 		if (show_another_window)
 		{
-			ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-			ImGui::Text("Hello from another window!");
-			if (ImGui::Button("Close Me"))
+			ImGui::Begin("Help", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+			ImGui::Text("Erase : Right click");
+
+			if (ImGui::Button("Close"))
 				show_another_window = false;
 			ImGui::End();
 		}
