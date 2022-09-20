@@ -6,21 +6,12 @@ int main(int argc, char **argv)
 	Game* game = new Game();
 	game->ErrorHandler();
 
-	Simulation sim(SIMULATION_WIDTH, SIMULATION_HEIGHT, PIXEL_FORMAT);
+	Simulation sim(SCREEN_WIDTH, SCREEN_HEIGHT, PIXEL_FORMAT);
 
 	bool success = true;
 
-	game->gTexture[static_cast<int>(TextureID::SIMULATION_TEXTURE)] = new Texture(game->gRenderer, success, SIMULATION_RECT);
-	game->gTexture[static_cast<int>(TextureID::INFO_UI_TEXTURE)] = new Texture(game->gRenderer, SIMULATION_WIDTH
-		+ UI_HORIZONTAL_MARGIN, UI_VERTICAL_MARGIN[static_cast<int>(TextureID::INFO_UI_TEXTURE)], game->gFont);
+	game->gTexture = new Texture(game->gRenderer, success, SIMULATION_RECT);
 
-	SDL_Rect rect = { SIMULATION_WIDTH + UI_HORIZONTAL_MARGIN, UI_VERTICAL_MARGIN[static_cast<int>(TextureID::TOOLS_UI_TEXTURE)],
-		SCREEN_WIDTH - SIMULATION_WIDTH - UI_HORIZONTAL_MARGIN * 2, 0 };
-
-	game->gTexture[static_cast<int>(TextureID::TOOLS_UI_TEXTURE)] = new Texture(game->gRenderer, success, rect, game->gFont, "Pause Erase Reset ");
-	rect.y = UI_VERTICAL_MARGIN[static_cast<int>(TextureID::MATERIALS_UI_TEXTURE)];
-	game->gTexture[static_cast<int>(TextureID::MATERIALS_UI_TEXTURE)] = new Texture(game->gRenderer, success, rect, game->gFont, sim.getMaterialString());
-	
 	if (!success) game->gFailFlag++;
 	game->ErrorHandler();
 
@@ -29,14 +20,16 @@ int main(int argc, char **argv)
 	SDL_Point lastCursor = cursor;
 	Uint32 lastTick = 0;
 	Uint32 lastRenderTime = 0;
-	Simulation::Material material = Simulation::Material::SAND;
-	Uint16 drawRadius = 15;
-	bool drawRadChanged;
+	Simulation::Material materialStack = Simulation::Material::EMPTY; 
+	Simulation::Material material = Simulation::Material::SAND; // defualt material
+	Uint16 drawRadius = 15;										// default brush radius
+	bool drawRadiusChanged;
 	bool lmbPressed;
+	bool rmbPressed;
 	bool lmbHeld = false;
+	bool rmbHeld = false;
 	bool paused = false;
 	bool quit = false;
-
 
 #pragma region Imgui setup
 	// Setup Dear ImGui context
@@ -46,71 +39,23 @@ int main(int argc, char **argv)
 
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
-	//ImGui::StyleColorsClassic();
 
 	// Setup Platform/Renderer backends
 	ImGui_ImplSDL2_InitForSDLRenderer(game->gWindow, game->gRenderer);
 	ImGui_ImplSDLRenderer_Init(game->gRenderer);
 
 	// Our state
-	bool show_demo_window = true;
 	bool show_another_window = false;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 #pragma endregion
 
-
 	// Main loop 
 	while(!quit)
 	{
-		// Start the Dear ImGui frame
-		ImGui_ImplSDLRenderer_NewFrame();
-		ImGui_ImplSDL2_NewFrame();
-		ImGui::NewFrame();
-
-		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-		//if (show_demo_window)
-		//	ImGui::ShowDemoWindow(&show_demo_window);
-
-		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-		{
-			static float f = 0.0f;
-			static int counter = 0;
-
-			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-			ImGui::Checkbox("Another Window", &show_another_window);
-
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-			if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-				counter++;
-			ImGui::SameLine();
-			ImGui::Text("counter = %d", counter);
-
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-			ImGui::End();
-		}
-
-		// 3. Show another simple window.
-		if (show_another_window)
-		{
-			ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-			ImGui::Text("Hello from another window!");
-			if (ImGui::Button("Close Me"))
-				show_another_window = false;
-			ImGui::End();
-		}
-
-
-		lmbPressed = false;
-		drawRadChanged = false;
-
-		// User input
+		// ====User input event processing====
 		while(SDL_PollEvent(&eventQueue))
 		{
+			ImGui_ImplSDL2_ProcessEvent(&eventQueue);
 			switch(eventQueue.type)
 			{
 			case SDL_QUIT:
@@ -124,9 +69,6 @@ int main(int argc, char **argv)
 					quit = true;
 					break;
 				
-				case SDLK_SPACE:
-					paused = !paused;
-					break;
 				}
 				break;
 
@@ -136,95 +78,140 @@ int main(int argc, char **argv)
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
-				lmbPressed = true;
-				lmbHeld = true;
+				switch (eventQueue.button.button)
+				{
+				case SDL_BUTTON_LEFT:
+					lmbPressed = true;
+					lmbHeld = true;
+					break;
+
+				case SDL_BUTTON_RIGHT:
+					rmbPressed = true;
+					rmbHeld = true;
+					break;
+				}
 				break;
 
 			case SDL_MOUSEBUTTONUP:
 				lmbHeld = false;
+				rmbHeld = false;
 				break;
 
 			case SDL_MOUSEWHEEL:
 				drawRadius = std::clamp<Sint16>(drawRadius + eventQueue.wheel.y, MIN_DRAW_RADIUS, MAX_DRAW_RADIUS);
-				drawRadChanged = true;
+				drawRadiusChanged = true;
 				break;
 			}
 		}
-
-		if(SDL_PointInRect(&cursor, &SIMULATION_RECT)) // 커서가 시뮬영역 안에 있을 경우
-		{
-
-			SDL_ShowCursor(SDL_DISABLE); 
-			if(lmbHeld) 
-			{ 
-				sim.setCellLine(cursor, lastCursor, drawRadius, material); 
-			}
+		SDL_ShowCursor(SDL_ENABLE); 
+		if(lmbHeld) 
+		{ 
+			sim.setCellLine(cursor, lastCursor, drawRadius, material); 
 		}
-		else
+		if (rmbHeld)
 		{
-			SDL_ShowCursor(SDL_ENABLE);
-			if(lmbPressed)
-			{
-				Uint8 clicked;
-				if(game->gTexture[static_cast<int>(TextureID::TOOLS_UI_TEXTURE)]->isButtonClicked(&cursor, clicked))
-				{
-					switch(static_cast<ToolButton>(clicked))
-					{
-					case ToolButton::PAUSE:
-						paused = !paused;
-						break;
-
-					case ToolButton::ERASE:
-						material = Simulation::Material::EMPTY;
-						break;
-
-					case ToolButton::RESET:
-						sim.reset();
-						break;
-					}
-				}
-				else if(game->gTexture[static_cast<int>(TextureID::MATERIALS_UI_TEXTURE)]->isButtonClicked(&cursor, clicked))
-				{
-					material = static_cast<Simulation::Material>(clicked + 1);
-				}
-			}
+			materialStack = material;
+			material = Simulation::Material::EMPTY;
+			sim.setCellLine(cursor, lastCursor, drawRadius, material);
+			material = materialStack; // 원상복귀
 		}
 
-		
 
-		// Simulate once
+		// ====Start the Dear ImGui frame====
+		ImGui_ImplSDLRenderer_NewFrame();
+		ImGui_ImplSDL2_NewFrame();
+		ImGui::NewFrame();
+
+		// main gui
+		{
+			static float f = 0.0f;
+
+			ImGui::Begin("Materials");      
+
+			ImGui::Text("Brush radius : ");
+			ImGui::SameLine();
+			ImGui::Text(std::to_string(drawRadius).c_str());
+
+			ImGui::Checkbox("Another Window", &show_another_window);
+
+			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+			if (ImGui::Button("Pause"))                         
+				paused = !paused;
+			ImGui::SameLine();
+			if (ImGui::Button("Reset"))
+				sim.reset();
+
+			// select material button
+			if (ImGui::Button("Sand"))
+				material = Simulation::Material::SAND;
+			ImGui::SameLine();
+			if (ImGui::Button("Water"))
+				material = Simulation::Material::WATER;
+			ImGui::SameLine();
+			if (ImGui::Button("Fire"))
+				material = Simulation::Material::FIRE;
+			ImGui::SameLine();
+			if (ImGui::Button("Lava"))
+				material = Simulation::Material::LAVA;
+			ImGui::SameLine();
+			if (ImGui::Button("Rock"))
+				material = Simulation::Material::ROCK;
+			ImGui::SameLine();
+			if (ImGui::Button("Steam"))
+				material = Simulation::Material::STEAM;
+			ImGui::SameLine();
+			if (ImGui::Button("Wood"))
+				material = Simulation::Material::WOOD;
+
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			ImGui::End();
+		}
+
+		if (show_another_window)
+		{
+			ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+			ImGui::Text("Hello from another window!");
+			if (ImGui::Button("Close Me"))
+				show_another_window = false;
+			ImGui::End();
+		}
+
+
+
+		// ====Run simulation====
 		if(!paused) sim.update();
 
 
-		// Rendering
-		Graphics::setRenderColor(game->gRenderer, &UI_PANEL_COLOR);
+
+		// ====Rendering====
+		// draw background
+		SDL_SetRenderDrawColor(game->gRenderer, 0, 0, 0, 1);
 		SDL_RenderClear(game->gRenderer);
 
-		if(SDL_GetTicks() % PERFORMANCE_POLL_RATE == 0 || drawRadChanged)
-		{
-			std::string text = std::to_string(std::min(1000 / std::max<Uint32>(lastRenderTime, 1), SCREEN_FPS)) + "fps      Brush radius: " + std::to_string(drawRadius);
-			game->gTexture[static_cast<int>(TextureID::INFO_UI_TEXTURE)]->changeText(text);
-		}
+		// render cells
+		game->gTexture->changeTexture(sim.getDrawBuffer(), SCREEN_WIDTH);
+		game->gTexture->renderTexture(); 
 
-		game->gTexture[static_cast<int>(TextureID::SIMULATION_TEXTURE)]->changeTexture(sim.getDrawBuffer(), SIMULATION_WIDTH);
-		for(int i = 0; i < static_cast<int>(TextureID::TOTAL_TEXTURES); ++i) 
-		{ 
-			game->gTexture[i]->renderTexture(); 
-		}
-
-		Graphics::setRenderColor(game->gRenderer, &CURSOR_COLOR); // = 흰색
+		// draw hollow circle cursor
+		SDL_SetRenderDrawColor(game->gRenderer, 255, 255, 255, 150);
 		Graphics::drawCircle(game->gRenderer, &cursor, &SIMULATION_RECT, drawRadius);
 
-
+		// draw ImGui window
 		ImGui::Render();
 		ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
 
 		SDL_RenderPresent(game->gRenderer);
 
 
-
-
+		// ================
 		lastCursor = cursor;
+
+		lmbPressed = false;
+		rmbPressed = false;
+
+		drawRadiusChanged = false;
 
 		Uint32 renderTime = SDL_GetTicks() - lastTick;
 		SDL_Delay(TICKS_PER_FRAME - std::min(renderTime, TICKS_PER_FRAME));

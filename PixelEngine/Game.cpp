@@ -4,7 +4,7 @@
 Game::Game()
 {
 	gFailFlag = 0;
-	*gTexture = { nullptr, };
+	gTexture = nullptr;
 	
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) gFailFlag++;
 
@@ -30,18 +30,14 @@ Game::~Game()
 	TTF_CloseFont(gFont);
 	gFont = nullptr;
 
-	if (gTexture) 
-	{ 
-		for (int i = 0; i < static_cast<int>(TextureID::TOTAL_TEXTURES); ++i) 
-		{ 
-			if (gTexture[i]) {
-				delete gTexture[i]; 
-			} 
-		} 
-	}
+	delete gTexture;
 
 	TTF_Quit();
 	SDL_Quit();
+
+	ImGui_ImplSDLRenderer_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
+	ImGui::DestroyContext();
 }
 
 void Game::ErrorHandler()

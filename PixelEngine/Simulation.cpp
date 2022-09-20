@@ -30,7 +30,7 @@ Simulation::Simulation(int _width, int _height, Uint32 _pixelFormat)
 
 	updatedCells = new boost::dynamic_bitset<Uint64>(size);
 
-
+	// Material.json parsing
 	boost::property_tree::ptree root;
 	boost::property_tree::read_json(MATERIAL_FILE_PATH, root);
 	for(auto it = root.begin(); it != root.end(); ++it)
@@ -160,15 +160,6 @@ void Simulation::update()
 							{
 								setCell(index, Material::STEAM);
 								destroyed = true;
-
-								if(computeBuffer[newIndex] == Material::LAVA && preGenRandRange(0, 1) == 0) 
-								{ 
-									setCell(newIndex, Material::GRAVEL); 
-								}
-								else
-								{
-									setCell(newIndex, Material::EMPTY);
-								}
 
 								break;
 							}
