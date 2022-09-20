@@ -2,11 +2,6 @@
 #include "Graphics.hpp"
 #include <algorithm>
 
-void Graphics::setRenderColor(SDL_Renderer *_ren, const SDL_Color *_col)
-{
-	SDL_SetRenderDrawColor(_ren, _col->r, _col->g, _col->b, _col->a);
-}
-
 // Midpoint Circle 알고리즘
 void Graphics::drawCircle(SDL_Renderer *_ren, const SDL_Point *_center, const SDL_Rect *_bounds, Uint16 _rad)
 {

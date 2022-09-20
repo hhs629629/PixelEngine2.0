@@ -10,7 +10,6 @@ const Uint16 RAND_BATCH_SIZE = 4000;
 
 class Simulation
 {
-
 public:
 	enum class Material : Uint8
 	{

@@ -22,18 +22,9 @@
 #include "Texture.hpp"
 
 // main globals
-enum class ToolButton : Uint8 {
-	PAUSE = 0,
-	ERASE,
-	RESET,
-	TOTAL_BUTTONS
-};
-
 const Uint32 SCREEN_WIDTH = 1200;
 const Uint32 SCREEN_HEIGHT = 800;
-const Uint32 SIMULATION_WIDTH = 800;
-const Uint32 SIMULATION_HEIGHT = 800;
-const SDL_Rect SIMULATION_RECT = { 0, 0, SIMULATION_WIDTH, SIMULATION_HEIGHT };
+const SDL_Rect SIMULATION_RECT = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 
 const Uint32 SCREEN_FPS = 60;
 const Uint32 TICKS_PER_FRAME = 1000/SCREEN_FPS;
