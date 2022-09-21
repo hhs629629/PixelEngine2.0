@@ -9,11 +9,8 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="ImGui">
+    <Filter Include="Utils\ImGui">
       <UniqueIdentifier>{05d6fd16-0382-4386-a411-b4eb6fb778e2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ImGui\backends">
-      <UniqueIdentifier>{78a47f6e-6259-4388-b297-2cde62199986}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -33,26 +30,26 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="..\libs\imgui-1.88\imgui.cpp">
-      <Filter>ImGui</Filter>
+    <ClCompile Include="imgui.cpp">
+      <Filter>Utils\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="..\libs\imgui-1.88\imgui_demo.cpp">
-      <Filter>ImGui</Filter>
+    <ClCompile Include="imgui_demo.cpp">
+      <Filter>Utils\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="..\libs\imgui-1.88\imgui_draw.cpp">
-      <Filter>ImGui</Filter>
+    <ClCompile Include="imgui_draw.cpp">
+      <Filter>Utils\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="..\libs\imgui-1.88\imgui_tables.cpp">
-      <Filter>ImGui</Filter>
+    <ClCompile Include="imgui_impl_sdl.cpp">
+      <Filter>Utils\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="..\libs\imgui-1.88\imgui_widgets.cpp">
-      <Filter>ImGui</Filter>
+    <ClCompile Include="imgui_impl_sdlrenderer.cpp">
+      <Filter>Utils\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="..\libs\imgui-1.88\backends\imgui_impl_sdl.cpp">
-      <Filter>ImGui\backends</Filter>
+    <ClCompile Include="imgui_tables.cpp">
+      <Filter>Utils\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="..\libs\imgui-1.88\backends\imgui_impl_sdlrenderer.cpp">
-      <Filter>ImGui\backends</Filter>
+    <ClCompile Include="imgui_widgets.cpp">
+      <Filter>Utils\ImGui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -71,29 +68,29 @@
     <ClInclude Include="Texture.hpp">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="..\libs\imgui-1.88\imconfig.h">
-      <Filter>ImGui</Filter>
+    <ClInclude Include="imconfig.h">
+      <Filter>Utils\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="..\libs\imgui-1.88\imgui.h">
-      <Filter>ImGui</Filter>
+    <ClInclude Include="imgui.h">
+      <Filter>Utils\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="..\libs\imgui-1.88\imgui_internal.h">
-      <Filter>ImGui</Filter>
+    <ClInclude Include="imgui_impl_sdl.h">
+      <Filter>Utils\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="..\libs\imgui-1.88\imstb_rectpack.h">
-      <Filter>ImGui</Filter>
+    <ClInclude Include="imgui_impl_sdlrenderer.h">
+      <Filter>Utils\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="..\libs\imgui-1.88\imstb_textedit.h">
-      <Filter>ImGui</Filter>
+    <ClInclude Include="imgui_internal.h">
+      <Filter>Utils\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="..\libs\imgui-1.88\imstb_truetype.h">
-      <Filter>ImGui</Filter>
+    <ClInclude Include="imstb_rectpack.h">
+      <Filter>Utils\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="..\libs\imgui-1.88\backends\imgui_impl_sdl.h">
-      <Filter>ImGui\backends</Filter>
+    <ClInclude Include="imstb_textedit.h">
+      <Filter>Utils\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="..\libs\imgui-1.88\backends\imgui_impl_sdlrenderer.h">
-      <Filter>ImGui\backends</Filter>
+    <ClInclude Include="imstb_truetype.h">
+      <Filter>Utils\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

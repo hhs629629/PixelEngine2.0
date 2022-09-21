@@ -48,14 +48,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)libs\SDL2-2.23.1\include\;$(SolutionDir)libs\SDL2_ttf-2.20.0\include\;$(SolutionDir)libs\SDL2_image-2.6.1\include\;$(SolutionDir)libs\;$(SolutionDir)libs\imgui-1.88\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)libs\SDL2-2.23.1\lib\x64\;$(SolutionDir)libs\SDL2_ttf-2.20.0\lib\x64\;$(SolutionDir)libs\SDL2_image-2.6.1\lib\x64\;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)Binary\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Temp\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)@@Binary\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)@@Temp\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)libs\SDL2-2.23.1\include\;$(SolutionDir)libs\SDL2_ttf-2.20.0\include\;$(SolutionDir)libs\SDL2_image-2.6.1\include\;$(SolutionDir)libs\;$(SolutionDir)libs\imgui-1.88\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)libs\SDL2-2.23.1\lib\x64\;$(SolutionDir)libs\SDL2_ttf-2.20.0\lib\x64\;$(SolutionDir)libs\SDL2_image-2.6.1\lib\x64\;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)Binary\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Temp\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)@@Binary\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)@@Temp\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -64,7 +64,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -80,7 +80,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -90,34 +90,34 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\libs\imgui-1.88\backends\imgui_impl_sdl.cpp" />
-    <ClCompile Include="..\libs\imgui-1.88\backends\imgui_impl_sdlrenderer.cpp" />
-    <ClCompile Include="..\libs\imgui-1.88\imgui.cpp" />
-    <ClCompile Include="..\libs\imgui-1.88\imgui_demo.cpp" />
-    <ClCompile Include="..\libs\imgui-1.88\imgui_draw.cpp" />
-    <ClCompile Include="..\libs\imgui-1.88\imgui_tables.cpp" />
-    <ClCompile Include="..\libs\imgui-1.88\imgui_widgets.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="imgui.cpp" />
+    <ClCompile Include="imgui_demo.cpp" />
+    <ClCompile Include="imgui_draw.cpp" />
+    <ClCompile Include="imgui_impl_sdl.cpp" />
+    <ClCompile Include="imgui_impl_sdlrenderer.cpp" />
+    <ClCompile Include="imgui_tables.cpp" />
+    <ClCompile Include="imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Simulation.cpp" />
     <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\libs\imgui-1.88\backends\imgui_impl_sdl.h" />
-    <ClInclude Include="..\libs\imgui-1.88\backends\imgui_impl_sdlrenderer.h" />
-    <ClInclude Include="..\libs\imgui-1.88\imconfig.h" />
-    <ClInclude Include="..\libs\imgui-1.88\imgui.h" />
-    <ClInclude Include="..\libs\imgui-1.88\imgui_internal.h" />
-    <ClInclude Include="..\libs\imgui-1.88\imstb_rectpack.h" />
-    <ClInclude Include="..\libs\imgui-1.88\imstb_textedit.h" />
-    <ClInclude Include="..\libs\imgui-1.88\imstb_truetype.h" />
     <ClInclude Include="Game.hpp" />
     <ClInclude Include="Graphics.hpp" />
+    <ClInclude Include="imconfig.h" />
+    <ClInclude Include="imgui.h" />
+    <ClInclude Include="imgui_impl_sdl.h" />
+    <ClInclude Include="imgui_impl_sdlrenderer.h" />
+    <ClInclude Include="imgui_internal.h" />
+    <ClInclude Include="imstb_rectpack.h" />
+    <ClInclude Include="imstb_textedit.h" />
+    <ClInclude Include="imstb_truetype.h" />
     <ClInclude Include="Simulation.hpp" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Texture.hpp" />

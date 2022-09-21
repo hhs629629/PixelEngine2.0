@@ -51,7 +51,7 @@ public:
 		Direction behavior[MAX_BEHAVIOR_SETS][MAX_BEHAVIORS_PER_SET];
 	};
 
-	Simulation(int _width, int _height, Uint32 _pixelFormat);
+	Simulation(Uint64 _width, Uint64 _height, Uint32 _pixelFormat);
 	~Simulation();
 
 	Uint32 *getDrawBuffer() const { return drawBuffer; };
@@ -63,8 +63,7 @@ public:
 	void setCellLine(SDL_Point _start, SDL_Point _end, Uint16 _rad, Material _mat);
 
 private:
-	Uint16 width, height;
-	Uint64 size;
+	Uint64 size, width, height;
 	SDL_PixelFormat *pixelFormat;
 	
 	std::mt19937 mt; // random number generator

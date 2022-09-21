@@ -28,12 +28,11 @@ const SDL_Rect SIMULATION_RECT = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 
 const Uint32 SCREEN_FPS = 60;
 const Uint32 TICKS_PER_FRAME = 1000/SCREEN_FPS;
-
 const Uint32 PERFORMANCE_POLL_RATE = 15;
 
 const std::string FONT_FILE_PATH = "../res/NanumGothic.ttf";
 
-const Uint16 MIN_DRAW_RADIUS = 3;
+const Uint16 MIN_DRAW_RADIUS = 3; // brush default radius
 const Uint16 MAX_DRAW_RADIUS = 75;
 
 // Simulation globals

@@ -34,19 +34,6 @@ Texture::~Texture()
 	if(button) { delete[] button; }
 }
 
-bool Texture::isButtonClicked(const SDL_Point* _pos, Uint8& _button) const
-{
-	for(int i = 0; i < buttonCount; ++i)
-	{
-		if(SDL_PointInRect(_pos, &button[i]))
-		{
-			_button = i;
-			return true;
-		}
-	}
-	return false;
-}
-
 void Texture::renderTexture()
 {
 	if(texture) { SDL_RenderCopy(renderer, texture, nullptr, &rect); }

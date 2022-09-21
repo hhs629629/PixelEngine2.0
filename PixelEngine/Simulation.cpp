@@ -3,15 +3,15 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-Simulation::Simulation(int _width, int _height, Uint32 _pixelFormat)
+Simulation::Simulation(Uint64 _width, Uint64 _height, Uint32 _pixelFormat)
 {
 	width	= _width;
 	height	= _height;
-	size	= static_cast<Uint64>(_width) * static_cast<Uint64>(_height);
+	size	= _width * _height;
 
 	pixelFormat = SDL_AllocFormat(_pixelFormat);
 
-	mt = std::mt19937(std::time(0)); 
+	mt = std::mt19937(std::time(0)); // random number generator
 	std::uniform_real_distribution<double> doubleDist(0.0, 1.0); 
 	std::uniform_int_distribution<int> xorSeedDist(100'000'000);
 
