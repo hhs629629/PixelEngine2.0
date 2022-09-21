@@ -80,12 +80,12 @@ int main(int argc, char **argv)
 			case SDL_MOUSEBUTTONDOWN:
 				switch (eventQueue.button.button)
 				{
-				case SDL_BUTTON_LEFT:
+				case SDL_BUTTON_LEFT: // left click
 					lmbPressed = true;
 					lmbHeld = true;
 					break;
 
-				case SDL_BUTTON_RIGHT:
+				case SDL_BUTTON_RIGHT: // right click
 					rmbPressed = true;
 					rmbHeld = true;
 					break;
